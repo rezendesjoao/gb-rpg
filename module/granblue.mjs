@@ -10,10 +10,12 @@ import { GranblueCharacter } from './data/actor-character.mjs';
 import { GranblueAdversary } from './data/actor-adversary.mjs';
 import { GranblueClass } from './data/item-class.mjs';
 import { GranblueHeritage } from './data/item-heritage.mjs';
+import { GranblueSpell } from './data/item-spell.mjs';
 import { GranblueCharacterSheet } from './sheets/actor-character-sheet.mjs';
 import { GranblueAdversarySheet } from './sheets/actor-adversary-sheet.mjs';
 import { GranblueClassSheet } from './sheets/item-class-sheet.mjs';
 import { GranblueHeritageSheet } from './sheets/item-heritage-sheet.mjs';
+import { GranblueSpellSheet } from './sheets/item-spell-sheet.mjs';
 
 /* -------------------------------------------- */
 /*  Init                                        */
@@ -39,6 +41,7 @@ Hooks.once('init', () => {
     CONFIG.Actor.dataModels.adversary = GranblueAdversary;
     CONFIG.Item.dataModels.class = GranblueClass;
     CONFIG.Item.dataModels.heritage = GranblueHeritage;
+    CONFIG.Item.dataModels.spell = GranblueSpell;
 
     // Barra de recursos / iniciativa
     CONFIG.Combat.initiative = { formula: '3d6 + @attributes.reacao.total', decimals: 0 };
@@ -66,6 +69,11 @@ Hooks.once('init', () => {
         types: ['heritage'],
         makeDefault: true,
         label: 'GRANBLUE.SheetLabels.heritage'
+    });
+    Items.registerSheet('granblue', GranblueSpellSheet, {
+        types: ['spell'],
+        makeDefault: true,
+        label: 'GRANBLUE.SheetLabels.spell'
     });
 
     // Pré-carrega o template do cartão de chat

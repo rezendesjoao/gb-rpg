@@ -3,11 +3,13 @@
     "TYPES.Actor.adversary": "Adversário",
     "TYPES.Item.class": "Classe",
     "TYPES.Item.heritage": "Herança",
+    "TYPES.Item.spell": "Magia",
 
     "GRANBLUE.SheetLabels.character": "Ficha de Personagem Granblue",
     "GRANBLUE.SheetLabels.adversary": "Ficha de Adversário Granblue",
     "GRANBLUE.SheetLabels.class": "Ficha de Classe Granblue",
     "GRANBLUE.SheetLabels.heritage": "Ficha de Herança Granblue",
+    "GRANBLUE.SheetLabels.spell": "Ficha de Magia Granblue",
 
     "GRANBLUE.Heritage.effectName": "Bônus de Herança",
     "GRANBLUE.Class.effectName": "Vida da Classe",

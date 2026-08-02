@@ -1,0 +1,33 @@
+{{!-- Ficha do item Magia --}}
+<div class="gb-root gb-item">
+<header class="gb-header gb-header--item">
+    <img class="gb-portrait" src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}" title="Trocar imagem">
+    <div class="gb-identity">
+        <input class="gb-name" type="text" name="name" value="{{item.name}}" placeholder="Nome da magia">
+        <p class="gb-item-sub">Arraste para a ficha para criar a ação automaticamente.</p>
+    </div>
+</header>
+
+<div class="gb-tab active" data-tab-content="main">
+    <div class="gb-identity-grid gb-spell-grid">
+        <label class="gb-field"><span>Esfera</span><input type="text" name="system.sphere" value="{{system.sphere}}"></label>
+        <label class="gb-field"><span>Arcano</span><input type="text" name="system.arcano" value="{{system.arcano}}"></label>
+        <label class="gb-field gb-field--sm"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="9"></label>
+    </div>
+
+    <div class="gb-action-meta">
+        <label><span>Custo</span><input type="text" name="system.cost" value="{{system.cost}}"></label>
+        <label><span>Alcance</span><input type="text" name="system.range" value="{{system.range}}"></label>
+        <label><span>Conjuração</span><input type="text" name="system.casting" value="{{system.casting}}"></label>
+        <label><span>Dificuldade</span><input type="text" name="system.difficulty" value="{{system.difficulty}}"></label>
+    </div>
+
+    <div class="gb-action-formulas">
+        <label><span>Acerto</span><input type="text" name="system.hit" value="{{system.hit}}" placeholder="3d6 + @disciplina"></label>
+        <label><span>Dano / Cura</span><input type="text" name="system.damage" value="{{system.damage}}" placeholder="2d8 + @potencia"></label>
+    </div>
+
+    <label class="gb-bio"><span>Efeito</span><textarea name="system.effect">{{system.effect}}</textarea></label>
+    <label class="gb-bio"><span>Descrição / Frase</span><textarea name="system.description">{{system.description}}</textarea></label>
+</div>
+</div>

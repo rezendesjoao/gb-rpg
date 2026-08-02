@@ -8,3 +8,8 @@ node_modules/
 
 # Artefatos de empacotamento
 *.zip
+
+# Arquivos de runtime do LevelDB (recriados pelo Foundry)
+packs/*/LOCK
+packs/*/LOG
+packs/*/LOG.old

@@ -34,7 +34,43 @@
             "path": "lang/en.json"
         }
     ],
-    "packs": [],
+    "packs": [
+        {
+            "name": "classes",
+            "label": "Granblue — Classes",
+            "system": "granblue",
+            "path": "packs/classes",
+            "type": "Item",
+            "private": false,
+            "flags": {}
+        },
+        {
+            "name": "heritages",
+            "label": "Granblue — Heranças",
+            "system": "granblue",
+            "path": "packs/heritages",
+            "type": "Item",
+            "private": false,
+            "flags": {}
+        },
+        {
+            "name": "spells",
+            "label": "Granblue — Magias",
+            "system": "granblue",
+            "path": "packs/spells",
+            "type": "Item",
+            "private": false,
+            "flags": {}
+        }
+    ],
+    "packFolders": [
+        {
+            "name": "Granblue",
+            "sorting": "m",
+            "color": "#1b3a5b",
+            "packs": ["classes", "heritages", "spells"]
+        }
+    ],
     "socket": false,
     "initiative": "3d6 + @attributes.reacao.total",
     "grid": {
@@ -72,6 +108,12 @@
                 "htmlFields": [
                     "sharedTrait",
                     "weakness",
+                    "description"
+                ]
+            },
+            "spell": {
+                "htmlFields": [
+                    "effect",
                     "description"
                 ]
             }

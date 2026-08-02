@@ -89,6 +89,54 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         });
     }
 
+    /** Listeners de drop no root (uma vez só, para não acumular). */
+    _onFirstRender(context, options) {
+        super._onFirstRender?.(context, options);
+        const root = this.element;
+        if (!root) return;
+        root.addEventListener('dragover', (ev) => ev.preventDefault());
+        root.addEventListener('drop', (ev) => this.#onDropData(ev));
+    }
+
+    /* ---------------------------------- */
+    /*  Arrastar itens/magias para a ficha */
+    /* ---------------------------------- */
+
+    async #onDropData(event) {
+        const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+        if (data?.type !== 'Item') return;
+        event.preventDefault();
+        event.stopPropagation();
+        const item = await Item.implementation.fromDropData(data);
+        if (!item) return;
+
+        switch (item.type) {
+            case 'spell': return this.#dropSpell(item);
+            case 'class': return this.#replaceEmbedded('class', item);
+            case 'heritage': return this.#replaceEmbedded('heritage', item);
+            default:
+                await this.document.createEmbeddedDocuments('Item', [item.toObject()]);
+        }
+    }
+
+    /** Magia arrastada → vira uma ação na lista. */
+    async #dropSpell(item) {
+        const action = typeof item.system.toActionData === 'function'
+            ? item.system.toActionData()
+            : { name: item.name, collapsed: true };
+        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
+        actions.push(action);
+        await this.document.update({ 'system.actions': actions });
+        ui.notifications?.info(`Granblue: ação "${item.name}" adicionada.`);
+    }
+
+    /** Classe/Herança arrastada → substitui a existente e cria o item embutido. */
+    async #replaceEmbedded(type, item) {
+        const existing = this.document.items.filter((i) => i.type === type).map((i) => i.id);
+        if (existing.length) await this.document.deleteEmbeddedDocuments('Item', existing);
+        await this.document.createEmbeddedDocuments('Item', [item.toObject()]);
+    }
+
     /** Substitui o item de Classe do ator pelo preset escolhido. */
     async #setClass(origin) {
         const existing = this.document.items.filter((i) => i.type === 'class').map((i) => i.id);

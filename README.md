@@ -24,9 +24,16 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
   de atributo automaticamente; a Classe define a Energia Vital base e os dados de vida/dano.
   Basta escolher no seletor da ficha (presets das 15 classes e 8 heranças) — os itens e efeitos
   são criados sozinhos. Também é possível editá-los abrindo o item.
-- Rolagens de atributo (3d6) e de ações (fórmulas livres) com **cartão de chat** e escada de DCs.
+- Rolagens de atributo (3d6) e de ações com **cartão de chat** (mostra cada dado) e botões de **Dano/Cura** que aplicam no token selecionado.
+- **Ações colapsáveis**, com dado rápido (rola acerto+dano) e arrastáveis para a barra de macros.
 - Botão para rolar o **dado de vida** da classe.
 - Iniciativa `3d6 + Reação`. Status effects Granblue no HUD do token.
+
+### Compêndio (arraste para a ficha)
+Alguns itens já vêm prontos nos compêndios **Granblue** — arraste para a ficha do personagem:
+- **Classes:** Pugilista, Taumaturgo (define vida/dados e habilidades; aplica o Active Effect).
+- **Heranças:** Sage, Elven (aplica os bônus de atributo automaticamente).
+- **Magias (Energia/Persona):** arcanos **Arcana**, **Barreira**, **Cura** e **Espírito** (9 magias cada). Ao arrastar, viram uma **Ação** pronta na ficha (com acerto `3d6 + @disciplina` e dano/cura preenchidos).
 
 As ações (ataques/magias/manobras) são linhas livres na ficha: você digita a fórmula de
 acerto e dano usando atalhos como `@forca`, `@precisao`, `@sabedoria`, `@nivel`, `@ca`.
