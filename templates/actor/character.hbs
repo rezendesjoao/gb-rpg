@@ -1,0 +1,192 @@
+{{!-- Ficha de Personagem (Guerreiro Mágico) --}}
+<div class="gb-root">
+<header class="gb-header">
+    <img class="gb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" title="Trocar imagem">
+    <div class="gb-identity">
+        <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
+        <div class="gb-identity-grid">
+            <label class="gb-field">
+                <span>Classe</span>
+                <select name="system.classe">
+                    <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
+                    {{#each classGroups as |grp|}}
+                    <optgroup label="{{grp.label}}">
+                        {{#each grp.options as |o|}}
+                        <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                        {{/each}}
+                    </optgroup>
+                    {{/each}}
+                </select>
+            </label>
+            <label class="gb-field">
+                <span>Herança</span>
+                <select name="system.heranca">
+                    <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
+                    {{#each heritageOptions as |o|}}
+                    <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                    {{/each}}
+                </select>
+            </label>
+            <label class="gb-field">
+                <span>Rank</span>
+                <select name="system.rank">
+                    {{#each rankOptions as |o|}}
+                    <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                    {{/each}}
+                </select>
+            </label>
+            <label class="gb-field gb-field--sm">
+                <span>Nível</span>
+                <input type="number" name="system.level" value="{{system.level}}" min="0">
+            </label>
+        </div>
+    </div>
+    <div class="gb-header-stats">
+        <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus">
+            <span class="gb-badge-label">CA</span>
+            <span class="gb-badge-value">{{ca}}</span>
+        </div>
+        <label class="gb-field gb-field--sm">
+            <span>Mov</span>
+            <input type="text" name="system.movement" value="{{system.movement}}">
+        </label>
+        <label class="gb-field gb-field--sm">
+            <span>Visão</span>
+            <input type="text" name="system.vision" value="{{system.vision}}">
+        </label>
+    </div>
+</header>
+
+<nav class="gb-tabs">
+    <a data-tab-nav="principal"><i class="fa-solid fa-user"></i> Principal</a>
+    <a data-tab-nav="acoes"><i class="fa-solid fa-khanda"></i> Ações</a>
+    <a data-tab-nav="magia"><i class="fa-solid fa-wand-sparkles"></i> Magia</a>
+    <a data-tab-nav="bio"><i class="fa-solid fa-book"></i> Biografia</a>
+</nav>
+
+{{!-- ===================== PRINCIPAL ===================== --}}
+<section class="gb-tab" data-tab-content="principal">
+    <div class="gb-resources">
+        <div class="gb-resource gb-resource--hp">
+            <h3>Energia Vital</h3>
+            <div class="gb-resource-main">
+                <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}">
+                <span class="gb-sep">/</span>
+                <span class="gb-max">{{hp.max}}</span>
+            </div>
+            <div class="gb-resource-parts">
+                <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hp.base}}"></label>
+                <label class="gb-die">
+                    <span>Dado</span>
+                    <input type="number" name="system.resources.hitPoints.die" value="{{hp.die}}">
+                    <a data-action="rollHitDie" title="Rolar dado de vida da classe"><i class="fa-solid fa-dice-d6"></i></a>
+                </label>
+                <label><span>Res×3</span><span class="gb-derived">{{hp.mod}}</span></label>
+                <label><span>Temp</span><input type="number" name="system.resources.hitPoints.temp" value="{{hp.temp}}"></label>
+            </div>
+        </div>
+
+        <div class="gb-resource gb-resource--mana">
+            <h3>Mana</h3>
+            <div class="gb-resource-main">
+                <input type="number" name="system.resources.mana.value" value="{{mana.value}}">
+                <span class="gb-sep">/</span>
+                <span class="gb-max">{{mana.max}}</span>
+            </div>
+            <div class="gb-hint">Sabedoria × 2</div>
+        </div>
+
+        <div class="gb-resource gb-resource--ca">
+            <h3>Classe de Armadura</h3>
+            <div class="gb-resource-main"><span class="gb-max gb-big">{{ca}}</span></div>
+            <label class="gb-cabonus"><span>Bônus de CA</span><input type="number" name="system.defenses.caBonus" value="{{caBonus}}"></label>
+            <div class="gb-hint">10 + Reação + bônus</div>
+        </div>
+    </div>
+
+    <h3 class="gb-section-title">Atributos <span class="gb-hint">clique para testar (3d6 + atributo) · Shift = teste de Mana (+5 DC)</span></h3>
+    <div class="gb-attributes">
+        {{#each attributes as |attr|}}
+        <div class="gb-attribute">
+            <a class="gb-attr-roll" data-action="rollAttribute" data-attribute="{{attr.key}}" title="{{attr.func}}">
+                <span class="gb-attr-name">{{attr.label}}</span>
+                <span class="gb-attr-total">{{attr.total}}</span>
+                <span class="gb-attr-dice">3d6</span>
+            </a>
+            <div class="gb-attr-inputs">
+                <label><span>Valor</span><input type="number" name="system.attributes.{{attr.key}}.value" value="{{attr.value}}"></label>
+                <label><span>Bônus</span><input type="number" name="system.attributes.{{attr.key}}.bonus" value="{{attr.bonus}}"></label>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <div class="gb-pointbuy">
+        Pontos de atributo: <strong>{{pointBuy.spent}}</strong> / {{pointBuy.total}}
+        <span class="{{#if pointBuy.remaining}}gb-remaining{{/if}}">(restam {{pointBuy.remaining}})</span>
+    </div>
+</section>
+
+{{!-- ===================== AÇÕES ===================== --}}
+<section class="gb-tab" data-tab-content="acoes">
+    <div class="gb-actions-toolbar">
+        <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ação</button>
+    </div>
+    <p class="gb-hint">Fórmulas aceitam atalhos: <code>@forca @precisao @reacao @resiliencia @percepcao @carisma @sabedoria @potencia @disciplina @nivel @ca</code>. Ex.: acerto <code>3d6 + @precisao</code>, dano <code>2d8 + @forca</code>.</p>
+
+    {{#each actions as |action idx|}}
+    <div class="gb-action">
+        <div class="gb-action-head">
+            <input type="text" class="gb-action-name" name="system.actions.{{idx}}.name" value="{{action.name}}">
+            <a class="gb-btn gb-btn--hit" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i> Acerto</a>
+            <a class="gb-btn gb-btn--dmg" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i> Dano</a>
+            <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+        </div>
+        <div class="gb-action-formulas">
+            <label><span>Acerto</span><input type="text" name="system.actions.{{idx}}.hit" value="{{action.hit}}" placeholder="3d6 + @precisao"></label>
+            <label><span>Dano</span><input type="text" name="system.actions.{{idx}}.damage" value="{{action.damage}}" placeholder="2d8 + @forca"></label>
+        </div>
+        <div class="gb-action-meta">
+            <label><span>Custo</span><input type="text" name="system.actions.{{idx}}.cost" value="{{action.cost}}"></label>
+            <label><span>Alcance</span><input type="text" name="system.actions.{{idx}}.range" value="{{action.range}}"></label>
+            <label><span>Conjuração</span><input type="text" name="system.actions.{{idx}}.casting" value="{{action.casting}}"></label>
+            <label><span>Dificuldade</span><input type="text" name="system.actions.{{idx}}.difficulty" value="{{action.difficulty}}"></label>
+        </div>
+        <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
+        <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.actions.{{idx}}.description" value="{{action.description}}"></label>
+    </div>
+    {{else}}
+    <p class="gb-empty">Nenhuma ação. Clique em "Adicionar ação" para criar ataques, magias ou manobras.</p>
+    {{/each}}
+</section>
+
+{{!-- ===================== MAGIA ===================== --}}
+<section class="gb-tab" data-tab-content="magia">
+    <h3 class="gb-section-title">Esferas de Magia</h3>
+    <p class="gb-hint">Pontos de esfera: <strong>{{spherePoints.spent}}</strong> / {{spherePoints.total}} (restam {{spherePoints.remaining}}). Custo para desbloquear entre parênteses.</p>
+    <div class="gb-spheres">
+        {{#each spheres as |s|}}
+        <label class="gb-sphere">
+            <span class="gb-sphere-name">{{s.label}} <em>({{s.custo}})</em></span>
+            <input type="number" name="system.spheres.{{s.key}}" value="{{s.value}}" min="0">
+        </label>
+        {{/each}}
+    </div>
+
+    <h3 class="gb-section-title">Progressos de Rank</h3>
+    <div class="gb-progress">
+        <label><span>Atual</span><input type="number" name="system.progress.current" value="{{progress.current}}"></label>
+        <span class="gb-sep">/</span>
+        <label><span>Necessário</span><input type="number" name="system.progress.final" value="{{progress.final}}"></label>
+    </div>
+</section>
+
+{{!-- ===================== BIOGRAFIA ===================== --}}
+<section class="gb-tab" data-tab-content="bio">
+    <label class="gb-bio"><span>Atribuições Aparentes</span><textarea name="system.biography.appearance">{{biography.appearance}}</textarea></label>
+    <label class="gb-bio"><span>"Inner Demons" e Conflitos</span><textarea name="system.biography.demons">{{biography.demons}}</textarea></label>
+    <label class="gb-bio"><span>Metas e Motivações</span><textarea name="system.biography.motivations">{{biography.motivations}}</textarea></label>
+    <label class="gb-bio"><span>Worldview</span><textarea name="system.biography.worldview">{{biography.worldview}}</textarea></label>
+    <label class="gb-bio"><span>Backstory</span><textarea name="system.biography.backstory">{{biography.backstory}}</textarea></label>
+    <label class="gb-bio"><span>Notas</span><textarea name="system.notes">{{notes}}</textarea></label>
+</section>
+</div>

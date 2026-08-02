@@ -1,0 +1,10 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dependências / build (não usados, por precaução)
+node_modules/
+
+# Artefatos de empacotamento
+*.zip

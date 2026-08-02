@@ -1,0 +1,53 @@
+name: Release Granblue System
+
+# A cada push na branch main, gera automaticamente um release novo.
+# A versão vira 0.1.<número do build>, então o Foundry sempre detecta a
+# atualização e o botão "Atualizar Sistema" funciona só com o push.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Calcular versão
+        id: version
+        run: echo "value=0.1.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Ajustar system.json (versão + URLs)
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const repo = process.env.GITHUB_REPOSITORY;
+            const version = process.env.VERSION;
+            const s = JSON.parse(fs.readFileSync("system.json", "utf8"));
+            s.version = version;
+            s.manifest = `https://github.com/${repo}/releases/latest/download/system.json`;
+            s.download = `https://github.com/${repo}/releases/download/v${version}/system.zip`;
+            fs.writeFileSync("system.json", JSON.stringify(s, null, 4));
+            console.log("system.json ->", version);
+          '
+
+      - name: Empacotar system.zip
+        run: zip -r system.zip . -x ".git/*" ".github/*" "*.zip"
+
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "v${{ steps.version.outputs.value }}"
+          system.zip system.json
+          --title "v${{ steps.version.outputs.value }}"
+          --notes "Release automática gerada pelo push em main."
+          --latest

@@ -1,0 +1,69 @@
+{
+    "id": "granblue",
+    "title": "Granblue",
+    "description": "Sistema de RPG homebrew Granblue para Foundry VTT. Mecânica base 3d6 + atributo, 9 atributos, mana e esferas de magia.",
+    "version": "0.1.0",
+    "url": "https://github.com/rezendesjoao/gb-rpg",
+    "manifest": "https://github.com/rezendesjoao/gb-rpg/releases/latest/download/system.json",
+    "download": "https://github.com/rezendesjoao/gb-rpg/releases/latest/download/system.zip",
+    "compatibility": {
+        "minimum": "13",
+        "verified": "14",
+        "maximum": "14"
+    },
+    "authors": [
+        {
+            "name": "Aayzen"
+        }
+    ],
+    "esmodules": [
+        "module/granblue.mjs"
+    ],
+    "styles": [
+        "styles/granblue.css"
+    ],
+    "languages": [
+        {
+            "lang": "pt-BR",
+            "name": "Português (Brasil)",
+            "path": "lang/pt-BR.json"
+        },
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        }
+    ],
+    "packs": [],
+    "socket": false,
+    "initiative": "3d6 + @attributes.reacao.total",
+    "grid": {
+        "distance": 1,
+        "units": "m"
+    },
+    "primaryTokenAttribute": "resources.hitPoints",
+    "secondaryTokenAttribute": "resources.mana",
+    "documentTypes": {
+        "Actor": {
+            "character": {
+                "htmlFields": [
+                    "biography.appearance",
+                    "biography.demons",
+                    "biography.motivations",
+                    "biography.worldview",
+                    "biography.backstory",
+                    "notes"
+                ]
+            },
+            "adversary": {
+                "htmlFields": [
+                    "description",
+                    "notes"
+                ]
+            }
+        }
+    },
+    "flags": {
+        "hotReload": true
+    }
+}

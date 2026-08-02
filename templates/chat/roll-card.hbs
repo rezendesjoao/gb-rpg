@@ -1,0 +1,23 @@
+{{!-- Cartão de rolagem no chat --}}
+<div class="granblue gb-chat-card">
+    <header class="gb-chat-header">
+        <h3>{{title}}</h3>
+        {{#if subtitle}}<span class="gb-chat-subtitle">{{subtitle}}</span>{{/if}}
+    </header>
+
+    <div class="gb-chat-roll">{{{rollHTML}}}</div>
+
+    {{#if meta}}
+    <ul class="gb-chat-meta">
+        {{#each meta as |m|}}<li><strong>{{m.label}}:</strong> {{m.value}}</li>{{/each}}
+    </ul>
+    {{/if}}
+
+    {{#if difficulties}}
+    <div class="gb-chat-ladder">
+        {{#each difficulties as |d|}}
+        <span class="gb-dc {{#if d.success}}gb-dc--met{{else}}gb-dc--unmet{{/if}}" title="{{d.label}}">{{d.label}}: {{d.value}}</span>
+        {{/each}}
+    </div>
+    {{/if}}
+</div>
