@@ -185,6 +185,16 @@
 .gb-resource--ca { border-top: 3px solid var(--gb-gold); }
 .gb-resource-main { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 1.1rem; }
 .gb-resource-main input { width: 62px; font-size: 1.15rem; font-weight: 700; }
+.gb-max-input { color: var(--gb-blue); }
+.gb-recalc {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--gb-blue);
+    cursor: pointer;
+    text-align: center;
+}
+.gb-recalc:hover { color: var(--gb-gold); }
 .gb-max { font-weight: 700; color: var(--gb-blue); }
 .gb-big { font-size: 1.8rem; }
 .gb-sep { color: #999; }

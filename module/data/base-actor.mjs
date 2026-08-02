@@ -26,12 +26,16 @@ export function makeResourcesSchema() {
     return new fields.SchemaField({
         hitPoints: new fields.SchemaField({
             value: new fields.NumberField({ required: true, integer: true, initial: 40, nullable: false }),
+            // max é um campo armazenado/editável — necessário para o Foundry
+            // reconhecer resources.hitPoints como uma BARRA (value + max).
+            max: new fields.NumberField({ required: true, integer: true, initial: 40, nullable: false, min: 0 }),
             base: new fields.NumberField({ required: true, integer: true, initial: 40, nullable: false, min: 0 }),
             die: new fields.NumberField({ required: true, integer: true, initial: 0, nullable: false, min: 0 }),
             temp: new fields.NumberField({ required: true, integer: true, initial: 0, nullable: false })
         }),
         mana: new fields.SchemaField({
-            value: new fields.NumberField({ required: true, integer: true, initial: 0, nullable: false })
+            value: new fields.NumberField({ required: true, integer: true, initial: 0, nullable: false }),
+            max: new fields.NumberField({ required: true, integer: true, initial: 0, nullable: false, min: 0 })
         })
     });
 }
@@ -77,12 +81,13 @@ export function prepareCommonDerived(system) {
     // CA = 10 + Reação + bônus de CA
     system.defenses.ca = 10 + system.attributes.reacao.total + (system.defenses.caBonus ?? 0);
 
-    // Vida máxima = base + (Resiliência × 3) + dado de vida + vida temporária
+    // Vida/Mana máximas são campos ARMAZENADOS/editáveis (para funcionarem como
+    // barra de token). Aqui só calculamos o valor SUGERIDO pela fórmula, usado
+    // pelo botão "Recalcular" e exibido como dica — sem sobrescrever o max.
     const hp = system.resources.hitPoints;
     hp.mod = system.attributes.resiliencia.total * 3;
-    hp.max = (hp.base ?? 0) + hp.mod + (hp.die ?? 0) + (hp.temp ?? 0);
+    hp.maxFormula = (hp.base ?? 0) + hp.mod + (hp.die ?? 0) + (hp.temp ?? 0);
 
-    // Mana máxima = Sabedoria × 2
     const mana = system.resources.mana;
-    mana.max = system.attributes.sabedoria.total * 2;
+    mana.maxFormula = system.attributes.sabedoria.total * 2;
 }

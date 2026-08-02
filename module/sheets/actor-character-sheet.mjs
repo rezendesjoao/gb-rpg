@@ -135,6 +135,7 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         const existing = this.document.items.filter((i) => i.type === type).map((i) => i.id);
         if (existing.length) await this.document.deleteEmbeddedDocuments('Item', existing);
         await this.document.createEmbeddedDocuments('Item', [item.toObject()]);
+        if (type === 'class') await this.document.recalcMax();
     }
 
     /** Substitui o item de Classe do ator pelo preset escolhido. */
@@ -145,6 +146,7 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
             const data = GranblueItem.presetClassData(origin);
             if (data) await this.document.createEmbeddedDocuments('Item', [data]);
         }
+        await this.document.recalcMax();
     }
 
     /** Substitui o item de Herança do ator pelo preset escolhido. */

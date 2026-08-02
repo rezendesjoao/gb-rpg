@@ -23,6 +23,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             addAction: GranblueActorSheetBase.#onAddAction,
             deleteAction: GranblueActorSheetBase.#onDeleteAction,
             rollHitDie: GranblueActorSheetBase.#onRollHitDie,
+            recalcMax: GranblueActorSheetBase.#onRecalcMax,
             addLoot: GranblueActorSheetBase.#onAddLoot,
             deleteLoot: GranblueActorSheetBase.#onDeleteLoot
         }
@@ -190,6 +191,12 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     static async #onRollHitDie(event, target) {
         if (typeof this.document.rollAndSetHitDie === 'function') {
             await this.document.rollAndSetHitDie();
+        }
+    }
+
+    static async #onRecalcMax(event, target) {
+        if (typeof this.document.recalcMax === 'function') {
+            await this.document.recalcMax();
         }
     }
 

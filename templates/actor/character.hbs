@@ -72,7 +72,7 @@
             <div class="gb-resource-main">
                 <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}">
                 <span class="gb-sep">/</span>
-                <span class="gb-max">{{hp.max}}</span>
+                <input type="number" class="gb-max-input" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima (editável)">
             </div>
             <div class="gb-resource-parts">
                 {{#if hasClass}}
@@ -88,6 +88,7 @@
                 <label><span>Res×3</span><span class="gb-derived">{{hp.mod}}</span></label>
                 <label><span>Temp</span><input type="number" name="system.resources.hitPoints.temp" value="{{hp.temp}}"></label>
             </div>
+            <a class="gb-recalc" data-action="recalcMax" title="Aplicar a fórmula: base + Res×3 + dado + temp"><i class="fa-solid fa-arrows-rotate"></i> Recalcular ({{hp.maxFormula}})</a>
         </div>
 
         <div class="gb-resource gb-resource--mana">
@@ -95,9 +96,9 @@
             <div class="gb-resource-main">
                 <input type="number" name="system.resources.mana.value" value="{{mana.value}}">
                 <span class="gb-sep">/</span>
-                <span class="gb-max">{{mana.max}}</span>
+                <input type="number" class="gb-max-input" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima (editável)">
             </div>
-            <div class="gb-hint">Sabedoria × 2</div>
+            <div class="gb-hint">Sugerido: {{mana.maxFormula}} (Sab×2)</div>
         </div>
 
         <div class="gb-resource gb-resource--ca">

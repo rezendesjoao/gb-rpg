@@ -6,6 +6,44 @@ import { GRANBLUE } from '../config.mjs';
  * Expõe métodos de rolagem reutilizáveis (ficha e macros).
  */
 export class GranblueActor extends Actor {
+    /** Define barras e vínculo do token padrão ao criar o ator. */
+    async _preCreate(data, options, user) {
+        const allowed = await super._preCreate(data, options, user);
+        if (allowed === false) return false;
+        const proto = {
+            prototypeToken: {
+                bar1: { attribute: 'resources.hitPoints' },
+                bar2: { attribute: 'resources.mana' },
+                displayBars: CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
+            }
+        };
+        if (this.type === 'character') {
+            proto.prototypeToken.actorLink = true;
+            proto.prototypeToken.displayName = CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER;
+        }
+        this.updateSource(proto);
+    }
+
+    /**
+     * Recalcula Vida e Mana máximas pela fórmula do sistema:
+     *   Vida = base (da classe) + Resiliência×3 + dado de vida + vida temp
+     *   Mana = Sabedoria×2
+     * O máximo é um campo editável; este método apenas aplica a fórmula.
+     */
+    async recalcMax() {
+        const classItem = this.items.find((i) => i.type === 'class');
+        const hp = this.system.resources.hitPoints;
+        const base = classItem?.system.vidaBase ?? hp.base ?? 0;
+        const res = this.system.attributes.resiliencia.total ?? 0;
+        const hpMax = base + res * 3 + (hp.die ?? 0) + (hp.temp ?? 0);
+        const manaMax = (this.system.attributes.sabedoria.total ?? 0) * 2;
+        return this.update({
+            'system.resources.hitPoints.base': base,
+            'system.resources.hitPoints.max': hpMax,
+            'system.resources.mana.max': manaMax
+        });
+    }
+
     /**
      * Mescla os dados de rolagem do documento com os atalhos do data model
      * (@forca, @precisao, ...), para que fórmulas de ação e iniciativa funcionem.
@@ -54,6 +92,7 @@ export class GranblueActor extends Actor {
         const dieFormula = classItem?.system.vidaDado || GRANBLUE.classes[this.system.classe]?.vidaDado || '2d6';
         const total = await rollHitDie(this, dieFormula);
         await this.update({ 'system.resources.hitPoints.die': total });
+        await this.recalcMax();
         return total;
     }
 }
