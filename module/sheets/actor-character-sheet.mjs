@@ -19,7 +19,7 @@ function buildClassGroups(current) {
 export class GranblueCharacterSheet extends GranblueActorSheetBase {
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'actor', 'character'],
-        position: { width: 840, height: 900 },
+        position: { width: 840, height: 820 },
         actions: {
             openEmbedded: GranblueCharacterSheet.#onOpenEmbedded,
             removeEmbedded: GranblueCharacterSheet.#onRemoveEmbedded

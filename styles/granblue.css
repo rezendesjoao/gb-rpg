@@ -18,16 +18,28 @@
 }
 
 /* ---- Layout base da ficha ---- */
+/* Nunca deixa a janela passar da altura do monitor (telas pequenas). */
+.granblue.sheet {
+    max-height: 95vh;
+}
 .granblue.sheet .window-content {
     background: var(--gb-paper);
     color: var(--gb-ink);
     font-family: 'Signika', sans-serif;
     padding: 0;
+    /* Coluna flex que ocupa a janela e permite rolagem interna. */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .granblue.sheet .gb-root {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .granblue h3 {
@@ -119,6 +131,10 @@
     padding: 6px 8px 0;
     background: var(--gb-paper-2);
     border-bottom: 2px solid var(--gb-gold);
+    /* Mantém as abas visíveis enquanto o conteúdo rola. */
+    position: sticky;
+    top: 0;
+    z-index: 3;
 }
 .gb-tabs a {
     padding: 6px 12px;
