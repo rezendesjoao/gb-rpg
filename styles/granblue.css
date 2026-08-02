@@ -153,7 +153,105 @@
 }
 
 .gb-tab { display: none; padding: 8px 10px 12px; }
-.gb-tab.active { display: block; }
+.gb-tab.active { display: block; animation: gbFade 0.22s ease; }
+@keyframes gbFade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+/* =========================================================
+   Barra de vitais (Vida / Mana) sempre visível
+   ========================================================= */
+.gb-vitals {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 9px 12px;
+    background: linear-gradient(180deg, var(--gb-paper-2), var(--gb-paper));
+    border-bottom: 2px solid var(--gb-gold);
+}
+.gb-vital {
+    position: relative;
+    height: 36px;
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid var(--gb-line);
+    background: #00000014;
+    box-shadow: inset 0 1px 3px #0002;
+}
+.gb-vital-fill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    transition: width 0.45s cubic-bezier(.22,.61,.36,1);
+}
+.gb-vital--hp .gb-vital-fill { background: linear-gradient(90deg, #7a201d, #b93b36); }
+.gb-vital--mana .gb-vital-fill { background: linear-gradient(90deg, #24417a, #3a6dc0); }
+.gb-vital-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 12px;
+    color: #fff;
+    text-shadow: 0 1px 2px #000b;
+}
+.gb-vital-name { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.02em; }
+.gb-vital-nums { display: flex; align-items: center; gap: 4px; font-weight: 800; font-size: 1rem; }
+.gb-vital-nums input {
+    width: 46px;
+    background: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    color: #fff !important;
+    text-align: center;
+    border-radius: 5px;
+    font-weight: 800;
+    padding: 1px 2px;
+}
+.gb-vital-sep { opacity: 0.75; }
+
+/* =========================================================
+   Detalhes de recursos (aba Atributos)
+   ========================================================= */
+.gb-res-details { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin-top: 6px; }
+.gb-res-block {
+    background: var(--gb-paper-2);
+    border: 1px solid var(--gb-line);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+.gb-res-block h4 { margin: 0 0 7px; font-size: 0.82rem; color: var(--gb-blue); border: none; }
+.gb-res-block--hp { border-top: 3px solid var(--gb-hp); }
+.gb-res-block--ca { border-top: 3px solid var(--gb-gold); text-align: center; }
+.gb-res-block--mana { border-top: 3px solid var(--gb-mana); }
+.gb-res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gb-res-grid label { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 0.72rem; color: #6b6350; }
+.gb-res-grid input { width: 46px; }
+.gb-res-grid .gb-die { position: relative; }
+.gb-res-grid .gb-die a { color: var(--gb-hp); cursor: pointer; }
+.gb-res-ca { font-size: 2.1rem; font-weight: 800; color: var(--gb-blue); line-height: 1.1; }
+.gb-res-block--ca .gb-cabonus { justify-content: center; }
+
+/* =========================================================
+   Reordenar ações + polimento de botões
+   ========================================================= */
+.gb-action-btns { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+.gb-icn { color: #9a9280; cursor: pointer; padding: 1px 3px; font-size: 0.78rem; transition: color 0.12s; }
+.gb-icn:hover { color: var(--gb-blue); }
+
+/* =========================================================
+   Polimento geral (sombras, transições, hover)
+   ========================================================= */
+.granblue.sheet .window-content { box-shadow: inset 0 0 60px #0000000a; }
+.gb-header { box-shadow: 0 2px 6px #00000022; }
+.gb-tabs a { transition: background 0.15s, color 0.15s; }
+.gb-attribute { transition: transform 0.12s ease, box-shadow 0.12s ease; box-shadow: 0 1px 3px #00000012; }
+.gb-attribute:hover { transform: translateY(-2px); box-shadow: 0 5px 12px #0000002a; }
+.gb-attr-roll { transition: filter 0.12s; }
+.gb-action { transition: box-shadow 0.12s ease, border-color 0.12s; }
+.gb-action:hover { box-shadow: 0 3px 9px #00000018; }
+.gb-btn, .gb-actions-toolbar button, .gb-recalc, .gb-idcard, .gb-sphere, .gb-chip { transition: all 0.13s ease; }
+.gb-sphere:hover { border-color: var(--gb-gold); }
+.gb-idcard { box-shadow: 0 1px 4px #00000012; }
+.gb-idcard:hover { box-shadow: 0 4px 12px #00000022; }
+input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s, box-shadow 0.12s; }
 
 .gb-section-title {
     border-bottom: 1px solid var(--gb-line);

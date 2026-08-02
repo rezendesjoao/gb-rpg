@@ -28,6 +28,32 @@
     </div>
 </header>
 
+{{!-- Barra de vitais sempre visível --}}
+<div class="gb-vitals">
+    <div class="gb-vital gb-vital--hp">
+        <div class="gb-vital-fill" style="width:{{hpPct}}%"></div>
+        <div class="gb-vital-content">
+            <span class="gb-vital-name"><i class="fa-solid fa-heart"></i> Energia Vital</span>
+            <span class="gb-vital-nums">
+                <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" title="Vida atual">
+                <span class="gb-vital-sep">/</span>
+                <input type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima">
+            </span>
+        </div>
+    </div>
+    <div class="gb-vital gb-vital--mana">
+        <div class="gb-vital-fill" style="width:{{manaPct}}%"></div>
+        <div class="gb-vital-content">
+            <span class="gb-vital-name"><i class="fa-solid fa-droplet"></i> Mana</span>
+            <span class="gb-vital-nums">
+                <input type="number" name="system.resources.mana.value" value="{{mana.value}}" title="Mana atual">
+                <span class="gb-vital-sep">/</span>
+                <input type="number" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima">
+            </span>
+        </div>
+    </div>
+</div>
+
 <nav class="gb-tabs">
     <a data-tab-nav="principal"><i class="fa-solid fa-dragon"></i> Estatísticas</a>
     <a data-tab-nav="acoes"><i class="fa-solid fa-khanda"></i> Ataques</a>
@@ -36,35 +62,25 @@
 
 {{!-- ===================== ESTATÍSTICAS ===================== --}}
 <section class="gb-tab" data-tab-content="principal">
-    <div class="gb-resources">
-        <div class="gb-resource gb-resource--hp">
-            <h3>Energia Vital</h3>
-            <div class="gb-resource-main">
-                <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}">
-                <span class="gb-sep">/</span>
-                <input type="number" class="gb-max-input" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima (editável)">
-            </div>
-            <div class="gb-resource-parts">
+    <div class="gb-res-details">
+        <div class="gb-res-block gb-res-block--hp">
+            <h4><i class="fa-solid fa-heart"></i> Energia Vital</h4>
+            <div class="gb-res-grid">
                 <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hp.base}}"></label>
                 <label><span>Dado</span><input type="number" name="system.resources.hitPoints.die" value="{{hp.die}}"></label>
                 <label><span>Res×3</span><span class="gb-derived">{{hp.mod}}</span></label>
                 <label><span>Temp</span><input type="number" name="system.resources.hitPoints.temp" value="{{hp.temp}}"></label>
             </div>
-            <a class="gb-recalc" data-action="recalcMax" title="Aplicar a fórmula: base + Res×3 + dado + temp"><i class="fa-solid fa-arrows-rotate"></i> Recalcular ({{hp.maxFormula}})</a>
+            <a class="gb-recalc" data-action="recalcMax" title="base + Res×3 + dado + temp"><i class="fa-solid fa-arrows-rotate"></i> Recalcular máx ({{hp.maxFormula}})</a>
         </div>
-        <div class="gb-resource gb-resource--mana">
-            <h3>Mana</h3>
-            <div class="gb-resource-main">
-                <input type="number" name="system.resources.mana.value" value="{{mana.value}}">
-                <span class="gb-sep">/</span>
-                <input type="number" class="gb-max-input" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima (editável)">
-            </div>
-            <div class="gb-hint">Sugerido: {{mana.maxFormula}} (Sab×2)</div>
-        </div>
-        <div class="gb-resource gb-resource--ca">
-            <h3>CA</h3>
-            <div class="gb-resource-main"><span class="gb-max gb-big">{{ca}}</span></div>
+        <div class="gb-res-block gb-res-block--ca">
+            <h4><i class="fa-solid fa-shield-halved"></i> CA</h4>
+            <div class="gb-res-ca">{{ca}}</div>
             <label class="gb-cabonus"><span>Bônus</span><input type="number" name="system.defenses.caBonus" value="{{caBonus}}"></label>
+        </div>
+        <div class="gb-res-block gb-res-block--mana">
+            <h4><i class="fa-solid fa-droplet"></i> Mana</h4>
+            <div class="gb-hint">Máx sugerido: <strong>{{mana.maxFormula}}</strong> (Sab×2)</div>
         </div>
     </div>
 
@@ -96,10 +112,14 @@
         <div class="gb-action-head">
             <a class="gb-collapse-toggle" data-action="toggleAction" data-index="{{idx}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
             <input type="text" class="gb-action-name" name="system.actions.{{idx}}.name" value="{{action.name}}">
-            <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-index="{{idx}}" data-drag-action="{{idx}}" draggable="true" title="Rolar ataque (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
-            <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
-            <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i></a>
-            <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+            <span class="gb-action-btns">
+                <a class="gb-icn" data-action="moveAction" data-index="{{idx}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
+                <a class="gb-icn" data-action="moveAction" data-index="{{idx}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
+                <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-index="{{idx}}" data-drag-action="{{idx}}" draggable="true" title="Rolar ataque (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
+                <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
+                <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i></a>
+                <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+            </span>
         </div>
         <div class="gb-action-details">
             <div class="gb-action-formulas">

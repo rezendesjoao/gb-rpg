@@ -26,6 +26,8 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         }
     };
 
+    static DEFAULT_TAB = 'atributos';
+
     static PARTS = {
         main: { template: 'systems/granblue/templates/actor/character.hbs', scrollable: [''] }
     };

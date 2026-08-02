@@ -24,6 +24,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             toggleAction: GranblueActorSheetBase.#onToggleAction,
             addAction: GranblueActorSheetBase.#onAddAction,
             deleteAction: GranblueActorSheetBase.#onDeleteAction,
+            moveAction: GranblueActorSheetBase.#onMoveAction,
             rollHitDie: GranblueActorSheetBase.#onRollHitDie,
             recalcMax: GranblueActorSheetBase.#onRecalcMax,
             addLoot: GranblueActorSheetBase.#onAddLoot,
@@ -85,6 +86,12 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             heritageItem,
             hasClass: !!classItem
         });
+
+        // Percentuais das barras de vida/mana (para o preenchimento visual)
+        const hpMax = sys.resources.hitPoints.max || 0;
+        const manaMax = sys.resources.mana.max || 0;
+        context.hpPct = hpMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.hitPoints.value / hpMax) * 100))) : 0;
+        context.manaPct = manaMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.mana.value / manaMax) * 100))) : 0;
         return context;
     }
 
@@ -283,6 +290,22 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             hit: '', damage: '', cost: '', range: '',
             casting: '', difficulty: '', effect: '', description: ''
         });
+        await this.document.update({ 'system.actions': actions });
+    }
+
+    static async #onMoveAction(event, target) {
+        const index = Number(target.dataset.index);
+        const dest = index + (target.dataset.dir === 'up' ? -1 : 1);
+        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
+        if (dest < 0 || dest >= actions.length) return;
+        [actions[index], actions[dest]] = [actions[dest], actions[index]];
+        // Mantém o estado de colapso junto com a ação movida.
+        const ai = this._expanded.has(index);
+        const ad = this._expanded.has(dest);
+        this._expanded.delete(index);
+        this._expanded.delete(dest);
+        if (ai) this._expanded.add(dest);
+        if (ad) this._expanded.add(index);
         await this.document.update({ 'system.actions': actions });
     }
 
