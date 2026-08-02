@@ -61,6 +61,20 @@
                     "notes"
                 ]
             }
+        },
+        "Item": {
+            "class": {
+                "htmlFields": [
+                    "description"
+                ]
+            },
+            "heritage": {
+                "htmlFields": [
+                    "sharedTrait",
+                    "weakness",
+                    "description"
+                ]
+            }
         }
     },
     "flags": {

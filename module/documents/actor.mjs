@@ -33,8 +33,8 @@ export class GranblueActor extends Actor {
      * em resources.hitPoints.die.
      */
     async rollAndSetHitDie() {
-        const classKey = this.system.classe;
-        const dieFormula = GRANBLUE.classes[classKey]?.vidaDado ?? '2d6';
+        const classItem = this.items.find((i) => i.type === 'class');
+        const dieFormula = classItem?.system.vidaDado || GRANBLUE.classes[this.system.classe]?.vidaDado || '2d6';
         const total = await rollHitDie(this, dieFormula);
         await this.update({ 'system.resources.hitPoints.die': total });
         return total;

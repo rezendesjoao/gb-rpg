@@ -1,9 +1,16 @@
 {
     "TYPES.Actor.character": "Personagem",
     "TYPES.Actor.adversary": "Adversário",
+    "TYPES.Item.class": "Classe",
+    "TYPES.Item.heritage": "Herança",
 
     "GRANBLUE.SheetLabels.character": "Ficha de Personagem Granblue",
     "GRANBLUE.SheetLabels.adversary": "Ficha de Adversário Granblue",
+    "GRANBLUE.SheetLabels.class": "Ficha de Classe Granblue",
+    "GRANBLUE.SheetLabels.heritage": "Ficha de Herança Granblue",
+
+    "GRANBLUE.Heritage.effectName": "Bônus de Herança",
+    "GRANBLUE.Class.effectName": "Vida da Classe",
 
     "GRANBLUE.HitDie": "Dado de Vida",
 

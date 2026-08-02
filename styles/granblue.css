@@ -330,3 +330,56 @@
 }
 .gb-dc--met { background: #d7ecd7; color: #24591f; border-color: #7bb17b; font-weight: 700; }
 .gb-dc--unmet { background: #eee; color: #999; }
+
+/* =========================================================
+   Cartões de Classe / Herança e itens
+   ========================================================= */
+.gb-idcards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.gb-idcard {
+    background: var(--gb-paper-2);
+    border: 1px solid var(--gb-line);
+    border-radius: 8px;
+    padding: 6px 8px;
+}
+.gb-idcard--class { border-top: 3px solid var(--gb-blue); }
+.gb-idcard--heritage { border-top: 3px solid var(--gb-hp); }
+.gb-idcard-head { display: flex; align-items: center; gap: 6px; }
+.gb-idcard-head h3 { margin: 0; font-size: 0.9rem; }
+.gb-idcard-name { flex: 1; font-weight: 700; color: var(--gb-danger); }
+.gb-empty-inline { flex: 1; font-style: italic; color: #6b6350; font-size: 0.76rem; }
+.gb-idcard-body { margin-top: 6px; }
+.gb-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.gb-chip {
+    font-size: 0.68rem;
+    background: var(--gb-blue);
+    color: #fff;
+    padding: 1px 7px;
+    border-radius: 10px;
+}
+.gb-idcard-mana { font-size: 0.74rem; color: var(--gb-mana); margin-top: 4px; }
+.gb-mini-ability { font-size: 0.75rem; margin-top: 5px; border-top: 1px dashed var(--gb-line); padding-top: 4px; }
+.gb-mini-ability em { color: #6b6350; }
+.gb-mini-ability p { margin: 2px 0 0; color: #4a4636; }
+.gb-attr-effect { color: var(--gb-gold-light); font-weight: 700; }
+
+/* Fichas de item */
+.gb-item .gb-header--item { grid-template-columns: 64px 1fr; }
+.gb-item .gb-portrait { width: 60px; height: 60px; }
+.gb-item-sub { font-size: 0.72rem; color: var(--gb-gold-light); margin: 4px 0 0; }
+.gb-inline-add {
+    background: var(--gb-blue);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    padding: 0;
+}
+.gb-inline-add:hover { background: var(--gb-gold); }
+.gb-hbonus { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.gb-hbonus-item { display: flex; align-items: center; justify-content: space-between; gap: 4px; background: var(--gb-paper-2); border: 1px solid var(--gb-line); border-radius: 6px; padding: 3px 6px; font-size: 0.74rem; }
+.gb-hbonus-item input { width: 44px; }
+.gb-item .gb-action textarea { width: 100%; min-height: 42px; margin-top: 4px; resize: vertical; }
+.gb-ability-type { width: auto; }
+.gb-prog-req { width: 110px; }

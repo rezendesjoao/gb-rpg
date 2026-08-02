@@ -5,10 +5,15 @@
 
 import { GRANBLUE } from './config.mjs';
 import { GranblueActor } from './documents/actor.mjs';
+import { GranblueItem } from './documents/item.mjs';
 import { GranblueCharacter } from './data/actor-character.mjs';
 import { GranblueAdversary } from './data/actor-adversary.mjs';
+import { GranblueClass } from './data/item-class.mjs';
+import { GranblueHeritage } from './data/item-heritage.mjs';
 import { GranblueCharacterSheet } from './sheets/actor-character-sheet.mjs';
 import { GranblueAdversarySheet } from './sheets/actor-adversary-sheet.mjs';
+import { GranblueClassSheet } from './sheets/item-class-sheet.mjs';
+import { GranblueHeritageSheet } from './sheets/item-heritage-sheet.mjs';
 
 /* -------------------------------------------- */
 /*  Init                                        */
@@ -25,12 +30,15 @@ Hooks.once('init', () => {
         applications: { GranblueCharacterSheet, GranblueAdversarySheet }
     };
 
-    // Document class
+    // Document classes
     CONFIG.Actor.documentClass = GranblueActor;
+    CONFIG.Item.documentClass = GranblueItem;
 
     // Data models
     CONFIG.Actor.dataModels.character = GranblueCharacter;
     CONFIG.Actor.dataModels.adversary = GranblueAdversary;
+    CONFIG.Item.dataModels.class = GranblueClass;
+    CONFIG.Item.dataModels.heritage = GranblueHeritage;
 
     // Barra de recursos / iniciativa
     CONFIG.Combat.initiative = { formula: '3d6 + @attributes.reacao.total', decimals: 0 };
@@ -46,6 +54,18 @@ Hooks.once('init', () => {
         types: ['adversary'],
         makeDefault: true,
         label: 'GRANBLUE.SheetLabels.adversary'
+    });
+
+    const { Items } = foundry.documents.collections;
+    Items.registerSheet('granblue', GranblueClassSheet, {
+        types: ['class'],
+        makeDefault: true,
+        label: 'GRANBLUE.SheetLabels.class'
+    });
+    Items.registerSheet('granblue', GranblueHeritageSheet, {
+        types: ['heritage'],
+        makeDefault: true,
+        label: 'GRANBLUE.SheetLabels.heritage'
     });
 
     // Pré-carrega o template do cartão de chat
@@ -87,4 +107,5 @@ function registerHandlebarsHelpers() {
         const n = Number(value) || 0;
         return n >= 0 ? `+${n}` : `${n}`;
     });
+    Handlebars.registerHelper('eqStr', (a, b) => String(a) === String(b));
 }

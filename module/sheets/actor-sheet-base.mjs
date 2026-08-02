@@ -40,6 +40,12 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const context = await super._prepareContext(options);
         const actor = this.document;
         const sys = actor.system;
+        // Dados armazenados (pré-Active Effects) para os campos editáveis,
+        // enquanto os totais/derivados usam o valor preparado (pós-efeitos).
+        const src = sys._source;
+
+        const classItem = actor.items?.find((i) => i.type === 'class') ?? null;
+        const heritageItem = actor.items?.find((i) => i.type === 'heritage') ?? null;
 
         Object.assign(context, {
             actor,
@@ -52,15 +58,20 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
                 label: game.i18n.localize(cfg.label),
                 abbr: game.i18n.localize(cfg.abbr),
                 func: game.i18n.localize(cfg.func),
-                value: sys.attributes[key].value,
-                bonus: sys.attributes[key].bonus,
-                total: sys.attributes[key].total
+                value: src.attributes[key].value,
+                bonus: src.attributes[key].bonus,
+                total: sys.attributes[key].total,
+                effect: (sys.attributes[key].bonus ?? 0) - (src.attributes[key].bonus ?? 0)
             })),
             actions: sys.actions ?? [],
             hp: sys.resources.hitPoints,
+            hpSource: src.resources.hitPoints,
             mana: sys.resources.mana,
             ca: sys.defenses.ca,
-            caBonus: sys.defenses.caBonus
+            caBonus: src.defenses.caBonus,
+            classItem,
+            heritageItem,
+            hasClass: !!classItem
         });
         return context;
     }

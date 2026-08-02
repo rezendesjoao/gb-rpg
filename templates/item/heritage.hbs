@@ -1,0 +1,43 @@
+{{!-- Ficha do item Herança (Raça) --}}
+<div class="gb-root gb-item">
+<header class="gb-header gb-header--item">
+    <img class="gb-portrait" src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}" title="Trocar imagem">
+    <div class="gb-identity">
+        <input class="gb-name" type="text" name="name" value="{{item.name}}" placeholder="Nome da herança">
+        <p class="gb-item-sub">Os bônus abaixo são aplicados automaticamente no personagem (Active Effect).</p>
+    </div>
+</header>
+
+<div class="gb-tab active" data-tab-content="main">
+    <h3 class="gb-section-title">Bônus de Atributo</h3>
+    <div class="gb-hbonus">
+        {{#each bonuses as |b|}}
+        <label class="gb-hbonus-item">
+            <span>{{b.label}}</span>
+            <input type="number" name="system.bonuses.{{b.key}}" value="{{b.value}}">
+        </label>
+        {{/each}}
+    </div>
+
+    <label class="gb-bio"><span>Traço Compartilhado</span><textarea name="system.sharedTrait">{{system.sharedTrait}}</textarea></label>
+    <label class="gb-bio"><span>Debilidade</span><textarea name="system.weakness">{{system.weakness}}</textarea></label>
+
+    <h3 class="gb-section-title">Progressos
+        <button type="button" class="gb-inline-add" data-action="addRow" data-array="system.progress" data-kind="progress"><i class="fa-solid fa-plus"></i></button>
+    </h3>
+    {{#each progress as |p idx|}}
+    <div class="gb-action">
+        <div class="gb-action-head">
+            <input type="text" class="gb-action-name" name="system.progress.{{idx}}.name" value="{{p.name}}">
+            <input type="text" name="system.progress.{{idx}}.requirement" value="{{p.requirement}}" placeholder="Requisito" class="gb-prog-req">
+            <a class="gb-btn gb-btn--del" data-action="deleteRow" data-array="system.progress" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+        </div>
+        <textarea name="system.progress.{{idx}}.description" placeholder="Descrição do progresso">{{p.description}}</textarea>
+    </div>
+    {{else}}
+    <p class="gb-empty">Nenhum progresso. Use o + para adicionar.</p>
+    {{/each}}
+
+    <label class="gb-bio"><span>Descrição / Lore</span><textarea name="system.description">{{system.description}}</textarea></label>
+</div>
+</div>

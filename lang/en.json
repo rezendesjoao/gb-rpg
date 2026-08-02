@@ -1,9 +1,16 @@
 {
     "TYPES.Actor.character": "Character",
     "TYPES.Actor.adversary": "Adversary",
+    "TYPES.Item.class": "Class",
+    "TYPES.Item.heritage": "Heritage",
 
     "GRANBLUE.SheetLabels.character": "Granblue Character Sheet",
     "GRANBLUE.SheetLabels.adversary": "Granblue Adversary Sheet",
+    "GRANBLUE.SheetLabels.class": "Granblue Class Sheet",
+    "GRANBLUE.SheetLabels.heritage": "Granblue Heritage Sheet",
+
+    "GRANBLUE.Heritage.effectName": "Heritage Bonus",
+    "GRANBLUE.Class.effectName": "Class Hit Points",
 
     "GRANBLUE.HitDie": "Hit Die",
 

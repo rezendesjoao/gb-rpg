@@ -7,7 +7,7 @@
         <div class="gb-identity-grid">
             <label class="gb-field">
                 <span>Classe</span>
-                <select name="system.classe">
+                <select data-gb-chooser="class">
                     <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
                     {{#each classGroups as |grp|}}
                     <optgroup label="{{grp.label}}">
@@ -20,7 +20,7 @@
             </label>
             <label class="gb-field">
                 <span>Herança</span>
-                <select name="system.heranca">
+                <select data-gb-chooser="heritage">
                     <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
                     {{#each heritageOptions as |o|}}
                     <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
@@ -75,7 +75,11 @@
                 <span class="gb-max">{{hp.max}}</span>
             </div>
             <div class="gb-resource-parts">
-                <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hp.base}}"></label>
+                {{#if hasClass}}
+                <label><span>Base</span><span class="gb-derived" title="Definido pela classe: {{classItem.name}}">{{hp.base}}</span></label>
+                {{else}}
+                <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hpSource.base}}"></label>
+                {{/if}}
                 <label class="gb-die">
                     <span>Dado</span>
                     <input type="number" name="system.resources.hitPoints.die" value="{{hp.die}}">
@@ -104,6 +108,54 @@
         </div>
     </div>
 
+    <div class="gb-idcards">
+        <div class="gb-idcard gb-idcard--class">
+            <div class="gb-idcard-head">
+                <h3>Classe</h3>
+                {{#if classItem}}
+                <span class="gb-idcard-name">{{classItem.name}}</span>
+                <a class="gb-btn gb-btn--hit" data-action="openEmbedded" data-item-id="{{classItem.id}}" title="Abrir"><i class="fa-solid fa-up-right-from-square"></i></a>
+                <a class="gb-btn gb-btn--del" data-action="removeEmbedded" data-item-id="{{classItem.id}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+                {{else}}
+                <span class="gb-empty-inline">selecione no topo</span>
+                {{/if}}
+            </div>
+            {{#if classItem}}
+            <div class="gb-idcard-body">
+                <div class="gb-chips">
+                    <span class="gb-chip">Vida {{classItem.system.vidaBase}}</span>
+                    <span class="gb-chip">Dado {{classItem.system.vidaDado}}</span>
+                    <span class="gb-chip">Dano {{classItem.system.danoDado}}</span>
+                </div>
+                {{#if classItem.system.manaCondition}}<div class="gb-idcard-mana"><i class="fa-solid fa-droplet"></i> {{classItem.system.manaCondition}}</div>{{/if}}
+                {{#each classAbilities as |ab|}}
+                <div class="gb-mini-ability"><strong>{{ab.name}}</strong> <em>({{ab.type}})</em>{{#if ab.description}}<p>{{ab.description}}</p>{{/if}}</div>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
+
+        <div class="gb-idcard gb-idcard--heritage">
+            <div class="gb-idcard-head">
+                <h3>Herança</h3>
+                {{#if heritageItem}}
+                <span class="gb-idcard-name">{{heritageItem.name}}</span>
+                <a class="gb-btn gb-btn--hit" data-action="openEmbedded" data-item-id="{{heritageItem.id}}" title="Abrir"><i class="fa-solid fa-up-right-from-square"></i></a>
+                <a class="gb-btn gb-btn--del" data-action="removeEmbedded" data-item-id="{{heritageItem.id}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+                {{else}}
+                <span class="gb-empty-inline">selecione no topo</span>
+                {{/if}}
+            </div>
+            {{#if heritageItem}}
+            <div class="gb-idcard-body">
+                {{#each heritageProgress as |p|}}
+                <div class="gb-mini-ability"><strong>{{p.name}}</strong>{{#if p.requirement}} <em>({{p.requirement}})</em>{{/if}}{{#if p.description}}<p>{{p.description}}</p>{{/if}}</div>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
+    </div>
+
     <h3 class="gb-section-title">Atributos <span class="gb-hint">clique para testar (3d6 + atributo) · Shift = teste de Mana (+5 DC)</span></h3>
     <div class="gb-attributes">
         {{#each attributes as |attr|}}
@@ -111,7 +163,7 @@
             <a class="gb-attr-roll" data-action="rollAttribute" data-attribute="{{attr.key}}" title="{{attr.func}}">
                 <span class="gb-attr-name">{{attr.label}}</span>
                 <span class="gb-attr-total">{{attr.total}}</span>
-                <span class="gb-attr-dice">3d6</span>
+                <span class="gb-attr-dice">3d6{{#if attr.effect}} <span class="gb-attr-effect" title="Bônus de herança/efeitos">({{granblueSigned attr.effect}})</span>{{/if}}</span>
             </a>
             <div class="gb-attr-inputs">
                 <label><span>Valor</span><input type="number" name="system.attributes.{{attr.key}}.value" value="{{attr.value}}"></label>

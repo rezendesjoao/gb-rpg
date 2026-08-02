@@ -16,10 +16,14 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 - **7 Esferas de magia** com contagem de pontos (começa com 5).
 - **~35 status effects** clicáveis no token.
 
-## O que está implementado (v0.1)
+## O que está implementado
 
 - Ficha de **Personagem** completa (atributos, recursos, esferas, progressos, biografia, ações).
 - Ficha de **Adversário / NPC** (estatísticas, ataques, loot, notas).
+- **Classes e Heranças como Items** com **Active Effects automáticos**: a Herança soma os bônus
+  de atributo automaticamente; a Classe define a Energia Vital base e os dados de vida/dano.
+  Basta escolher no seletor da ficha (presets das 15 classes e 8 heranças) — os itens e efeitos
+  são criados sozinhos. Também é possível editá-los abrindo o item.
 - Rolagens de atributo (3d6) e de ações (fórmulas livres) com **cartão de chat** e escada de DCs.
 - Botão para rolar o **dado de vida** da classe.
 - Iniciativa `3d6 + Reação`. Status effects Granblue no HUD do token.

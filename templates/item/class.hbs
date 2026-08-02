@@ -1,0 +1,46 @@
+{{!-- Ficha do item Classe (Estilo de Guerreiro) --}}
+<div class="gb-root gb-item">
+<header class="gb-header gb-header--item">
+    <img class="gb-portrait" src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}" title="Trocar imagem">
+    <div class="gb-identity">
+        <input class="gb-name" type="text" name="name" value="{{item.name}}" placeholder="Nome da classe">
+        <div class="gb-identity-grid">
+            <label class="gb-field">
+                <span>Grupo</span>
+                <select name="system.grupo">
+                    {{#each grupoOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+                </select>
+            </label>
+            <label class="gb-field gb-field--sm"><span>Vida Base</span><input type="number" name="system.vidaBase" value="{{system.vidaBase}}"></label>
+            <label class="gb-field gb-field--sm"><span>Dado de Vida</span><input type="text" name="system.vidaDado" value="{{system.vidaDado}}"></label>
+            <label class="gb-field gb-field--sm"><span>Dado de Dano</span><input type="text" name="system.danoDado" value="{{system.danoDado}}"></label>
+        </div>
+    </div>
+</header>
+
+<div class="gb-tab active" data-tab-content="main">
+    <label class="gb-bio"><span>Condição de Mana</span><input type="text" name="system.manaCondition" value="{{system.manaCondition}}" placeholder="Ex.: +1 de Mana quando..."></label>
+    <label class="gb-bio"><span>Armas</span><input type="text" name="system.weapons" value="{{system.weapons}}"></label>
+
+    <h3 class="gb-section-title">Habilidades
+        <button type="button" class="gb-inline-add" data-action="addRow" data-array="system.abilities" data-kind="abilities"><i class="fa-solid fa-plus"></i></button>
+    </h3>
+    {{#each abilities as |ab idx|}}
+    <div class="gb-action">
+        <div class="gb-action-head">
+            <input type="text" class="gb-action-name" name="system.abilities.{{idx}}.name" value="{{ab.name}}">
+            <select name="system.abilities.{{idx}}.type" class="gb-ability-type">
+                <option value="passiva" {{#if (eqStr ab.type "passiva")}}selected{{/if}}>Passiva</option>
+                <option value="ativa" {{#if (eqStr ab.type "ativa")}}selected{{/if}}>Ativa</option>
+            </select>
+            <a class="gb-btn gb-btn--del" data-action="deleteRow" data-array="system.abilities" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+        </div>
+        <textarea name="system.abilities.{{idx}}.description" placeholder="Descrição da habilidade">{{ab.description}}</textarea>
+    </div>
+    {{else}}
+    <p class="gb-empty">Nenhuma habilidade. Use o + para adicionar.</p>
+    {{/each}}
+
+    <label class="gb-bio"><span>Descrição</span><textarea name="system.description">{{system.description}}</textarea></label>
+</div>
+</div>
