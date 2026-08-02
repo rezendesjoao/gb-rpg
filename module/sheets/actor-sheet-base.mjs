@@ -226,10 +226,12 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const label = part === 'hit' ? 'Acerto' : 'Dano';
         const mods = await rollDialog({
             title: `${action.name} — ${label}`,
-            parts: base ? [{ key: 'main', label, base }] : []
+            parts: base ? [{ key: 'main', label, base }] : [],
+            consume: GranblueActorSheetBase.#parseCost(action.cost)
         });
         if (!mods) return;
         await this.document.rollAction(index, part, mods.main ?? {});
+        await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
     }
 
     static async #onRollActionFull(event, target) {
@@ -239,9 +241,23 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const parts = [];
         if ((action.hit ?? '').trim()) parts.push({ key: 'hit', label: 'Acerto', base: action.hit.trim() });
         if ((action.damage ?? '').trim()) parts.push({ key: 'damage', label: 'Dano', base: action.damage.trim() });
-        const mods = await rollDialog({ title: action.name, parts });
+        const mods = await rollDialog({ title: action.name, parts, consume: GranblueActorSheetBase.#parseCost(action.cost) });
         if (!mods) return;
         await this.document.rollActionFull(index, { hit: mods.hit, damage: mods.damage });
+        await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
+    }
+
+    /** Extrai o número inicial do campo de custo (ex.: "5", "5^n" → 5). */
+    static #parseCost(cost) {
+        const n = Number.parseInt(String(cost ?? ''), 10);
+        return Number.isFinite(n) ? n : 0;
+    }
+
+    /** Consome o recurso escolhido no diálogo, se houver. */
+    static async #applyConsume(actor, consume) {
+        if (consume && consume.resource !== 'none' && consume.amount > 0) {
+            await actor.spendResource(consume.resource, consume.amount);
+        }
     }
 
     static #onToggleAction(event, target) {

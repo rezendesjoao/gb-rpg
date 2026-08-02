@@ -468,6 +468,26 @@
     padding: 6px 10px;
     cursor: pointer;
 }
+.gb-rd-consume {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #a1332f12;
+    border: 1px solid var(--gb-line);
+    border-radius: 6px;
+    padding: 6px 10px;
+}
+.gb-rd-consume .gb-rd-name { color: var(--gb-hp); font-size: 0.85rem; }
+.gb-rd-consume-fields { display: flex; gap: 6px; align-items: center; }
+.gb-rd-consume-fields select,
+.gb-rd-consume-fields input {
+    background: #fff;
+    border: 1px solid var(--gb-line);
+    border-radius: 5px;
+    padding: 3px 6px;
+}
+.gb-rd-consume-fields input { width: 58px; text-align: center; }
 .gb-rd-hint { font-size: 0.7rem; color: #6b6350; margin: 0; text-align: center; }
 
 /* =========================================================

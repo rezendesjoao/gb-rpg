@@ -73,6 +73,15 @@ export class GranblueActor extends Actor {
         return rollActionFull(this, action, mods);
     }
 
+    /** Consome uma quantidade de um recurso (vida ou mana), sem passar de 0 abaixo. */
+    async spendResource(resource, amount) {
+        const amt = Number(amount) || 0;
+        if (amt <= 0) return;
+        const key = resource === 'mana' ? 'mana' : 'hitPoints';
+        const current = this.system.resources?.[key]?.value ?? 0;
+        await this.update({ [`system.resources.${key}.value`]: current - amt });
+    }
+
     /** Rola a ação inteira pelo nome (usado por macros da barra de atalhos). */
     async rollActionByName(name) {
         const index = this.system.actions?.findIndex((a) => a.name === name);

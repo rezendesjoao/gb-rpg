@@ -6,11 +6,12 @@
  * @param {string} cfg.title
  * @param {Array<{key:string,label:string,base:string}>} cfg.parts  seções (ex.: acerto/dano)
  * @param {boolean} [cfg.mana]  exibe a opção "Teste de Mana"
- * @returns {Promise<object|null>}  { [key]:{bonus,dice}, mana } ou null (cancelado)
+ * @param {number|null} [cfg.consume]  se número, exibe a opção de consumir custo (Vida/Mana)
+ * @returns {Promise<object|null>}  { [key]:{bonus,dice}, mana, consume } ou null (cancelado)
  */
-export async function rollDialog({ title, parts = [], mana = false }) {
-    // Sem seções (ação sem fórmula) → segue direto, sem diálogo.
-    if (!parts.length) return {};
+export async function rollDialog({ title, parts = [], mana = false, consume = null }) {
+    // Sem seções (ação sem fórmula) e sem consumo → segue direto, sem diálogo.
+    if (!parts.length && consume === null) return {};
 
     const { DialogV2 } = foundry.applications.api;
 
@@ -36,9 +37,24 @@ export async function rollDialog({ title, parts = [], mana = false }) {
         ? `<label class="gb-rd-check"><input type="checkbox" name="mana"> <i class="fa-solid fa-droplet"></i> Teste de Mana (+5 na DC)</label>`
         : '';
 
+    const consumeRow = consume !== null
+        ? `<div class="gb-rd-consume">
+                <span class="gb-rd-name"><i class="fa-solid fa-flask"></i> Consumir custo de</span>
+                <div class="gb-rd-consume-fields">
+                    <select name="consume.resource">
+                        <option value="none" selected>Não consumir</option>
+                        <option value="hitPoints">Vida</option>
+                        <option value="mana">Mana</option>
+                    </select>
+                    <input type="number" name="consume.amount" value="${Number(consume) || 0}" step="1" title="Quantidade a consumir">
+                </div>
+           </div>`
+        : '';
+
     const content = `
         <div class="granblue gb-roll-dialog">
             ${rows}
+            ${consumeRow}
             ${manaRow}
             <p class="gb-rd-hint">Deixe 0 / em branco para rolar sem modificadores. Pressione <strong>Enter</strong> para rolar.</p>
         </div>`;
@@ -70,6 +86,12 @@ export async function rollDialog({ title, parts = [], mana = false }) {
         out[p.key] = {
             bonus: Number(data[p.key]?.bonus) || 0,
             dice: String(data[p.key]?.dice ?? '').trim()
+        };
+    }
+    if (consume !== null) {
+        out.consume = {
+            resource: data.consume?.resource ?? 'none',
+            amount: Number(data.consume?.amount) || 0
         };
     }
     return out;
