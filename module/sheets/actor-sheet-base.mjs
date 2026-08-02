@@ -14,6 +14,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         position: { width: 820, height: 860 },
         window: { resizable: true },
         form: { submitOnChange: true },
+        dragDrop: [{ dragSelector: null, dropSelector: null }],
         actions: {
             editImage: GranblueActorSheetBase.#onEditImage,
             rollAttribute: GranblueActorSheetBase.#onRollAttribute,
@@ -128,6 +129,42 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
                 ev.dataTransfer.effectAllowed = 'copy';
             });
         });
+    }
+
+    /* ---------------------------------- */
+    /*  Drop de itens (mecanismo nativo)   */
+    /* ---------------------------------- */
+
+    /**
+     * Sobrescreve o drop de item do ActorSheetV2 (chamado uma única vez pelo core):
+     * magia → vira ação; classe/herança → substitui a existente; demais → padrão.
+     */
+    async _onDropItem(event, item) {
+        if (item.type === 'spell') return this.#dropSpell(item);
+        if (item.type === 'class') return this.#replaceEmbedded('class', item);
+        if (item.type === 'heritage') return this.#replaceEmbedded('heritage', item);
+        return super._onDropItem(event, item);
+    }
+
+    /** Magia arrastada → acrescenta uma ação na lista da ficha. */
+    async #dropSpell(item) {
+        const action = typeof item.system?.toActionData === 'function'
+            ? item.system.toActionData()
+            : { name: item.name, collapsed: true };
+        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
+        actions.push(action);
+        await this.document.update({ 'system.actions': actions });
+        ui.notifications?.info(`Granblue: ação "${item.name}" adicionada.`);
+    }
+
+    /** Classe/Herança arrastada → substitui a existente e cria o item embutido. */
+    async #replaceEmbedded(type, item) {
+        const existing = this.document.items.filter((i) => i.type === type).map((i) => i.id);
+        if (existing.length) await this.document.deleteEmbeddedDocuments('Item', existing);
+        await this.document.createEmbeddedDocuments('Item', [item.toObject()]);
+        if (type === 'class' && typeof this.document.recalcMax === 'function') {
+            await this.document.recalcMax();
+        }
     }
 
     /* ---------------------------------- */
