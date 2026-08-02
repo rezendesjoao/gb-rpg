@@ -1,4 +1,5 @@
 import { GRANBLUE } from '../config.mjs';
+import { rollDialog } from '../dice/roll-dialog.mjs';
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -205,18 +206,42 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
 
     static async #onRollAttribute(event, target) {
         const key = target.dataset.attribute;
-        await this.document.rollAttribute(key, { mana: event.shiftKey });
+        const attr = this.document.system.attributes[key];
+        const label = game.i18n.localize(GRANBLUE.attributes[key]?.label ?? key);
+        const mods = await rollDialog({
+            title: `Teste — ${label}`,
+            parts: [{ key: 'main', label: 'Teste', base: `3d6 + ${attr.total}` }],
+            mana: true
+        });
+        if (!mods) return;
+        await this.document.rollAttribute(key, { mana: mods.mana, bonus: mods.main.bonus, dice: mods.main.dice });
     }
 
     static async #onRollAction(event, target) {
         const index = Number(target.dataset.index);
         const part = target.dataset.part;
-        await this.document.rollAction(index, part);
+        const action = this.document.system.actions?.[index];
+        if (!action) return;
+        const base = (action[part] ?? '').trim();
+        const label = part === 'hit' ? 'Acerto' : 'Dano';
+        const mods = await rollDialog({
+            title: `${action.name} — ${label}`,
+            parts: base ? [{ key: 'main', label, base }] : []
+        });
+        if (!mods) return;
+        await this.document.rollAction(index, part, mods.main ?? {});
     }
 
     static async #onRollActionFull(event, target) {
         const index = Number(target.dataset.index);
-        await this.document.rollActionFull(index);
+        const action = this.document.system.actions?.[index];
+        if (!action) return;
+        const parts = [];
+        if ((action.hit ?? '').trim()) parts.push({ key: 'hit', label: 'Acerto', base: action.hit.trim() });
+        if ((action.damage ?? '').trim()) parts.push({ key: 'damage', label: 'Dano', base: action.damage.trim() });
+        const mods = await rollDialog({ title: action.name, parts });
+        if (!mods) return;
+        await this.document.rollActionFull(index, { hit: mods.hit, damage: mods.damage });
     }
 
     static #onToggleAction(event, target) {

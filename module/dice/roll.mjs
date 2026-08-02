@@ -20,6 +20,17 @@ function makeSection(subtitle, roll, kind) {
     return { subtitle, kind, dice: d.dice, modifier: d.modifier, total: d.total };
 }
 
+/** Acrescenta dados extras e/ou um bônus situacional a uma fórmula base. */
+function applyMods(base, mods = {}) {
+    let f = base;
+    const dice = String(mods.dice ?? '').trim();
+    if (dice) f += ` + ${dice}`;
+    const bonus = Number(mods.bonus) || 0;
+    if (bonus > 0) f += ` + ${bonus}`;
+    else if (bonus < 0) f += ` - ${Math.abs(bonus)}`;
+    return f;
+}
+
 /**
  * Rola um teste de atributo: 3d6 + (atributo + bônus).
  */
@@ -27,7 +38,7 @@ export async function rollAttributeTest(actor, attrKey, options = {}) {
     const attr = actor.system.attributes?.[attrKey];
     if (!attr) return null;
     const mod = attr.total ?? ((attr.value ?? 0) + (attr.bonus ?? 0));
-    const roll = new Roll('3d6 + @mod', { mod });
+    const roll = new Roll(applyMods('3d6 + @mod', options), { mod });
     await roll.evaluate();
 
     await postRollCard(actor, {
@@ -44,10 +55,11 @@ export async function rollAttributeTest(actor, attrKey, options = {}) {
     return roll;
 }
 
-/** Avalia a fórmula de uma parte da ação; devolve o Roll ou null. */
-async function evalActionRoll(actor, action, part) {
-    const formula = (action?.[part] ?? '').trim();
-    if (!formula) return null;
+/** Avalia a fórmula de uma parte da ação (com bônus/dados extras); devolve o Roll ou null. */
+async function evalActionRoll(actor, action, part, mods = {}) {
+    const base = (action?.[part] ?? '').trim();
+    if (!base) return null;
+    const formula = applyMods(base, mods);
     try {
         const roll = new Roll(formula, actor.getRollData());
         await roll.evaluate();
@@ -60,9 +72,9 @@ async function evalActionRoll(actor, action, part) {
 }
 
 /** Rola uma parte (acerto ou dano) de uma ação em um cartão. */
-export async function rollActionPart(actor, action, part) {
+export async function rollActionPart(actor, action, part, mods = {}) {
     const hasFormula = !!(action?.[part] ?? '').trim();
-    const roll = await evalActionRoll(actor, action, part);
+    const roll = await evalActionRoll(actor, action, part, mods);
     if (!roll) {
         if (!hasFormula) ui.notifications?.warn(game.i18n.localize('GRANBLUE.Chat.noFormula'));
         return null;
@@ -82,17 +94,17 @@ export async function rollActionPart(actor, action, part) {
 }
 
 /** Rola a ação inteira (acerto + dano, quando existirem) em um único cartão. */
-export async function rollActionFull(actor, action) {
+export async function rollActionFull(actor, action, mods = {}) {
     const sections = [];
     const rolls = [];
 
-    const hitRoll = await evalActionRoll(actor, action, 'hit');
+    const hitRoll = await evalActionRoll(actor, action, 'hit', mods.hit);
     if (hitRoll) {
         rolls.push(hitRoll);
         sections.push(makeSection(game.i18n.localize('GRANBLUE.Chat.hitRoll'), hitRoll, 'hit'));
     }
 
-    const dmgRoll = await evalActionRoll(actor, action, 'damage');
+    const dmgRoll = await evalActionRoll(actor, action, 'damage', mods.damage);
     if (dmgRoll) {
         rolls.push(dmgRoll);
         sections.push(makeSection(game.i18n.localize('GRANBLUE.Chat.damageRoll'), dmgRoll, 'damage'));

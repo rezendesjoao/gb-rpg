@@ -60,17 +60,17 @@ export class GranblueActor extends Actor {
     }
 
     /** Rola a parte de acerto ou dano de uma ação pela sua posição na lista. */
-    async rollAction(index, part) {
+    async rollAction(index, part, mods = {}) {
         const action = this.system.actions?.[index];
         if (!action) return null;
-        return rollActionPart(this, action, part);
+        return rollActionPart(this, action, part, mods);
     }
 
     /** Rola a ação inteira (acerto + dano) pela sua posição na lista. */
-    async rollActionFull(index) {
+    async rollActionFull(index, mods = {}) {
         const action = this.system.actions?.[index];
         if (!action) return null;
-        return rollActionFull(this, action);
+        return rollActionFull(this, action, mods);
     }
 
     /** Rola a ação inteira pelo nome (usado por macros da barra de atalhos). */

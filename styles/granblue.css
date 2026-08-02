@@ -417,6 +417,60 @@
 .gb-apply:hover { filter: brightness(1.12); }
 
 /* =========================================================
+   Diálogo de rolagem (bônus situacional)
+   ========================================================= */
+.granblue.gb-dialog .window-content { background: var(--gb-paper); color: var(--gb-ink); }
+.gb-roll-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: 'Signika', sans-serif;
+    padding: 4px 2px;
+}
+.gb-rd-part {
+    background: var(--gb-paper-2);
+    border: 1px solid var(--gb-line);
+    border-left: 4px solid var(--gb-blue);
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+.gb-rd-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.gb-rd-name { font-weight: 700; color: var(--gb-blue); font-size: 0.95rem; }
+.gb-rd-base {
+    font-size: 0.74rem;
+    background: #00000010;
+    padding: 2px 7px;
+    border-radius: 10px;
+    color: #4a4636;
+    white-space: nowrap;
+}
+.gb-rd-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gb-rd-field { display: flex; flex-direction: column; gap: 3px; font-size: 0.74rem; color: #6b6350; }
+.gb-rd-field input {
+    background: #fff;
+    border: 1px solid var(--gb-line);
+    border-radius: 5px;
+    padding: 4px 7px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+.gb-rd-field input:focus { outline: none; border-color: var(--gb-gold); box-shadow: 0 0 4px var(--gb-gold-light); }
+.gb-rd-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--gb-mana);
+    font-weight: 600;
+    background: #2f5aa112;
+    border: 1px solid var(--gb-line);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+.gb-rd-hint { font-size: 0.7rem; color: #6b6350; margin: 0; text-align: center; }
+
+/* =========================================================
    Cartões de Classe / Herança e itens
    ========================================================= */
 .gb-idcards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
