@@ -34,8 +34,7 @@ export class GranblueSpell extends foundry.abstract.TypeDataModel {
             casting: String(this.casting ?? ''),
             difficulty: String(this.difficulty ?? ''),
             effect: this.stripHtml(this.effect),
-            description: this.stripHtml(this.description),
-            collapsed: true
+            description: this.stripHtml(this.description)
         };
     }
 

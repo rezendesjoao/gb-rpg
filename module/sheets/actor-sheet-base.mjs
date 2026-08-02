@@ -36,6 +36,13 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     /** Guarda a aba ativa entre re-renderizações. */
     _tab = this.constructor.DEFAULT_TAB;
 
+    /**
+     * Estado de UI (não persistido): índices das ações ABERTAS.
+     * Padrão vazio = todas fechadas; alternar não dispara update do documento,
+     * então editar outros campos não altera o estado de colapso.
+     */
+    _expanded = new Set();
+
     /* ---------------------------------- */
     /*  Contexto compartilhado            */
     /* ---------------------------------- */
@@ -129,6 +136,18 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
                 ev.dataTransfer.effectAllowed = 'copy';
             });
         });
+
+        // Reaplica o estado de colapso das ações (fechadas por padrão)
+        root.querySelectorAll('.gb-action').forEach((el) => {
+            const idx = Number(el.dataset.actionIndex);
+            const open = this._expanded.has(idx);
+            el.classList.toggle('gb-action--collapsed', !open);
+            const icon = el.querySelector('.gb-collapse-toggle i');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-down', open);
+                icon.classList.toggle('fa-chevron-right', !open);
+            }
+        });
     }
 
     /* ---------------------------------- */
@@ -200,12 +219,20 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         await this.document.rollActionFull(index);
     }
 
-    static async #onToggleAction(event, target) {
+    static #onToggleAction(event, target) {
+        // Estado de UI apenas — não altera o documento (não dispara re-render).
         const index = Number(target.dataset.index);
-        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
-        if (!actions[index]) return;
-        actions[index].collapsed = !actions[index].collapsed;
-        await this.document.update({ 'system.actions': actions });
+        const open = !this._expanded.has(index);
+        if (open) this._expanded.add(index);
+        else this._expanded.delete(index);
+
+        const el = target.closest('.gb-action');
+        if (el) el.classList.toggle('gb-action--collapsed', !open);
+        const icon = target.querySelector('i');
+        if (icon) {
+            icon.classList.toggle('fa-chevron-down', open);
+            icon.classList.toggle('fa-chevron-right', !open);
+        }
     }
 
     static async #onAddAction(event, target) {
@@ -222,6 +249,13 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const index = Number(target.dataset.index);
         const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
         actions.splice(index, 1);
+        // Ajusta o estado de colapso: os índices deslocam ao remover uma ação.
+        const shifted = new Set();
+        for (const i of this._expanded) {
+            if (i < index) shifted.add(i);
+            else if (i > index) shifted.add(i - 1);
+        }
+        this._expanded = shifted;
         await this.document.update({ 'system.actions': actions });
     }
 
