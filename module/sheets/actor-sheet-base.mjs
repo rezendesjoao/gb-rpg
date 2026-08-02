@@ -18,6 +18,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             editImage: GranblueActorSheetBase.#onEditImage,
             rollAttribute: GranblueActorSheetBase.#onRollAttribute,
             rollAction: GranblueActorSheetBase.#onRollAction,
+            rollActionFull: GranblueActorSheetBase.#onRollActionFull,
+            toggleAction: GranblueActorSheetBase.#onToggleAction,
             addAction: GranblueActorSheetBase.#onAddAction,
             deleteAction: GranblueActorSheetBase.#onDeleteAction,
             rollHitDie: GranblueActorSheetBase.#onRollHitDie,
@@ -109,6 +111,22 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             });
         });
         applyTab(this._tab);
+
+        // Arrastar uma ação para a barra de macros (hotbar)
+        root.querySelectorAll('[data-drag-action]').forEach((el) => {
+            el.addEventListener('dragstart', (ev) => {
+                const idx = Number(el.dataset.dragAction);
+                const action = this.document.system.actions?.[idx];
+                if (!action) return;
+                const data = {
+                    type: 'granblueAction',
+                    actorUuid: this.document.uuid,
+                    actionName: action.name
+                };
+                ev.dataTransfer.setData('text/plain', JSON.stringify(data));
+                ev.dataTransfer.effectAllowed = 'copy';
+            });
+        });
     }
 
     /* ---------------------------------- */
@@ -137,6 +155,19 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const index = Number(target.dataset.index);
         const part = target.dataset.part;
         await this.document.rollAction(index, part);
+    }
+
+    static async #onRollActionFull(event, target) {
+        const index = Number(target.dataset.index);
+        await this.document.rollActionFull(index);
+    }
+
+    static async #onToggleAction(event, target) {
+        const index = Number(target.dataset.index);
+        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
+        if (!actions[index]) return;
+        actions[index].collapsed = !actions[index].collapsed;
+        await this.document.update({ 'system.actions': actions });
     }
 
     static async #onAddAction(event, target) {

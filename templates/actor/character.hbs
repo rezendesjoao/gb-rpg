@@ -186,25 +186,31 @@
     <p class="gb-hint">Fórmulas aceitam atalhos: <code>@forca @precisao @reacao @resiliencia @percepcao @carisma @sabedoria @potencia @disciplina @nivel @ca</code>. Ex.: acerto <code>3d6 + @precisao</code>, dano <code>2d8 + @forca</code>.</p>
 
     {{#each actions as |action idx|}}
-    <div class="gb-action">
+    <div class="gb-action {{#if action.collapsed}}gb-action--collapsed{{/if}}">
         <div class="gb-action-head">
+            <a class="gb-collapse-toggle" data-action="toggleAction" data-index="{{idx}}" title="Expandir / recolher">
+                <i class="fa-solid {{#if action.collapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
+            </a>
             <input type="text" class="gb-action-name" name="system.actions.{{idx}}.name" value="{{action.name}}">
-            <a class="gb-btn gb-btn--hit" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i> Acerto</a>
-            <a class="gb-btn gb-btn--dmg" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i> Dano</a>
+            <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-index="{{idx}}" data-drag-action="{{idx}}" draggable="true" title="Rolar ação (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
+            <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
+            <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i></a>
             <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
         </div>
-        <div class="gb-action-formulas">
-            <label><span>Acerto</span><input type="text" name="system.actions.{{idx}}.hit" value="{{action.hit}}" placeholder="3d6 + @precisao"></label>
-            <label><span>Dano</span><input type="text" name="system.actions.{{idx}}.damage" value="{{action.damage}}" placeholder="2d8 + @forca"></label>
+        <div class="gb-action-details">
+            <div class="gb-action-formulas">
+                <label><span>Acerto</span><input type="text" name="system.actions.{{idx}}.hit" value="{{action.hit}}" placeholder="3d6 + @precisao"></label>
+                <label><span>Dano</span><input type="text" name="system.actions.{{idx}}.damage" value="{{action.damage}}" placeholder="2d8 + @forca"></label>
+            </div>
+            <div class="gb-action-meta">
+                <label><span>Custo</span><input type="text" name="system.actions.{{idx}}.cost" value="{{action.cost}}"></label>
+                <label><span>Alcance</span><input type="text" name="system.actions.{{idx}}.range" value="{{action.range}}"></label>
+                <label><span>Conjuração</span><input type="text" name="system.actions.{{idx}}.casting" value="{{action.casting}}"></label>
+                <label><span>Dificuldade</span><input type="text" name="system.actions.{{idx}}.difficulty" value="{{action.difficulty}}"></label>
+            </div>
+            <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
+            <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.actions.{{idx}}.description" value="{{action.description}}"></label>
         </div>
-        <div class="gb-action-meta">
-            <label><span>Custo</span><input type="text" name="system.actions.{{idx}}.cost" value="{{action.cost}}"></label>
-            <label><span>Alcance</span><input type="text" name="system.actions.{{idx}}.range" value="{{action.range}}"></label>
-            <label><span>Conjuração</span><input type="text" name="system.actions.{{idx}}.casting" value="{{action.casting}}"></label>
-            <label><span>Dificuldade</span><input type="text" name="system.actions.{{idx}}.difficulty" value="{{action.difficulty}}"></label>
-        </div>
-        <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
-        <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.actions.{{idx}}.description" value="{{action.description}}"></label>
     </div>
     {{else}}
     <p class="gb-empty">Nenhuma ação. Clique em "Adicionar ação" para criar ataques, magias ou manobras.</p>

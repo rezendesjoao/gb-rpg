@@ -58,7 +58,8 @@ export function makeActionSchema() {
         casting: new fields.StringField({ required: true, initial: '', blank: true }),
         difficulty: new fields.StringField({ required: true, initial: '', blank: true }),
         effect: new fields.StringField({ required: true, initial: '', blank: true }),
-        description: new fields.StringField({ required: true, initial: '', blank: true })
+        description: new fields.StringField({ required: true, initial: '', blank: true }),
+        collapsed: new fields.BooleanField({ required: true, initial: false })
     });
 }
 

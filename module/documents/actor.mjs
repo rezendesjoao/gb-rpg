@@ -1,4 +1,4 @@
-import { rollAttributeTest, rollActionPart, rollHitDie } from '../dice/roll.mjs';
+import { rollAttributeTest, rollActionPart, rollActionFull, rollHitDie } from '../dice/roll.mjs';
 import { GRANBLUE } from '../config.mjs';
 
 /**
@@ -26,6 +26,23 @@ export class GranblueActor extends Actor {
         const action = this.system.actions?.[index];
         if (!action) return null;
         return rollActionPart(this, action, part);
+    }
+
+    /** Rola a ação inteira (acerto + dano) pela sua posição na lista. */
+    async rollActionFull(index) {
+        const action = this.system.actions?.[index];
+        if (!action) return null;
+        return rollActionFull(this, action);
+    }
+
+    /** Rola a ação inteira pelo nome (usado por macros da barra de atalhos). */
+    async rollActionByName(name) {
+        const index = this.system.actions?.findIndex((a) => a.name === name);
+        if (index == null || index < 0) {
+            ui.notifications?.warn(`${game.i18n.localize('GRANBLUE.Chat.actionNotFound')}: ${name}`);
+            return null;
+        }
+        return this.rollActionFull(index);
     }
 
     /**

@@ -90,18 +90,22 @@
         <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ataque</button>
     </div>
     {{#each actions as |action idx|}}
-    <div class="gb-action">
+    <div class="gb-action {{#if action.collapsed}}gb-action--collapsed{{/if}}">
         <div class="gb-action-head">
+            <a class="gb-collapse-toggle" data-action="toggleAction" data-index="{{idx}}" title="Expandir / recolher"><i class="fa-solid {{#if action.collapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i></a>
             <input type="text" class="gb-action-name" name="system.actions.{{idx}}.name" value="{{action.name}}">
-            <a class="gb-btn gb-btn--hit" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i> Acerto</a>
-            <a class="gb-btn gb-btn--dmg" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i> Dano</a>
+            <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-index="{{idx}}" data-drag-action="{{idx}}" draggable="true" title="Rolar ataque (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
+            <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
+            <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i></a>
             <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
         </div>
-        <div class="gb-action-formulas">
-            <label><span>Acerto</span><input type="text" name="system.actions.{{idx}}.hit" value="{{action.hit}}" placeholder="3d6 + @precisao"></label>
-            <label><span>Dano</span><input type="text" name="system.actions.{{idx}}.damage" value="{{action.damage}}" placeholder="2d8 + @forca"></label>
+        <div class="gb-action-details">
+            <div class="gb-action-formulas">
+                <label><span>Acerto</span><input type="text" name="system.actions.{{idx}}.hit" value="{{action.hit}}" placeholder="3d6 + @precisao"></label>
+                <label><span>Dano</span><input type="text" name="system.actions.{{idx}}.damage" value="{{action.damage}}" placeholder="2d8 + @forca"></label>
+            </div>
+            <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
         </div>
-        <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
     </div>
     {{else}}
     <p class="gb-empty">Nenhum ataque cadastrado.</p>

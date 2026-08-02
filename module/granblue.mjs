@@ -99,6 +99,39 @@ Hooks.once('ready', () => {
 });
 
 /* -------------------------------------------- */
+/*  Arrastar ação → macro na barra de atalhos    */
+/* -------------------------------------------- */
+
+Hooks.on('hotbarDrop', (bar, data, slot) => {
+    if (data?.type !== 'granblueAction') return;
+    createActionMacro(data, slot);
+    return false; // impede o comportamento padrão do Foundry
+});
+
+async function createActionMacro(data, slot) {
+    const command =
+        `const actor = await fromUuid(${JSON.stringify(data.actorUuid)});\n` +
+        `if (actor) actor.rollActionByName(${JSON.stringify(data.actionName)});\n` +
+        `else ui.notifications.warn("Granblue: ator não encontrado para esta ação.");`;
+    try {
+        let macro = game.macros.find((m) => m.name === data.actionName && m.command === command);
+        if (!macro) {
+            macro = await Macro.create({
+                name: data.actionName,
+                type: 'script',
+                img: 'icons/svg/d20.svg',
+                command,
+                flags: { granblue: { actionMacro: true } }
+            });
+        }
+        await game.user.assignHotbarMacro(macro, slot);
+    } catch (err) {
+        ui.notifications?.error('Granblue: não foi possível criar a macro (permissão de script?).');
+        console.error('Granblue | Erro ao criar macro de ação:', err);
+    }
+}
+
+/* -------------------------------------------- */
 /*  Helpers                                      */
 /* -------------------------------------------- */
 

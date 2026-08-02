@@ -286,6 +286,23 @@
 .gb-action-effect, .gb-action-desc { margin-top: 6px; }
 .gb-empty { color: #6b6350; font-style: italic; padding: 12px; text-align: center; }
 
+/* ---- Ações colapsáveis + rolagem rápida ---- */
+.gb-collapse-toggle {
+    flex: 0 0 auto;
+    width: 16px;
+    text-align: center;
+    color: var(--gb-blue);
+    cursor: pointer;
+}
+.gb-collapse-toggle:hover { color: var(--gb-gold); }
+.gb-action-details { margin-top: 6px; }
+.gb-action--collapsed { padding-bottom: 5px; }
+.gb-action--collapsed .gb-action-details { display: none; }
+.gb-action--collapsed .gb-only-expanded { display: none; }
+.gb-btn--roll { background: var(--gb-gold); color: #3a2d0a; }
+.gb-btn--roll[draggable="true"] { cursor: grab; }
+.gb-btn--roll[draggable="true"]:active { cursor: grabbing; }
+
 /* ---- Esferas / Progresso ---- */
 .gb-spheres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
 .gb-sphere {
@@ -332,7 +349,9 @@
     border-bottom: 2px solid var(--gb-gold, #c9a44c);
 }
 .gb-chat-header h3 { margin: 0; color: #fff; border: none; font-size: 1rem; }
-.gb-chat-subtitle { font-size: 0.72rem; color: #e6c976; }
+.gb-chat-section { padding: 2px 0; }
+.gb-chat-section + .gb-chat-section { border-top: 1px dashed var(--gb-line); margin-top: 2px; }
+.gb-chat-subtitle { font-size: 0.74rem; color: var(--gb-blue, #1b3a5b); font-weight: 600; padding: 4px 8px 0; }
 .gb-chat-roll { padding: 6px; }
 .gb-chat-meta { list-style: none; margin: 0; padding: 4px 8px; font-size: 0.8rem; background: #0000000a; }
 .gb-chat-meta li { padding: 1px 0; }

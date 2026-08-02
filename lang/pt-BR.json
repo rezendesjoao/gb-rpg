@@ -77,6 +77,7 @@
     "GRANBLUE.Chat.damageRoll": "Rolagem de Dano",
     "GRANBLUE.Chat.noFormula": "Nenhuma fórmula definida para esta ação.",
     "GRANBLUE.Chat.badFormula": "Fórmula inválida",
+    "GRANBLUE.Chat.actionNotFound": "Ação não encontrada",
 
     "GRANBLUE.Action.new": "Nova ação",
     "GRANBLUE.Action.cost": "Custo",

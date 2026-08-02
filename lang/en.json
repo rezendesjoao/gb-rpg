@@ -77,6 +77,7 @@
     "GRANBLUE.Chat.damageRoll": "Damage Roll",
     "GRANBLUE.Chat.noFormula": "No formula defined for this action.",
     "GRANBLUE.Chat.badFormula": "Invalid formula",
+    "GRANBLUE.Chat.actionNotFound": "Action not found",
 
     "GRANBLUE.Action.new": "New action",
     "GRANBLUE.Action.cost": "Cost",
