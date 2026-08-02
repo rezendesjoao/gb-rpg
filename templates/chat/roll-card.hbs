@@ -7,14 +7,17 @@
     {{#each sections as |s|}}
     <div class="gb-chat-section">
         {{#if s.subtitle}}<div class="gb-chat-subtitle">{{s.subtitle}}</div>{{/if}}
-        <div class="gb-chat-roll">{{{s.rollHTML}}}</div>
-        {{#if s.difficulties}}
-        <div class="gb-chat-ladder">
-            {{#each s.difficulties as |d|}}
-            <span class="gb-dc {{#if d.success}}gb-dc--met{{else}}gb-dc--unmet{{/if}}" title="{{d.label}}">{{d.label}}: {{d.value}}</span>
-            {{/each}}
+        <div class="gb-roll">
+            <div class="gb-roll-dice">
+                {{#each s.dice as |d|}}
+                    {{#each d.values as |v|}}
+                    <span class="gb-die-face gb-die-d{{d.faces}}" title="d{{d.faces}}">{{v}}</span>
+                    {{/each}}
+                {{/each}}
+                {{#if s.modifier}}<span class="gb-roll-mod">{{granblueSigned s.modifier}}</span>{{/if}}
+            </div>
+            <div class="gb-roll-total">{{s.total}}</div>
         </div>
-        {{/if}}
     </div>
     {{/each}}
 
@@ -23,4 +26,13 @@
         {{#each meta as |m|}}<li><strong>{{m.label}}:</strong> {{m.value}}</li>{{/each}}
     </ul>
     {{/if}}
+
+    <div class="gb-chat-apply">
+        <button type="button" class="gb-apply gb-apply--dmg" data-gb-apply="damage" data-amount="{{applyAmount}}" title="Aplicar dano ao(s) token(s) selecionado(s)">
+            <i class="fa-solid fa-heart-crack"></i> Dano {{applyAmount}}
+        </button>
+        <button type="button" class="gb-apply gb-apply--heal" data-gb-apply="heal" data-amount="{{applyAmount}}" title="Curar o(s) token(s) selecionado(s)">
+            <i class="fa-solid fa-heart"></i> Cura {{applyAmount}}
+        </button>
+    </div>
 </div>

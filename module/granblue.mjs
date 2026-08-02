@@ -132,6 +132,51 @@ async function createActionMacro(data, slot) {
 }
 
 /* -------------------------------------------- */
+/*  Aplicar dano/cura no token selecionado       */
+/* -------------------------------------------- */
+
+Hooks.on('renderChatMessageHTML', (message, html) => {
+    const root = html instanceof HTMLElement ? html : html?.[0];
+    if (!root) return;
+    root.querySelectorAll('[data-gb-apply]').forEach((btn) => {
+        btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const kind = btn.dataset.gbApply;
+            const amount = Number(btn.dataset.amount) || 0;
+            applyToSelectedTokens(kind, amount);
+        });
+    });
+});
+
+async function applyToSelectedTokens(kind, amount) {
+    const tokens = canvas.tokens?.controlled ?? [];
+    if (!tokens.length) {
+        ui.notifications?.warn('Granblue: selecione ao menos um token para aplicar dano/cura.');
+        return;
+    }
+    let applied = 0;
+    for (const token of tokens) {
+        const actor = token.actor;
+        const hp = actor?.system?.resources?.hitPoints;
+        if (!hp) continue;
+        const max = hp.max ?? 0;
+        const newValue = kind === 'damage' ? hp.value - amount : Math.min(max, hp.value + amount);
+        try {
+            await actor.update({ 'system.resources.hitPoints.value': newValue });
+            applied++;
+        } catch (err) {
+            console.warn('Granblue | Sem permissão para alterar', actor?.name, err);
+        }
+    }
+    if (applied) {
+        const verbo = kind === 'damage' ? 'Dano' : 'Cura';
+        ui.notifications?.info(`Granblue: ${verbo} de ${amount} aplicado a ${applied} token(s).`);
+    } else {
+        ui.notifications?.warn('Granblue: nenhum token elegível (verifique permissões).');
+    }
+}
+
+/* -------------------------------------------- */
 /*  Helpers                                      */
 /* -------------------------------------------- */
 
