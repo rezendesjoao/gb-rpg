@@ -87,6 +87,70 @@
     background: #0003;
     cursor: pointer;
 }
+
+/* ---- Topo do personagem: arte em painel lateral + cabeçalho/vitais ---- */
+.gb-top {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    align-items: stretch;
+    border-bottom: 3px solid var(--gb-gold);
+}
+.gb-top-main { display: flex; flex-direction: column; min-width: 0; }
+/* O cabeçalho absorve a altura extra da arte; as barras ficam na base. */
+.gb-top-main .gb-header { flex: 1 1 auto; align-content: center; }
+.gb-top-main .gb-vitals { flex: 0 0 auto; border-bottom: none; }
+.gb-portrait-panel {
+    position: relative;
+    margin: 0;
+    min-height: 240px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #12293f, #0c1a29);
+    border-right: 3px solid var(--gb-gold);
+}
+.gb-top .gb-portrait {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    border: none;
+    border-radius: 0;
+    background: none;
+}
+.gb-portrait-zoom {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    color: var(--gb-gold-light);
+    background: #000000a6;
+    border: 1px solid var(--gb-gold);
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.15s, background 0.15s;
+}
+.gb-portrait-panel:hover .gb-portrait-zoom { opacity: 1; }
+.gb-portrait-zoom:hover { background: var(--gb-blue); color: #fff; }
+.gb-top .gb-header { grid-template-columns: 1fr auto; border-bottom: none; }
+
+/* Ficha estreita (o usuário encolheu a janela): a arte vira uma faixa no topo.
+   Container query = reage à largura da FICHA, não à do navegador. */
+.granblue.sheet .gb-root { container-type: inline-size; }
+@container (max-width: 620px) {
+    .gb-top { grid-template-columns: 1fr; }
+    .gb-portrait-panel {
+        min-height: 0;
+        height: 160px;
+        border-right: none;
+        border-bottom: 2px solid var(--gb-gold);
+    }
+    .gb-top .gb-portrait { object-position: center 25%; }
+}
 .gb-identity { min-width: 0; }
 .gb-name {
     width: 100%;
@@ -247,8 +311,8 @@
 .gb-attr-roll { transition: filter 0.12s; }
 .gb-action { transition: box-shadow 0.12s ease, border-color 0.12s; }
 .gb-action:hover { box-shadow: 0 3px 9px #00000018; }
-.gb-btn, .gb-actions-toolbar button, .gb-recalc, .gb-idcard, .gb-sphere, .gb-chip { transition: all 0.13s ease; }
-.gb-sphere:hover { border-color: var(--gb-gold); }
+.gb-btn, .gb-actions-toolbar button, .gb-recalc, .gb-idcard, .gb-sphere-group, .gb-inv-group, .gb-chip { transition: all 0.13s ease; }
+.gb-sphere-group:hover, .gb-inv-group:hover { border-color: var(--gb-gold); }
 .gb-idcard { box-shadow: 0 1px 4px #00000012; }
 .gb-idcard:hover { box-shadow: 0 4px 12px #00000022; }
 input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s, box-shadow 0.12s; }
@@ -411,21 +475,80 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 .gb-btn--roll[draggable="true"] { cursor: grab; }
 .gb-btn--roll[draggable="true"]:active { cursor: grabbing; }
 
-/* ---- Esferas / Progresso ---- */
-.gb-spheres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
-.gb-sphere {
+/* ---- Esferas de magia (cada esfera guarda as próprias magias) ---- */
+.gb-sphere-group {
+    background: #ffffff55;
+    border: 1px solid var(--gb-line);
+    border-left: 4px solid var(--gb-mana);
+    border-radius: 8px;
+    padding: 6px 8px 4px;
+    margin-bottom: 10px;
+}
+.gb-sphere-group--locked { opacity: 0.68; border-left-color: #9a9280; }
+.gb-sphere-group--orphan { border-left-color: var(--gb-danger); }
+.gb-sphere-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    background: var(--gb-paper-2);
-    border: 1px solid var(--gb-line);
-    border-radius: 6px;
-    padding: 5px 8px;
+    gap: 8px;
+    padding-bottom: 5px;
+    margin-bottom: 6px;
+    border-bottom: 1px dashed var(--gb-line);
 }
-.gb-sphere-name { font-weight: 600; color: var(--gb-blue); }
-.gb-sphere-name em { color: #6b6350; font-size: 0.78rem; }
-.gb-sphere input { width: 48px; }
+.gb-sphere-title { flex: 1 1 auto; margin: 0; font-size: 0.92rem; color: var(--gb-blue); border: none; }
+.gb-sphere-title em { color: #6b6350; font-size: 0.76rem; font-weight: 400; }
+.gb-sphere-pts { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #6b6350; }
+.gb-sphere-pts input { width: 48px; }
+.gb-sphere-add {
+    width: auto;
+    background: var(--gb-blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.gb-sphere-add:hover { background: var(--gb-gold); }
+.gb-action--spell { border-left-color: var(--gb-mana); }
+.gb-spell-meta { display: grid; grid-template-columns: 1.2fr 1.2fr 0.6fr; gap: 6px; margin-top: 6px; }
+.gb-spell-meta label { display: flex; flex-direction: column; font-size: 0.7rem; color: #6b6350; gap: 2px; }
+.gb-chip--arcano { background: var(--gb-mana); flex: 0 0 auto; }
+.gb-action--orphan { border-left-color: var(--gb-danger); }
+.gb-orphan-warn { flex: 0 0 auto; width: 16px; text-align: center; color: var(--gb-danger); }
+.gb-orphan-sphere { width: auto; font-size: 0.78rem; }
+.gb-empty--sm { padding: 6px; font-size: 0.76rem; }
+
+/* ---- Inventário ---- */
+.gb-inv-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--gb-line);
+}
+.gb-inv-currency { flex-direction: row; align-items: center; gap: 6px; }
+.gb-inv-currency > span { color: var(--gb-blue); font-weight: 600; }
+.gb-inv-currency input { width: 90px; }
+.gb-inv-group {
+    background: #ffffff55;
+    border: 1px solid var(--gb-line);
+    border-left: 4px solid var(--gb-gold);
+    border-radius: 8px;
+    padding: 6px 8px 4px;
+    margin-bottom: 10px;
+}
+.gb-action--inv { border-left-color: #9a9280; }
+.gb-action--inv.gb-action--equipped { border-left-color: var(--gb-ok); }
+.gb-inv-eq { display: flex; align-items: center; flex: 0 0 auto; }
+.gb-inv-eq input { margin: 0; cursor: pointer; }
+.gb-inv-qty { display: flex; align-items: center; gap: 3px; flex: 0 0 auto; font-size: 0.78rem; color: #6b6350; }
+.gb-inv-qty input { width: 52px; }
+.gb-inv-meta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 6px; }
+.gb-inv-meta label { display: flex; flex-direction: column; font-size: 0.7rem; color: #6b6350; gap: 2px; }
+
+/* ---- Progresso de rank ---- */
 .gb-progress { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
 .gb-progress label { display: flex; flex-direction: column; font-size: 0.72rem; color: #6b6350; }
 .gb-progress input { width: 70px; }

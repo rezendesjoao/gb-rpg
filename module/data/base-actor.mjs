@@ -48,12 +48,12 @@ export function makeDefensesSchema() {
 }
 
 /**
- * Schema de uma ação (ataque/magia/manobra) armazenada como linha na ficha.
+ * Campos de uma ação (ataque/magia/manobra) armazenada como linha na ficha.
  * As fórmulas de acerto/dano aceitam sintaxe de rolagem do Foundry com atalhos
  * de dados do personagem (ex.: "3d6 + @precisao", "2d8 + @forca").
  */
-export function makeActionSchema() {
-    return new fields.SchemaField({
+function actionFields() {
+    return {
         name: new fields.StringField({ required: true, initial: 'Nova ação', blank: false }),
         hit: new fields.StringField({ required: true, initial: '', blank: true }),
         damage: new fields.StringField({ required: true, initial: '', blank: true }),
@@ -62,6 +62,42 @@ export function makeActionSchema() {
         casting: new fields.StringField({ required: true, initial: '', blank: true }),
         difficulty: new fields.StringField({ required: true, initial: '', blank: true }),
         effect: new fields.StringField({ required: true, initial: '', blank: true }),
+        description: new fields.StringField({ required: true, initial: '', blank: true })
+    };
+}
+
+/** Schema de uma ação da lista `system.actions`. */
+export function makeActionSchema() {
+    return new fields.SchemaField(actionFields());
+}
+
+/**
+ * Schema de uma magia da lista `system.spells`: os mesmos campos de uma ação
+ * (para rolar acerto/dano do mesmo jeito) mais a esfera a que pertence.
+ */
+export function makeSpellSchema() {
+    return new fields.SchemaField({
+        ...actionFields(),
+        sphere: new fields.StringField({ required: true, initial: 'energia', blank: true }),
+        arcano: new fields.StringField({ required: true, initial: '', blank: true }),
+        level: new fields.NumberField({ required: true, integer: true, initial: 1, min: 1, max: 9, nullable: false })
+    });
+}
+
+/**
+ * Schema de um item do inventário. Tier, qualidade, peso e valor são textos
+ * livres de propósito: aceitam tanto números quanto anotações ("0,5", "~200 rupias").
+ */
+export function makeInventorySchema() {
+    return new fields.SchemaField({
+        name: new fields.StringField({ required: true, initial: 'Novo item', blank: true }),
+        category: new fields.StringField({ required: true, initial: 'outros', blank: true }),
+        quantity: new fields.NumberField({ required: true, integer: true, initial: 1, min: 0, nullable: false }),
+        tier: new fields.StringField({ required: true, initial: '', blank: true }),
+        quality: new fields.StringField({ required: true, initial: '', blank: true }),
+        weight: new fields.StringField({ required: true, initial: '', blank: true }),
+        value: new fields.StringField({ required: true, initial: '', blank: true }),
+        equipped: new fields.BooleanField({ required: true, initial: false }),
         description: new fields.StringField({ required: true, initial: '', blank: true })
     });
 }

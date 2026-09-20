@@ -59,16 +59,21 @@ export class GranblueActor extends Actor {
         return rollAttributeTest(this, attrKey, options);
     }
 
-    /** Rola a parte de acerto ou dano de uma ação pela sua posição na lista. */
-    async rollAction(index, part, mods = {}) {
-        const action = this.system.actions?.[index];
+    /** Lista de entradas roláveis: ações (padrão) ou magias. */
+    actionList(list = 'actions') {
+        return (list === 'spells' ? this.system.spells : this.system.actions) ?? [];
+    }
+
+    /** Rola a parte de acerto ou dano de uma ação/magia pela sua posição na lista. */
+    async rollAction(index, part, mods = {}, list = 'actions') {
+        const action = this.actionList(list)[index];
         if (!action) return null;
         return rollActionPart(this, action, part, mods);
     }
 
-    /** Rola a ação inteira (acerto + dano) pela sua posição na lista. */
-    async rollActionFull(index, mods = {}) {
-        const action = this.system.actions?.[index];
+    /** Rola a ação/magia inteira (acerto + dano) pela sua posição na lista. */
+    async rollActionFull(index, mods = {}, list = 'actions') {
+        const action = this.actionList(list)[index];
         if (!action) return null;
         return rollActionFull(this, action, mods);
     }
@@ -82,14 +87,17 @@ export class GranblueActor extends Actor {
         await this.update({ [`system.resources.${key}.value`]: current - amt });
     }
 
-    /** Rola a ação inteira pelo nome (usado por macros da barra de atalhos). */
+    /**
+     * Rola a ação/magia inteira pelo nome (usado por macros da barra de atalhos).
+     * Procura primeiro nas ações e depois nas magias.
+     */
     async rollActionByName(name) {
-        const index = this.system.actions?.findIndex((a) => a.name === name);
-        if (index == null || index < 0) {
-            ui.notifications?.warn(`${game.i18n.localize('GRANBLUE.Chat.actionNotFound')}: ${name}`);
-            return null;
+        for (const list of ['actions', 'spells']) {
+            const index = this.actionList(list).findIndex((a) => a.name === name);
+            if (index >= 0) return this.rollActionFull(index, {}, list);
         }
-        return this.rollActionFull(index);
+        ui.notifications?.warn(`${game.i18n.localize('GRANBLUE.Chat.actionNotFound')}: ${name}`);
+        return null;
     }
 
     /**

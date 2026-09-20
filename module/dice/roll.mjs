@@ -139,6 +139,15 @@ export async function rollHitDie(actor, dieFormula) {
 /** Linhas de metadados (custo/alcance/etc.) exibidas no cartão de uma ação. */
 function buildActionMeta(action) {
     const meta = [];
+    const sphere = GRANBLUE.normalizeSphere(action.sphere);
+    if (sphere) {
+        meta.push({
+            label: game.i18n.localize('GRANBLUE.Spell.sphere'),
+            value: game.i18n.localize(GRANBLUE.spheres[sphere].label)
+        });
+    }
+    if (action.arcano) meta.push({ label: game.i18n.localize('GRANBLUE.Spell.arcano'), value: action.arcano });
+    if (sphere && action.level) meta.push({ label: game.i18n.localize('GRANBLUE.Spell.level'), value: action.level });
     if (action.cost) meta.push({ label: game.i18n.localize('GRANBLUE.Action.cost'), value: action.cost });
     if (action.range) meta.push({ label: game.i18n.localize('GRANBLUE.Action.range'), value: action.range });
     if (action.casting) meta.push({ label: game.i18n.localize('GRANBLUE.Action.casting'), value: action.casting });

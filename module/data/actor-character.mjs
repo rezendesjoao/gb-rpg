@@ -4,6 +4,8 @@ import {
     makeResourcesSchema,
     makeDefensesSchema,
     makeActionSchema,
+    makeSpellSchema,
+    makeInventorySchema,
     prepareCommonDerived
 } from './base-actor.mjs';
 
@@ -48,8 +50,15 @@ export class GranblueCharacter extends foundry.abstract.TypeDataModel {
             final: new fields.NumberField({ required: true, integer: true, initial: 8, min: 0, nullable: false })
         });
 
-        // Ações (ataques/magias/manobras) — lista editável na ficha
+        // Ações (ataques/manobras) — lista editável na aba Ações
         schema.actions = new fields.ArrayField(makeActionSchema(), { required: true, initial: [] });
+
+        // Magias — lista editável na aba Magia, agrupada por esfera
+        schema.spells = new fields.ArrayField(makeSpellSchema(), { required: true, initial: [] });
+
+        // Inventário — lista editável na aba Inventário (sem rolagens)
+        schema.inventory = new fields.ArrayField(makeInventorySchema(), { required: true, initial: [] });
+        schema.currency = new fields.NumberField({ required: true, integer: true, initial: 0, min: 0, nullable: false });
 
         // Biografia (campos HTML)
         schema.biography = new fields.SchemaField({

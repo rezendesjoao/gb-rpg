@@ -1,78 +1,85 @@
 {{!-- Ficha de Personagem (Guerreiro Mágico) --}}
 <div class="gb-root">
-<header class="gb-header">
-    <img class="gb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" title="Trocar imagem">
-    <div class="gb-identity">
-        <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
-        <div class="gb-identity-grid">
-            <label class="gb-field">
-                <span>Classe</span>
-                <select data-gb-chooser="class">
-                    <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
-                    {{#each classGroups as |grp|}}
-                    <optgroup label="{{grp.label}}">
-                        {{#each grp.options as |o|}}
-                        <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                        {{/each}}
-                    </optgroup>
-                    {{/each}}
-                </select>
-            </label>
-            <label class="gb-field">
-                <span>Herança</span>
-                <select data-gb-chooser="heritage">
-                    <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
-                    {{#each heritageOptions as |o|}}
-                    <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                    {{/each}}
-                </select>
-            </label>
-            <label class="gb-field gb-field--sm">
-                <span>Rank</span>
-                <select name="system.rank">
-                    {{#each rankOptions as |o|}}
-                    <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                    {{/each}}
-                </select>
-            </label>
-            <label class="gb-field gb-field--sm">
-                <span>Nível</span>
-                <input type="number" name="system.level" value="{{system.level}}" min="0">
-            </label>
-        </div>
-    </div>
-    <div class="gb-header-stats">
-        <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus">
-            <span class="gb-badge-label">CA</span>
-            <span class="gb-badge-value">{{ca}}</span>
-        </div>
-        <label class="gb-field gb-field--sm"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
-        <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
-    </div>
-</header>
+<div class="gb-top">
+    <figure class="gb-portrait-panel">
+        <img class="gb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" title="Clique para trocar a imagem">
+        <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
+    </figure>
+    <div class="gb-top-main">
+        <header class="gb-header">
+            <div class="gb-identity">
+                <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
+                <div class="gb-identity-grid">
+                    <label class="gb-field">
+                        <span>Classe</span>
+                        <select data-gb-chooser="class">
+                            <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
+                            {{#each classGroups as |grp|}}
+                            <optgroup label="{{grp.label}}">
+                                {{#each grp.options as |o|}}
+                                <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                                {{/each}}
+                            </optgroup>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field">
+                        <span>Herança</span>
+                        <select data-gb-chooser="heritage">
+                            <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
+                            {{#each heritageOptions as |o|}}
+                            <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field gb-field--sm">
+                        <span>Rank</span>
+                        <select name="system.rank">
+                            {{#each rankOptions as |o|}}
+                            <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field gb-field--sm">
+                        <span>Nível</span>
+                        <input type="number" name="system.level" value="{{system.level}}" min="0">
+                    </label>
+                </div>
+            </div>
+            <div class="gb-header-stats">
+                <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus">
+                    <span class="gb-badge-label">CA</span>
+                    <span class="gb-badge-value">{{ca}}</span>
+                </div>
+                <label class="gb-field gb-field--sm"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
+                <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
+            </div>
+        </header>
 
-{{!-- Barra de vitais sempre visível --}}
-<div class="gb-vitals">
-    <div class="gb-vital gb-vital--hp">
-        <div class="gb-vital-fill" style="width:{{hpPct}}%"></div>
-        <div class="gb-vital-content">
-            <span class="gb-vital-name"><i class="fa-solid fa-heart"></i> Energia Vital</span>
-            <span class="gb-vital-nums">
-                <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" title="Vida atual">
-                <span class="gb-vital-sep">/</span>
-                <input type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima">
-            </span>
-        </div>
-    </div>
-    <div class="gb-vital gb-vital--mana">
-        <div class="gb-vital-fill" style="width:{{manaPct}}%"></div>
-        <div class="gb-vital-content">
-            <span class="gb-vital-name"><i class="fa-solid fa-droplet"></i> Mana</span>
-            <span class="gb-vital-nums">
-                <input type="number" name="system.resources.mana.value" value="{{mana.value}}" title="Mana atual">
-                <span class="gb-vital-sep">/</span>
-                <input type="number" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima">
-            </span>
+        {{!-- Barra de vitais sempre visível --}}
+        <div class="gb-vitals">
+            <div class="gb-vital gb-vital--hp">
+                <div class="gb-vital-fill" style="width:{{hpPct}}%"></div>
+                <div class="gb-vital-content">
+                    <span class="gb-vital-name"><i class="fa-solid fa-heart"></i> Energia Vital</span>
+                    <span class="gb-vital-nums">
+                        <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" title="Vida atual">
+                        <span class="gb-vital-sep">/</span>
+                        <input type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima">
+                    </span>
+                </div>
+            </div>
+            <div class="gb-vital gb-vital--mana">
+                <div class="gb-vital-fill" style="width:{{manaPct}}%"></div>
+                <div class="gb-vital-content">
+                    <span class="gb-vital-name"><i class="fa-solid fa-droplet"></i> Mana</span>
+                    <span class="gb-vital-nums">
+                        <input type="number" name="system.resources.mana.value" value="{{mana.value}}" title="Mana atual">
+                        <span class="gb-vital-sep">/</span>
+                        <input type="number" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima">
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -81,6 +88,7 @@
     <a data-tab-nav="atributos"><i class="fa-solid fa-hand-fist"></i> Atributos</a>
     <a data-tab-nav="acoes"><i class="fa-solid fa-khanda"></i> Ações</a>
     <a data-tab-nav="magia"><i class="fa-solid fa-wand-sparkles"></i> Magia</a>
+    <a data-tab-nav="inventario"><i class="fa-solid fa-bag-shopping"></i> Inventário</a>
     <a data-tab-nav="identidade"><i class="fa-solid fa-id-badge"></i> Classe & Herança</a>
     <a data-tab-nav="bio"><i class="fa-solid fa-book"></i> Biografia</a>
 </nav>
@@ -142,10 +150,12 @@
     <div class="gb-actions-toolbar">
         <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ação</button>
     </div>
-    <p class="gb-hint">Atalhos nas fórmulas: <code>@forca @precisao @reacao @resiliencia @percepcao @carisma @sabedoria @potencia @disciplina @nivel @ca</code>. Ao clicar para rolar, abre a janela de bônus situacional.</p>
+    <p class="gb-hint">Ataques e manobras não-mágicas. Magias ficam na aba <strong>Magia</strong>, dentro da esfera delas.
+        Atalhos nas fórmulas: <code>@forca @precisao @reacao @resiliencia @percepcao @carisma @sabedoria @potencia @disciplina @nivel @ca</code>.
+        Ao clicar para rolar, abre a janela de bônus situacional.</p>
 
     {{#each actions as |action idx|}}
-    <div class="gb-action gb-action--collapsed" data-action-index="{{idx}}">
+    <div class="gb-action gb-action--collapsed" data-list="actions" data-action-index="{{idx}}">
         <div class="gb-action-head">
             <a class="gb-collapse-toggle" data-action="toggleAction" data-index="{{idx}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
             <input type="text" class="gb-action-name" name="system.actions.{{idx}}.name" value="{{action.name}}">
@@ -174,22 +184,102 @@
         </div>
     </div>
     {{else}}
-    <p class="gb-empty">Nenhuma ação. Clique em "Adicionar ação" ou arraste uma magia do compêndio.</p>
+    <p class="gb-empty">Nenhuma ação. Clique em "Adicionar ação".</p>
     {{/each}}
 </section>
 
 {{!-- ===================== MAGIA ===================== --}}
 <section class="gb-tab" data-tab-content="magia">
     <h3 class="gb-section-title">Esferas de Magia</h3>
-    <p class="gb-hint">Pontos de esfera: <strong>{{spherePoints.spent}}</strong> / {{spherePoints.total}} (restam {{spherePoints.remaining}}). Custo para desbloquear entre parênteses.</p>
-    <div class="gb-spheres">
-        {{#each spheres as |s|}}
-        <label class="gb-sphere">
-            <span class="gb-sphere-name">{{s.label}} <em>({{s.custo}})</em></span>
-            <input type="number" name="system.spheres.{{s.key}}" value="{{s.value}}" min="0">
-        </label>
+    <p class="gb-hint">Pontos de esfera: <strong>{{spherePoints.spent}}</strong> / {{spherePoints.total}} (restam {{spherePoints.remaining}}).
+        Custo de desbloqueio entre parênteses. Crie a magia dentro da esfera dela — a rolagem fica aqui mesmo.</p>
+
+    {{#each spheres as |s|}}
+    <section class="gb-sphere-group{{#unless s.unlocked}} gb-sphere-group--locked{{/unless}}" data-sphere="{{s.key}}">
+        <header class="gb-sphere-head">
+            <h4 class="gb-sphere-title">{{s.label}} <em>({{s.custo}})</em></h4>
+            <label class="gb-sphere-pts" title="Pontos investidos nesta esfera">
+                <span>Pontos</span>
+                <input type="number" name="system.spheres.{{s.key}}" value="{{s.value}}" min="0">
+            </label>
+            <button type="button" class="gb-sphere-add" data-action="addSpell" data-sphere="{{s.key}}" title="Criar uma magia nesta esfera">
+                <i class="fa-solid fa-plus"></i> Nova magia
+            </button>
+        </header>
+
+        {{#each s.spells as |sp|}}
+        <div class="gb-action gb-action--spell gb-action--collapsed" data-list="spells" data-action-index="{{sp.index}}">
+            <div class="gb-action-head">
+                <a class="gb-collapse-toggle" data-action="toggleAction" data-list="spells" data-index="{{sp.index}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
+                <input type="text" class="gb-action-name" name="system.spells.{{sp.index}}.name" value="{{sp.name}}">
+                {{#if sp.arcano}}<span class="gb-chip gb-chip--arcano" title="Arcano">{{sp.arcano}}</span>{{/if}}
+                <span class="gb-action-btns">
+                    <a class="gb-icn" data-action="moveAction" data-list="spells" data-index="{{sp.index}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
+                    <a class="gb-icn" data-action="moveAction" data-list="spells" data-index="{{sp.index}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
+                    <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-list="spells" data-index="{{sp.index}}" data-drag-action="{{sp.index}}" draggable="true" title="Conjurar (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
+                    <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-list="spells" data-index="{{sp.index}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
+                    <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-list="spells" data-index="{{sp.index}}" data-part="damage" title="Rolar dano / cura"><i class="fa-solid fa-burst"></i></a>
+                    <a class="gb-btn gb-btn--del" data-action="deleteAction" data-list="spells" data-index="{{sp.index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+                </span>
+            </div>
+            <div class="gb-action-details">
+                <div class="gb-spell-meta">
+                    <label><span>Esfera</span>
+                        <select name="system.spells.{{sp.index}}.sphere" title="Mover a magia para outra esfera">
+                            {{#each @root.sphereOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value sp.sphereKey)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label><span>Arcano</span><input type="text" name="system.spells.{{sp.index}}.arcano" value="{{sp.arcano}}" placeholder="Cura, Espírito…"></label>
+                    <label><span>Nível</span><input type="number" name="system.spells.{{sp.index}}.level" value="{{sp.level}}" min="1" max="9"></label>
+                </div>
+                <div class="gb-action-formulas">
+                    <label><span>Acerto</span><input type="text" name="system.spells.{{sp.index}}.hit" value="{{sp.hit}}" placeholder="3d6 + @disciplina"></label>
+                    <label><span>Dano / Cura</span><input type="text" name="system.spells.{{sp.index}}.damage" value="{{sp.damage}}" placeholder="2d8 + @potencia"></label>
+                </div>
+                <div class="gb-action-meta">
+                    <label><span>Custo</span><input type="text" name="system.spells.{{sp.index}}.cost" value="{{sp.cost}}" placeholder="mana"></label>
+                    <label><span>Alcance</span><input type="text" name="system.spells.{{sp.index}}.range" value="{{sp.range}}"></label>
+                    <label><span>Conjuração</span><input type="text" name="system.spells.{{sp.index}}.casting" value="{{sp.casting}}"></label>
+                    <label><span>Dificuldade</span><input type="text" name="system.spells.{{sp.index}}.difficulty" value="{{sp.difficulty}}"></label>
+                </div>
+                <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.spells.{{sp.index}}.effect" value="{{sp.effect}}"></label>
+                <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.spells.{{sp.index}}.description" value="{{sp.description}}"></label>
+            </div>
+        </div>
+        {{else}}
+        <p class="gb-empty gb-empty--sm">Nenhuma magia nesta esfera.</p>
         {{/each}}
-    </div>
+    </section>
+    {{/each}}
+
+    {{#if orphanSpells}}
+    <section class="gb-sphere-group gb-sphere-group--orphan">
+        <header class="gb-sphere-head">
+            <h4 class="gb-sphere-title">Sem esfera definida</h4>
+            <span class="gb-hint">Escolha a esfera de cada magia para movê-la para o grupo certo.</span>
+        </header>
+        {{#each orphanSpells as |sp|}}
+        <div class="gb-action gb-action--spell gb-action--orphan" data-list="spells" data-action-index="{{sp.index}}">
+            <div class="gb-action-head">
+                <span class="gb-orphan-warn" title="Esfera não reconhecida"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                <input type="text" class="gb-action-name" name="system.spells.{{sp.index}}.name" value="{{sp.name}}">
+                <select class="gb-orphan-sphere" name="system.spells.{{sp.index}}.sphere">
+                    <option value="" selected>— esfera —</option>
+                    {{#each @root.sphereOptions as |o|}}
+                    <option value="{{o.value}}">{{o.label}}</option>
+                    {{/each}}
+                </select>
+                <span class="gb-action-btns">
+                    <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-list="spells" data-index="{{sp.index}}" title="Conjurar"><i class="fa-solid fa-dice-d20"></i></a>
+                    <a class="gb-btn gb-btn--del" data-action="deleteAction" data-list="spells" data-index="{{sp.index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+                </span>
+            </div>
+        </div>
+        {{/each}}
+    </section>
+    {{/if}}
 
     <h3 class="gb-section-title">Progressos de Rank</h3>
     <div class="gb-progress">
@@ -197,6 +287,82 @@
         <span class="gb-sep">/</span>
         <label><span>Necessário</span><input type="number" name="system.progress.final" value="{{progress.final}}"></label>
     </div>
+</section>
+
+{{!-- ===================== INVENTÁRIO ===================== --}}
+<section class="gb-tab" data-tab-content="inventario">
+    <div class="gb-inv-summary">
+        <label class="gb-field gb-field--sm gb-inv-currency">
+            <span><i class="fa-solid fa-coins"></i> Moedas</span>
+            <input type="number" name="system.currency" value="{{currency}}" min="0">
+        </label>
+        <span class="gb-hint">
+            {{inventoryCount}} item(ns){{#if inventoryWeight}} · peso total <strong>{{inventoryWeight}}</strong>{{/if}}
+        </span>
+    </div>
+
+    {{#each inventoryGroups as |grp|}}
+    <section class="gb-inv-group" data-category="{{grp.key}}">
+        <header class="gb-sphere-head">
+            <h4 class="gb-sphere-title">{{grp.label}}</h4>
+            <button type="button" class="gb-sphere-add" data-action="addInventory" data-category="{{grp.key}}" title="Adicionar item nesta categoria">
+                <i class="fa-solid fa-plus"></i> Adicionar item
+            </button>
+        </header>
+
+        {{#each grp.items as |it|}}
+        <div class="gb-action gb-action--inv gb-action--collapsed{{#if it.equipped}} gb-action--equipped{{/if}}" data-list="inventory" data-action-index="{{it.index}}">
+            <div class="gb-action-head">
+                <a class="gb-collapse-toggle" data-action="toggleInventory" data-index="{{it.index}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
+                <label class="gb-inv-eq" title="Equipado / em uso">
+                    <input type="checkbox" name="system.inventory.{{it.index}}.equipped" {{#if it.equipped}}checked{{/if}}>
+                </label>
+                <input type="text" class="gb-action-name" name="system.inventory.{{it.index}}.name" value="{{it.name}}">
+                <label class="gb-inv-qty" title="Quantidade">
+                    <span>×</span><input type="number" name="system.inventory.{{it.index}}.quantity" value="{{it.quantity}}" min="0">
+                </label>
+                <span class="gb-action-btns">
+                    <a class="gb-icn" data-action="moveInventory" data-index="{{it.index}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
+                    <a class="gb-icn" data-action="moveInventory" data-index="{{it.index}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
+                    <a class="gb-btn gb-btn--del" data-action="deleteInventory" data-index="{{it.index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+                </span>
+            </div>
+            <div class="gb-action-details">
+                <div class="gb-inv-meta">
+                    <label><span>Categoria</span>
+                        <select name="system.inventory.{{it.index}}.category">
+                            {{#each @root.categoryOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.categoryKey)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label><span>Tier</span>
+                        <select name="system.inventory.{{it.index}}.tier">
+                            <option value="" {{#unless it.tier}}selected{{/unless}}>—</option>
+                            {{#each @root.tierOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.tier)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label><span>Qualidade</span>
+                        <select name="system.inventory.{{it.index}}.quality">
+                            <option value="" {{#unless it.quality}}selected{{/unless}}>—</option>
+                            {{#each @root.qualityOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.quality)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label><span>Peso</span><input type="text" name="system.inventory.{{it.index}}.weight" value="{{it.weight}}" placeholder="0"></label>
+                    <label><span>Valor</span><input type="text" name="system.inventory.{{it.index}}.value" value="{{it.value}}" placeholder="rupias"></label>
+                </div>
+                <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.inventory.{{it.index}}.description" value="{{it.description}}"></label>
+            </div>
+        </div>
+        {{else}}
+        <p class="gb-empty gb-empty--sm">Nada nesta categoria.</p>
+        {{/each}}
+    </section>
+    {{/each}}
 </section>
 
 {{!-- ===================== CLASSE & HERANÇA ===================== --}}

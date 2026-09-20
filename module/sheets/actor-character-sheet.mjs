@@ -19,7 +19,7 @@ function buildClassGroups(current) {
 export class GranblueCharacterSheet extends GranblueActorSheetBase {
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'actor', 'character'],
-        position: { width: 840, height: 820 },
+        position: { width: 980, height: 840 },
         actions: {
             openEmbedded: GranblueCharacterSheet.#onOpenEmbedded,
             removeEmbedded: GranblueCharacterSheet.#onRemoveEmbedded
@@ -55,13 +55,52 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         context.classAbilities = context.classItem?.system.abilities ?? [];
         context.heritageProgress = context.heritageItem?.system.progress ?? [];
 
-        // Esferas de magia
+        // Esferas de magia: cada uma leva junto as suas magias (com o índice real
+        // na lista `system.spells`, que é o que os handlers usam).
+        const spells = (sys.spells ?? []).map((spell, index) => ({
+            ...spell,
+            index,
+            sphereKey: GRANBLUE.normalizeSphere(spell.sphere)
+        }));
         context.spheres = Object.entries(GRANBLUE.spheres).map(([key, cfg]) => ({
             key,
             label: game.i18n.localize(cfg.label),
             custo: cfg.custo,
-            value: sys.spheres[key]
+            value: sys.spheres[key],
+            unlocked: (sys.spheres[key] ?? 0) > 0,
+            spells: spells.filter((s) => s.sphereKey === key)
         }));
+        // Magias com esfera irreconhecível não somem da ficha: caem num grupo à parte.
+        context.orphanSpells = spells.filter((s) => !s.sphereKey);
+        context.sphereOptions = Object.entries(GRANBLUE.spheres).map(([key, cfg]) => ({
+            value: key,
+            label: game.i18n.localize(cfg.label)
+        }));
+
+        // Inventário agrupado por categoria (categoria desconhecida cai em "outros")
+        const categories = Object.keys(GRANBLUE.itemCategories);
+        const items = (sys.inventory ?? []).map((item, index) => ({
+            ...item,
+            index,
+            categoryKey: categories.includes(item.category) ? item.category : 'outros'
+        }));
+        context.inventoryGroups = categories.map((key) => ({
+            key,
+            label: game.i18n.localize(GRANBLUE.itemCategories[key]),
+            items: items.filter((i) => i.categoryKey === key)
+        }));
+        context.inventoryCount = items.length;
+        context.inventoryWeight = GranblueCharacterSheet.#totalWeight(items);
+        context.currency = sys.currency;
+        context.categoryOptions = categories.map((key) => ({
+            value: key,
+            label: game.i18n.localize(GRANBLUE.itemCategories[key])
+        }));
+        context.qualityOptions = Object.entries(GRANBLUE.itemQualities).map(([key, label]) => ({
+            value: key,
+            label: game.i18n.localize(label)
+        }));
+        context.tierOptions = GRANBLUE.itemTiers.map((t) => ({ value: String(t), label: String(t) }));
 
         context.pointBuy = sys.pointBuy;
         context.spherePoints = sys.spherePoints;
@@ -70,6 +109,23 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         context.progress = sys.progress;
 
         return context;
+    }
+
+    /**
+     * Soma o peso do inventário (peso × quantidade). O campo é texto livre:
+     * entradas sem número ("leve", "—") são simplesmente ignoradas.
+     * Devolve null quando nenhum item tem peso numérico.
+     */
+    static #totalWeight(items) {
+        let total = 0;
+        let found = false;
+        for (const item of items) {
+            const match = String(item.weight ?? '').replace(',', '.').match(/-?\d+(\.\d+)?/);
+            if (!match) continue;
+            found = true;
+            total += Number(match[0]) * (item.quantity ?? 1);
+        }
+        return found ? Math.round(total * 100) / 100 : null;
     }
 
     /* ---------------------------------- */

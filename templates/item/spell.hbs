@@ -10,7 +10,14 @@
 
 <div class="gb-tab active" data-tab-content="main">
     <div class="gb-identity-grid gb-spell-grid">
-        <label class="gb-field"><span>Esfera</span><input type="text" name="system.sphere" value="{{system.sphere}}"></label>
+        <label class="gb-field">
+            <span>Esfera</span>
+            <select name="system.sphere">
+                {{#each sphereOptions as |o|}}
+                <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                {{/each}}
+            </select>
+        </label>
         <label class="gb-field"><span>Arcano</span><input type="text" name="system.arcano" value="{{system.arcano}}"></label>
         <label class="gb-field gb-field--sm"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="9"></label>
     </div>

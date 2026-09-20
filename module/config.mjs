@@ -84,6 +84,46 @@ GRANBLUE.spheres = {
 
 GRANBLUE.spherePointsStart = 5;
 
+/**
+ * Normaliza um texto de esfera para a chave correspondente ("Destruição" → "destruicao").
+ * O campo `sphere` do item Magia aceita texto livre; isto garante que a magia caia no
+ * grupo certo da ficha. Devolve '' quando não reconhece.
+ */
+GRANBLUE.normalizeSphere = function normalizeSphere(value) {
+    const raw = String(value ?? '')
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .trim()
+        .toLowerCase();
+    return raw in GRANBLUE.spheres ? raw : '';
+};
+
+/* -------------------------------------------- */
+/*  Inventário                                  */
+/* -------------------------------------------- */
+
+/** Categorias de item do inventário (ordem de exibição na aba). */
+GRANBLUE.itemCategories = {
+    arma: 'GRANBLUE.Inventory.category.arma',
+    defesa: 'GRANBLUE.Inventory.category.defesa',
+    consumivel: 'GRANBLUE.Inventory.category.consumivel',
+    material: 'GRANBLUE.Inventory.category.material',
+    tesouro: 'GRANBLUE.Inventory.category.tesouro',
+    outros: 'GRANBLUE.Inventory.category.outros'
+};
+
+/** Qualidade dos materiais/itens forjados (ver journal "Itens"). */
+GRANBLUE.itemQualities = {
+    normal: 'GRANBLUE.Inventory.quality.normal',
+    boa: 'GRANBLUE.Inventory.quality.boa',
+    rara: 'GRANBLUE.Inventory.quality.rara',
+    primorosa: 'GRANBLUE.Inventory.quality.primorosa',
+    materiaPrima: 'GRANBLUE.Inventory.quality.materiaPrima'
+};
+
+/** Tiers de material/equipamento (1 a 8). */
+GRANBLUE.itemTiers = [1, 2, 3, 4, 5, 6, 7, 8];
+
 /* -------------------------------------------- */
 /*  Classes (Estilos de Guerreiro)              */
 /* -------------------------------------------- */

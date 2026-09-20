@@ -6,8 +6,12 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 
 /**
  * Ficha base de Ator do Granblue. Concentra os handlers de ação (rolagens,
- * edição de imagem, ações/loot) e a lógica de abas, compartilhados entre
+ * edição de imagem, listas editáveis) e a lógica de abas, compartilhados entre
  * Personagem e Adversário.
+ *
+ * As listas editáveis (`system.actions`, `system.spells`, `system.inventory`)
+ * usam os mesmos handlers: o botão informa a lista em `data-list`
+ * (ausente = `actions`, que é o caso da ficha de adversário).
  */
 export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorSheetV2) {
     static DEFAULT_OPTIONS = {
@@ -18,6 +22,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         dragDrop: [{ dragSelector: null, dropSelector: null }],
         actions: {
             editImage: GranblueActorSheetBase.#onEditImage,
+            showArtwork: GranblueActorSheetBase.#onShowArtwork,
             rollAttribute: GranblueActorSheetBase.#onRollAttribute,
             rollAction: GranblueActorSheetBase.#onRollAction,
             rollActionFull: GranblueActorSheetBase.#onRollActionFull,
@@ -25,6 +30,11 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             addAction: GranblueActorSheetBase.#onAddAction,
             deleteAction: GranblueActorSheetBase.#onDeleteAction,
             moveAction: GranblueActorSheetBase.#onMoveAction,
+            addSpell: GranblueActorSheetBase.#onAddSpell,
+            addInventory: GranblueActorSheetBase.#onAddInventory,
+            toggleInventory: GranblueActorSheetBase.#onToggleInventory,
+            deleteInventory: GranblueActorSheetBase.#onDeleteInventory,
+            moveInventory: GranblueActorSheetBase.#onMoveInventory,
             rollHitDie: GranblueActorSheetBase.#onRollHitDie,
             recalcMax: GranblueActorSheetBase.#onRecalcMax,
             addLoot: GranblueActorSheetBase.#onAddLoot,
@@ -39,7 +49,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     _tab = this.constructor.DEFAULT_TAB;
 
     /**
-     * Estado de UI (não persistido): índices das ações ABERTAS.
+     * Estado de UI (não persistido): chaves `lista:índice` das linhas ABERTAS.
      * Padrão vazio = todas fechadas; alternar não dispara update do documento,
      * então editar outros campos não altera o estado de colapso.
      */
@@ -129,11 +139,11 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         });
         applyTab(this._tab);
 
-        // Arrastar uma ação para a barra de macros (hotbar)
+        // Arrastar uma ação/magia para a barra de macros (hotbar)
         root.querySelectorAll('[data-drag-action]').forEach((el) => {
             el.addEventListener('dragstart', (ev) => {
                 const idx = Number(el.dataset.dragAction);
-                const action = this.document.system.actions?.[idx];
+                const action = this.#rows(el.dataset.list ?? 'actions')[idx];
                 if (!action) return;
                 const data = {
                     type: 'granblueAction',
@@ -145,10 +155,10 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             });
         });
 
-        // Reaplica o estado de colapso das ações (fechadas por padrão)
+        // Reaplica o estado de colapso das linhas (fechadas por padrão)
         root.querySelectorAll('.gb-action').forEach((el) => {
-            const idx = Number(el.dataset.actionIndex);
-            const open = this._expanded.has(idx);
+            const key = `${el.dataset.list ?? 'actions'}:${Number(el.dataset.actionIndex)}`;
+            const open = this._expanded.has(key);
             el.classList.toggle('gb-action--collapsed', !open);
             const icon = el.querySelector('.gb-collapse-toggle i');
             if (icon) {
@@ -164,7 +174,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
 
     /**
      * Sobrescreve o drop de item do ActorSheetV2 (chamado uma única vez pelo core):
-     * magia → vira ação; classe/herança → substitui a existente; demais → padrão.
+     * magia → aba Magia (ou ação, no adversário); classe/herança → substitui a
+     * existente; demais → padrão.
      */
     async _onDropItem(event, item) {
         if (item.type === 'spell') return this.#dropSpell(item);
@@ -173,15 +184,33 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         return super._onDropItem(event, item);
     }
 
-    /** Magia arrastada → acrescenta uma ação na lista da ficha. */
+    /**
+     * Magia arrastada → entra na lista de magias, na esfera dela (personagem).
+     * Atores sem a lista de magias (adversário) continuam recebendo uma ação.
+     */
     async #dropSpell(item) {
-        const action = typeof item.system?.toActionData === 'function'
-            ? item.system.toActionData()
-            : { name: item.name, collapsed: true };
-        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
-        actions.push(action);
-        await this.document.update({ 'system.actions': actions });
-        ui.notifications?.info(`Granblue: ação "${item.name}" adicionada.`);
+        const sys = item.system ?? {};
+        const base = typeof sys.toActionData === 'function' ? sys.toActionData() : { name: item.name };
+
+        if (!Array.isArray(this.document.system.spells)) {
+            const actions = this.#rows('actions');
+            actions.push(base);
+            await this.#saveRows('actions', actions);
+            ui.notifications?.info(`Granblue: ação "${item.name}" adicionada.`);
+            return;
+        }
+
+        const spells = this.#rows('spells');
+        const sphere = GRANBLUE.normalizeSphere(sys.sphere) || 'energia';
+        spells.push({
+            ...base,
+            sphere,
+            arcano: String(sys.arcano ?? ''),
+            level: Number(sys.level) || 1
+        });
+        await this.#saveRows('spells', spells);
+        const sphereLabel = game.i18n.localize(GRANBLUE.spheres[sphere].label);
+        ui.notifications?.info(`Granblue: magia "${item.name}" adicionada à esfera ${sphereLabel}.`);
     }
 
     /** Classe/Herança arrastada → substitui a existente e cria o item embutido. */
@@ -192,6 +221,75 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         if (type === 'class' && typeof this.document.recalcMax === 'function') {
             await this.document.recalcMax();
         }
+    }
+
+    /* ---------------------------------- */
+    /*  Listas editáveis                  */
+    /* ---------------------------------- */
+
+    /** Nome da lista a que um botão pertence (`actions` quando não informado). */
+    static #listOf(target) {
+        return target.dataset.list ?? 'actions';
+    }
+
+    /** Cópia editável de uma das listas do system. */
+    #rows(list) {
+        return foundry.utils.deepClone(this.document.system[list] ?? []);
+    }
+
+    /** Grava a lista de volta no documento. */
+    async #saveRows(list, rows) {
+        return this.document.update({ [`system.${list}`]: rows });
+    }
+
+    /** Alterna o colapso de uma linha (estado de UI apenas, sem update). */
+    #toggleRow(list, target) {
+        const key = `${list}:${Number(target.dataset.index)}`;
+        const open = !this._expanded.has(key);
+        if (open) this._expanded.add(key);
+        else this._expanded.delete(key);
+
+        const el = target.closest('.gb-action');
+        if (el) el.classList.toggle('gb-action--collapsed', !open);
+        const icon = target.querySelector('i');
+        if (icon) {
+            icon.classList.toggle('fa-chevron-down', open);
+            icon.classList.toggle('fa-chevron-right', !open);
+        }
+    }
+
+    /** Remove uma linha, reindexando o estado de colapso da mesma lista. */
+    async #deleteRow(list, index) {
+        const rows = this.#rows(list);
+        if (!(index >= 0 && index < rows.length)) return;
+        rows.splice(index, 1);
+        this.#remapExpanded(list, (i) => (i === index ? null : i > index ? i - 1 : i));
+        await this.#saveRows(list, rows);
+    }
+
+    /** Move uma linha para cima/baixo, levando junto o estado de colapso. */
+    async #moveRow(list, index, dir) {
+        const rows = this.#rows(list);
+        const dest = index + (dir === 'up' ? -1 : 1);
+        if (dest < 0 || dest >= rows.length) return;
+        [rows[index], rows[dest]] = [rows[dest], rows[index]];
+        this.#remapExpanded(list, (i) => (i === index ? dest : i === dest ? index : i));
+        await this.#saveRows(list, rows);
+    }
+
+    /** Reindexa as chaves de colapso de uma lista (null = descarta a chave). */
+    #remapExpanded(list, fn) {
+        const next = new Set();
+        for (const key of this._expanded) {
+            const sep = key.indexOf(':');
+            if (key.slice(0, sep) !== list) {
+                next.add(key);
+                continue;
+            }
+            const mapped = fn(Number(key.slice(sep + 1)));
+            if (mapped != null) next.add(`${list}:${mapped}`);
+        }
+        this._expanded = next;
     }
 
     /* ---------------------------------- */
@@ -211,6 +309,15 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         return fp.browse();
     }
 
+    /** Abre a arte do ator em tamanho real. */
+    static #onShowArtwork() {
+        const src = this.document.img;
+        if (!src) return;
+        const IP = foundry.applications.apps.ImagePopout ?? globalThis.ImagePopout;
+        if (!IP) return;
+        new IP({ src, uuid: this.document.uuid, window: { title: this.document.name } }).render(true);
+    }
+
     static async #onRollAttribute(event, target) {
         const key = target.dataset.attribute;
         const attr = this.document.system.attributes[key];
@@ -225,9 +332,10 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     }
 
     static async #onRollAction(event, target) {
+        const list = GranblueActorSheetBase.#listOf(target);
         const index = Number(target.dataset.index);
         const part = target.dataset.part;
-        const action = this.document.system.actions?.[index];
+        const action = (this.document.system[list] ?? [])[index];
         if (!action) return;
         const base = (action[part] ?? '').trim();
         const label = part === 'hit' ? 'Acerto' : 'Dano';
@@ -237,20 +345,21 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             consume: GranblueActorSheetBase.#parseCost(action.cost)
         });
         if (!mods) return;
-        await this.document.rollAction(index, part, mods.main ?? {});
+        await this.document.rollAction(index, part, mods.main ?? {}, list);
         await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
     }
 
     static async #onRollActionFull(event, target) {
+        const list = GranblueActorSheetBase.#listOf(target);
         const index = Number(target.dataset.index);
-        const action = this.document.system.actions?.[index];
+        const action = (this.document.system[list] ?? [])[index];
         if (!action) return;
         const parts = [];
         if ((action.hit ?? '').trim()) parts.push({ key: 'hit', label: 'Acerto', base: action.hit.trim() });
         if ((action.damage ?? '').trim()) parts.push({ key: 'damage', label: 'Dano', base: action.damage.trim() });
         const mods = await rollDialog({ title: action.name, parts, consume: GranblueActorSheetBase.#parseCost(action.cost) });
         if (!mods) return;
-        await this.document.rollActionFull(index, { hit: mods.hit, damage: mods.damage });
+        await this.document.rollActionFull(index, { hit: mods.hit, damage: mods.damage }, list);
         await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
     }
 
@@ -268,59 +377,63 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     }
 
     static #onToggleAction(event, target) {
-        // Estado de UI apenas — não altera o documento (não dispara re-render).
-        const index = Number(target.dataset.index);
-        const open = !this._expanded.has(index);
-        if (open) this._expanded.add(index);
-        else this._expanded.delete(index);
+        this.#toggleRow(GranblueActorSheetBase.#listOf(target), target);
+    }
 
-        const el = target.closest('.gb-action');
-        if (el) el.classList.toggle('gb-action--collapsed', !open);
-        const icon = target.querySelector('i');
-        if (icon) {
-            icon.classList.toggle('fa-chevron-down', open);
-            icon.classList.toggle('fa-chevron-right', !open);
-        }
+    static #onToggleInventory(event, target) {
+        this.#toggleRow('inventory', target);
     }
 
     static async #onAddAction(event, target) {
-        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
-        actions.push({
+        const list = GranblueActorSheetBase.#listOf(target);
+        const rows = this.#rows(list);
+        rows.push({
             name: game.i18n.localize('GRANBLUE.Action.new'),
             hit: '', damage: '', cost: '', range: '',
             casting: '', difficulty: '', effect: '', description: ''
         });
-        await this.document.update({ 'system.actions': actions });
+        await this.#saveRows(list, rows);
+    }
+
+    /** Cria uma magia já dentro da esfera do botão que foi clicado. */
+    static async #onAddSpell(event, target) {
+        const sphere = GRANBLUE.normalizeSphere(target.dataset.sphere) || 'energia';
+        const rows = this.#rows('spells');
+        rows.push({
+            name: game.i18n.localize('GRANBLUE.Spell.new'),
+            hit: '3d6 + @disciplina', damage: '', cost: '', range: '',
+            casting: '', difficulty: '', effect: '', description: '',
+            sphere, arcano: '', level: 1
+        });
+        await this.#saveRows('spells', rows);
+    }
+
+    /** Cria um item já dentro da categoria do botão que foi clicado. */
+    static async #onAddInventory(event, target) {
+        const category = target.dataset.category || 'outros';
+        const rows = this.#rows('inventory');
+        rows.push({
+            name: game.i18n.localize('GRANBLUE.Inventory.new'),
+            category, quantity: 1, tier: '', quality: '',
+            weight: '', value: '', equipped: false, description: ''
+        });
+        await this.#saveRows('inventory', rows);
     }
 
     static async #onMoveAction(event, target) {
-        const index = Number(target.dataset.index);
-        const dest = index + (target.dataset.dir === 'up' ? -1 : 1);
-        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
-        if (dest < 0 || dest >= actions.length) return;
-        [actions[index], actions[dest]] = [actions[dest], actions[index]];
-        // Mantém o estado de colapso junto com a ação movida.
-        const ai = this._expanded.has(index);
-        const ad = this._expanded.has(dest);
-        this._expanded.delete(index);
-        this._expanded.delete(dest);
-        if (ai) this._expanded.add(dest);
-        if (ad) this._expanded.add(index);
-        await this.document.update({ 'system.actions': actions });
+        await this.#moveRow(GranblueActorSheetBase.#listOf(target), Number(target.dataset.index), target.dataset.dir);
+    }
+
+    static async #onMoveInventory(event, target) {
+        await this.#moveRow('inventory', Number(target.dataset.index), target.dataset.dir);
     }
 
     static async #onDeleteAction(event, target) {
-        const index = Number(target.dataset.index);
-        const actions = foundry.utils.deepClone(this.document.system.actions ?? []);
-        actions.splice(index, 1);
-        // Ajusta o estado de colapso: os índices deslocam ao remover uma ação.
-        const shifted = new Set();
-        for (const i of this._expanded) {
-            if (i < index) shifted.add(i);
-            else if (i > index) shifted.add(i - 1);
-        }
-        this._expanded = shifted;
-        await this.document.update({ 'system.actions': actions });
+        await this.#deleteRow(GranblueActorSheetBase.#listOf(target), Number(target.dataset.index));
+    }
+
+    static async #onDeleteInventory(event, target) {
+        await this.#deleteRow('inventory', Number(target.dataset.index));
     }
 
     static async #onRollHitDie(event, target) {
@@ -336,15 +449,15 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     }
 
     static async #onAddLoot(event, target) {
-        const loot = foundry.utils.deepClone(this.document.system.loot ?? []);
+        const loot = this.#rows('loot');
         loot.push({ chance: '', item: '' });
-        await this.document.update({ 'system.loot': loot });
+        await this.#saveRows('loot', loot);
     }
 
     static async #onDeleteLoot(event, target) {
         const index = Number(target.dataset.index);
-        const loot = foundry.utils.deepClone(this.document.system.loot ?? []);
+        const loot = this.#rows('loot');
         loot.splice(index, 1);
-        await this.document.update({ 'system.loot': loot });
+        await this.#saveRows('loot', loot);
     }
 }

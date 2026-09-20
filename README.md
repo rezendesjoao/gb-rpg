@@ -18,7 +18,13 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 
 ## O que está implementado
 
-- Ficha de **Personagem** completa (atributos, recursos, esferas, progressos, biografia, ações).
+- Ficha de **Personagem** completa (atributos, recursos, esferas, progressos, biografia, ações),
+  com a **arte do personagem em painel lateral** (clique para trocar, lupa para ver em tamanho real).
+- Aba **Magia**: cada esfera é um grupo com seus pontos e as **suas próprias magias**, criadas e
+  roladas ali mesmo (a aba *Ações* fica só com ataques e manobras não-mágicas).
+- Aba **Inventário**: itens por categoria (armas, equipamento defensivo, consumíveis, materiais,
+  tesouros), com quantidade, Tier, Qualidade, peso, valor e marcação de *equipado* — lista pura,
+  sem rolagens.
 - Ficha de **Adversário / NPC** (estatísticas, ataques, loot, notas).
 - **Classes e Heranças como Items** com **Active Effects automáticos**: a Herança soma os bônus
   de atributo automaticamente; a Classe define a Energia Vital base e os dados de vida/dano.
@@ -33,7 +39,7 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 Alguns itens já vêm prontos nos compêndios **Granblue** — arraste para a ficha do personagem:
 - **Classes:** Pugilista, Taumaturgo (define vida/dados e habilidades; aplica o Active Effect).
 - **Heranças:** Sage, Elven (aplica os bônus de atributo automaticamente).
-- **Magias (Energia/Persona):** arcanos **Arcana**, **Barreira**, **Cura** e **Espírito** (9 magias cada). Ao arrastar, viram uma **Ação** pronta na ficha (com acerto `3d6 + @disciplina` e dano/cura preenchidos).
+- **Magias (Energia/Persona):** arcanos **Arcana**, **Barreira**, **Cura** e **Espírito** (9 magias cada). Ao arrastar, entram na aba **Magia**, já dentro da esfera delas (com acerto `3d6 + @disciplina` e dano/cura preenchidos).
 
 As ações (ataques/magias/manobras) são linhas livres na ficha: você digita a fórmula de
 acerto e dano usando atalhos como `@forca`, `@precisao`, `@sabedoria`, `@nivel`, `@ca`.
