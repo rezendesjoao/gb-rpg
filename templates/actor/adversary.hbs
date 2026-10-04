@@ -84,6 +84,18 @@
         </div>
     </div>
 
+    <h3 class="gb-section-title"><i class="fa-solid fa-scale-unbalanced"></i> Vantagens &amp; Desvantagens</h3>
+    <div class="gb-adv-grid">
+        <label class="gb-adv gb-adv--pro">
+            <span><i class="fa-solid fa-circle-plus"></i> Vantagem</span>
+            <textarea name="system.advantage" placeholder="O que favorece esta criatura: resistências, imunidades, terreno…">{{system.advantage}}</textarea>
+        </label>
+        <label class="gb-adv gb-adv--con">
+            <span><i class="fa-solid fa-circle-minus"></i> Desvantagem</span>
+            <textarea name="system.disadvantage" placeholder="A fraqueza revelada ao analisar o poder de combate…">{{system.disadvantage}}</textarea>
+        </label>
+    </div>
+
     <h3 class="gb-section-title">Atributos <span class="gb-hint">clique para testar (3d6 + atributo)</span></h3>
     <div class="gb-attributes">
         {{#each attributes as |attr|}}
@@ -118,6 +130,9 @@
                 <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-index="{{idx}}" data-drag-action="{{idx}}" draggable="true" title="Rolar ataque (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
                 <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
                 <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i></a>
+                {{#if action.statusEffect}}
+                <a class="gb-btn gb-btn--fx" data-action="applyStatusEffect" data-index="{{idx}}" title="Aplicar o efeito ao(s) token(s) selecionado(s)"><i class="fa-solid fa-wand-sparkles"></i></a>
+                {{/if}}
                 <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
             </span>
         </div>
@@ -132,7 +147,18 @@
                 <label><span>Conjuração</span><input type="text" name="system.actions.{{idx}}.casting" value="{{action.casting}}"></label>
                 <label><span>Dificuldade</span><input type="text" name="system.actions.{{idx}}.difficulty" value="{{action.difficulty}}"></label>
             </div>
-            <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
+            <div class="gb-action-status">
+                <label class="gb-action-fx">
+                    <span>Efeito aplicado</span>
+                    <select name="system.actions.{{idx}}.statusEffect">
+                        <option value="">— nenhum —</option>
+                        {{#each @root.statusEffectOptions as |o|}}
+                        <option value="{{o.value}}" {{#if (eqStr o.value action.statusEffect)}}selected{{/if}}>{{o.label}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+                <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
+            </div>
             <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.actions.{{idx}}.description" value="{{action.description}}"></label>
         </div>
     </div>

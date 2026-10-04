@@ -18,6 +18,8 @@ export class GranblueSpell extends foundry.abstract.TypeDataModel {
             difficulty: new fields.StringField({ required: true, initial: '', blank: true }),
             hit: new fields.StringField({ required: true, initial: '3d6 + @disciplina', blank: true }),
             damage: new fields.StringField({ required: true, initial: '', blank: true }),
+            // Id de um status effect do Granblue aplicado pela magia (vazio = nenhum).
+            statusEffect: new fields.StringField({ required: true, initial: '', blank: true }),
             effect: new fields.HTMLField({ required: true, initial: '', blank: true }),
             description: new fields.HTMLField({ required: true, initial: '', blank: true })
         };
@@ -33,6 +35,7 @@ export class GranblueSpell extends foundry.abstract.TypeDataModel {
             range: String(this.range ?? ''),
             casting: String(this.casting ?? ''),
             difficulty: String(this.difficulty ?? ''),
+            statusEffect: String(this.statusEffect ?? ''),
             effect: this.stripHtml(this.effect),
             description: this.stripHtml(this.description)
         };

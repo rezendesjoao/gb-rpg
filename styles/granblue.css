@@ -15,6 +15,7 @@
     --gb-mana: #2f5aa1;
     --gb-danger: #8a2a22;
     --gb-ok: #3c7a3c;
+    --gb-fx: #6b4fa8;
 }
 
 /* ---- Layout base da ficha ---- */
@@ -447,6 +448,7 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 }
 .gb-btn--hit { background: var(--gb-blue); }
 .gb-btn--dmg { background: var(--gb-hp); }
+.gb-btn--fx { background: var(--gb-fx); }
 .gb-btn--del { background: #6b6350; padding: 3px 7px; }
 .gb-btn:hover { filter: brightness(1.15); }
 .gb-action-formulas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
@@ -456,6 +458,12 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 .gb-action-effect,
 .gb-action-desc { display: flex; flex-direction: column; font-size: 0.7rem; color: #6b6350; gap: 2px; }
 .gb-action-effect, .gb-action-desc { margin-top: 6px; }
+
+/* Linha do efeito: seletor de status effect + texto livre do efeito */
+.gb-action-status { display: grid; grid-template-columns: minmax(140px, 1fr) 2fr; gap: 6px; margin-top: 6px; align-items: end; }
+.gb-action-fx { display: flex; flex-direction: column; font-size: 0.7rem; color: #6b6350; gap: 2px; }
+.gb-action-status .gb-action-effect { margin-top: 0; }
+.gb-action-fx select { font-size: 0.78rem; }
 .gb-empty { color: #6b6350; font-style: italic; padding: 12px; text-align: center; }
 
 /* ---- Ações colapsáveis + rolagem rápida ---- */
@@ -554,6 +562,16 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 .gb-progress input { width: 70px; }
 
 /* ---- Biografia ---- */
+/* Vantagens & desvantagens do adversário (aba Estatísticas) */
+.gb-adv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.gb-adv { display: flex; flex-direction: column; gap: 4px; font-size: 0.74rem; font-weight: 700; }
+.gb-adv > span { display: flex; align-items: center; gap: 5px; }
+.gb-adv textarea { min-height: 54px; resize: vertical; padding: 4px 6px; font-weight: 400; }
+.gb-adv--pro > span { color: var(--gb-ok); }
+.gb-adv--con > span { color: var(--gb-hp); }
+.gb-adv--pro textarea { border-left: 3px solid var(--gb-ok); }
+.gb-adv--con textarea { border-left: 3px solid var(--gb-hp); }
+
 .gb-bio { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
 .gb-bio > span { font-weight: 600; color: var(--gb-blue); font-size: 0.82rem; }
 .gb-bio textarea { min-height: 60px; resize: vertical; padding: 4px 6px; }
@@ -635,6 +653,8 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 }
 .gb-apply--dmg { background: var(--gb-hp, #a1332f); }
 .gb-apply--heal { background: var(--gb-ok, #3c7a3c); }
+.gb-apply--fx { background: var(--gb-fx, #6b4fa8); display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.gb-apply-icn { width: 14px; height: 14px; border: none; filter: brightness(0) invert(1); }
 .gb-apply:hover { filter: brightness(1.12); }
 
 /* =========================================================

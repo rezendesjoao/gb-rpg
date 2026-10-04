@@ -241,3 +241,23 @@ GRANBLUE.statusEffects = [
     { id: 'imortal', name: 'GRANBLUE.Effects.imortal', img: 'icons/svg/angel.svg' },
     { id: 'radiance', name: 'GRANBLUE.Effects.radiance', img: 'icons/svg/sun.svg' }
 ];
+
+/**
+ * Procura a definição de um status effect pelo id. Devolve null quando o id é
+ * vazio ou desconhecido (ação sem efeito definido).
+ */
+GRANBLUE.statusEffectById = function statusEffectById(id) {
+    const key = String(id ?? '').trim();
+    if (!key) return null;
+    return GRANBLUE.statusEffects.find((e) => e.id === key) ?? null;
+};
+
+/**
+ * Opções [{value,label,img}] dos status effects para os seletores de "efeito
+ * aplicado" das ações/magias, em ordem alfabética do rótulo traduzido.
+ */
+GRANBLUE.statusEffectOptions = function statusEffectOptions() {
+    return GRANBLUE.statusEffects
+        .map((e) => ({ value: e.id, label: game.i18n.localize(e.name), img: e.img }))
+        .sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang || 'pt-BR'));
+};

@@ -21,6 +21,8 @@ export class GranblueSpellSheet extends GranblueItemSheetBase {
             label: game.i18n.localize(cfg.label),
             selected: key === current
         }));
+        // Efeito que a magia aplica (botão de aplicar na ficha e no cartão de chat)
+        context.statusEffectOptions = GRANBLUE.statusEffectOptions();
         return context;
     }
 }

@@ -25,12 +25,16 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 - Aba **Inventário**: itens por categoria (armas, equipamento defensivo, consumíveis, materiais,
   tesouros), com quantidade, Tier, Qualidade, peso, valor e marcação de *equipado* — lista pura,
   sem rolagens.
-- Ficha de **Adversário / NPC** (estatísticas, ataques, loot, notas).
+- Ficha de **Adversário / NPC** (estatísticas, **vantagens & desvantagens**, ataques, loot, notas).
 - **Classes e Heranças como Items** com **Active Effects automáticos**: a Herança soma os bônus
   de atributo automaticamente; a Classe define a Energia Vital base e os dados de vida/dano.
   Basta escolher no seletor da ficha (presets das 15 classes e 8 heranças) — os itens e efeitos
   são criados sozinhos. Também é possível editá-los abrindo o item.
-- Rolagens de atributo (3d6) e de ações com **cartão de chat** (mostra cada dado) e botões de **Dano/Cura** que aplicam no token selecionado.
+- Rolagens de atributo (3d6) e de ações com **cartão de chat** (mostra cada dado) e botões de
+  **Dano/Cura/Efeito** que aplicam no token selecionado.
+- **Efeito aplicado** por ação/magia: cada ataque, manobra ou magia escolhe um dos ~35 status
+  effects do sistema num seletor e ganha um botão de varinha que o aplica nos tokens
+  selecionados — na caixa da ação e também no cartão de chat da rolagem.
 - **Ações colapsáveis**, com dado rápido (rola acerto+dano) e arrastáveis para a barra de macros.
 - Botão para rolar o **dado de vida** da classe.
 - Iniciativa `3d6 + Reação`. Status effects Granblue no HUD do token.
@@ -46,8 +50,9 @@ Alguns itens já vêm prontos nos compêndios **Granblue** — arraste para a fi
   Persona (Psíquica, Ki, Espírito) · Cosmo (Sol, Estrela, Lua) ·
   Proibida (Tempo, Espaço, Trevas).
   Cada magia já vem com **custo, alcance, conjuração, dificuldade, acerto `3d6 + @disciplina`,
-  fórmula de dano/cura, efeito resumido e a citação de conjuração**. Ao arrastar para a ficha,
-  a magia entra na aba **Magia**, dentro da esfera dela, pronta para rolar.
+  fórmula de dano/cura, efeito resumido e a citação de conjuração** — e, nas 78 que aplicam um
+  status effect, com o **efeito já selecionado** (Burn, Frost, Curse, Charged…). Ao arrastar para
+  a ficha, a magia entra na aba **Magia**, dentro da esfera dela, pronta para rolar e aplicar.
 
 As ações (ataques/magias/manobras) são linhas livres na ficha: você digita a fórmula de
 acerto e dano usando atalhos como `@forca`, `@precisao`, `@sabedoria`, `@nivel`, `@ca`.
@@ -64,8 +69,7 @@ Ex.: acerto `3d6 + @precisao`, dano `2d8 + @forca`.
 
 - Classes e heranças como **Items** que aplicam bônus/traços automaticamente (via Active Effects).
 - Compêndios de itens e adversários prontos (as magias já estão completas).
-- Aplicação automática de status effects e acúmulos.
-- Automação de dano/cura no chat (aplicar em tokens).
+- Acúmulos de status effect (hoje o botão aplica/mantém o efeito, sem contar pilhas).
 
 ## Licença
 

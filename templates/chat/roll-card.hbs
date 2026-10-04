@@ -34,5 +34,10 @@
         <button type="button" class="gb-apply gb-apply--heal" data-gb-apply="heal" data-amount="{{applyAmount}}" title="Curar o(s) token(s) selecionado(s)">
             <i class="fa-solid fa-heart"></i> Cura {{applyAmount}}
         </button>
+        {{#if statusEffect}}
+        <button type="button" class="gb-apply gb-apply--fx" data-gb-apply="effect" data-effect="{{statusEffect.id}}" title="Aplicar {{statusEffect.label}} ao(s) token(s) selecionado(s)">
+            <img class="gb-apply-icn" src="{{statusEffect.img}}" alt=""> {{statusEffect.label}}
+        </button>
+        {{/if}}
     </div>
 </div>

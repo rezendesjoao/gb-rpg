@@ -72,6 +72,8 @@
     "GRANBLUE.Adversary.type.tank": "Tank",
     "GRANBLUE.Adversary.type.boss": "Boss",
     "GRANBLUE.Adversary.type.eliteBoss": "Elite Boss",
+    "GRANBLUE.Adversary.advantage": "Vantagem",
+    "GRANBLUE.Adversary.disadvantage": "Desvantagem",
 
     "GRANBLUE.Chat.attributeTest": "Teste de Atributo",
     "GRANBLUE.Chat.manaTest": "Teste de Mana (+5 na DC)",
@@ -80,12 +82,18 @@
     "GRANBLUE.Chat.noFormula": "Nenhuma fórmula definida para esta ação.",
     "GRANBLUE.Chat.badFormula": "Fórmula inválida",
     "GRANBLUE.Chat.actionNotFound": "Ação não encontrada",
+    "GRANBLUE.Chat.applyEffect": "Aplicar efeito",
+    "GRANBLUE.Chat.noStatusEffect": "Granblue: esta ação não tem um efeito definido.",
+    "GRANBLUE.Chat.noTokensEffect": "Granblue: selecione ao menos um token para aplicar o efeito.",
+    "GRANBLUE.Chat.noEligibleTokens": "Granblue: nenhum token elegível (verifique permissões).",
+    "GRANBLUE.Chat.effectApplied": "Granblue: {effect} aplicado a {targets}.",
 
     "GRANBLUE.Action.new": "Nova ação",
     "GRANBLUE.Action.cost": "Custo",
     "GRANBLUE.Action.range": "Alcance",
     "GRANBLUE.Action.casting": "Conjuração",
     "GRANBLUE.Action.difficulty": "Dificuldade",
+    "GRANBLUE.Action.statusEffect": "Efeito aplicado",
     "GRANBLUE.Action.effect": "Efeito",
 
     "GRANBLUE.Spell.new": "Nova magia",

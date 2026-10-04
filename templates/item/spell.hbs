@@ -34,6 +34,16 @@
         <label><span>Dano / Cura</span><input type="text" name="system.damage" value="{{system.damage}}" placeholder="2d8 + @potencia"></label>
     </div>
 
+    <label class="gb-bio gb-bio--fx">
+        <span>Efeito aplicado <span class="gb-hint">(ganha botão de aplicar na ficha e no chat)</span></span>
+        <select name="system.statusEffect">
+            <option value="">— nenhum —</option>
+            {{#each statusEffectOptions as |o|}}
+            <option value="{{o.value}}" {{#if (eqStr o.value @root.system.statusEffect)}}selected{{/if}}>{{o.label}}</option>
+            {{/each}}
+        </select>
+    </label>
+
     <label class="gb-bio"><span>Efeito</span><textarea name="system.effect">{{system.effect}}</textarea></label>
     <label class="gb-bio"><span>Descrição / Frase</span><textarea name="system.description">{{system.description}}</textarea></label>
 </div>

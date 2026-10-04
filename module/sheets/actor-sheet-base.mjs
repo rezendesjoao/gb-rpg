@@ -1,5 +1,6 @@
 import { GRANBLUE } from '../config.mjs';
 import { rollDialog } from '../dice/roll-dialog.mjs';
+import { applyStatusToSelectedTokens } from '../effects.mjs';
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -26,6 +27,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             rollAttribute: GranblueActorSheetBase.#onRollAttribute,
             rollAction: GranblueActorSheetBase.#onRollAction,
             rollActionFull: GranblueActorSheetBase.#onRollActionFull,
+            applyStatusEffect: GranblueActorSheetBase.#onApplyStatusEffect,
             toggleAction: GranblueActorSheetBase.#onToggleAction,
             addAction: GranblueActorSheetBase.#onAddAction,
             deleteAction: GranblueActorSheetBase.#onDeleteAction,
@@ -87,6 +89,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
                 effect: (sys.attributes[key].bonus ?? 0) - (src.attributes[key].bonus ?? 0)
             })),
             actions: sys.actions ?? [],
+            // Lista de status effects para o seletor "Efeito aplicado" das ações/magias
+            statusEffectOptions: GRANBLUE.statusEffectOptions(),
             hp: sys.resources.hitPoints,
             hpSource: src.resources.hitPoints,
             mana: sys.resources.mana,
@@ -363,6 +367,15 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
     }
 
+    /** Aplica o status effect da ação/magia nos tokens selecionados. */
+    static async #onApplyStatusEffect(event, target) {
+        const list = GranblueActorSheetBase.#listOf(target);
+        const index = Number(target.dataset.index);
+        const action = (this.document.system[list] ?? [])[index];
+        if (!action) return;
+        await applyStatusToSelectedTokens(action.statusEffect);
+    }
+
     /** Extrai o número inicial do campo de custo (ex.: "5", "5^n" → 5). */
     static #parseCost(cost) {
         const n = Number.parseInt(String(cost ?? ''), 10);
@@ -390,7 +403,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         rows.push({
             name: game.i18n.localize('GRANBLUE.Action.new'),
             hit: '', damage: '', cost: '', range: '',
-            casting: '', difficulty: '', effect: '', description: ''
+            casting: '', difficulty: '', statusEffect: '', effect: '', description: ''
         });
         await this.#saveRows(list, rows);
     }
@@ -402,7 +415,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         rows.push({
             name: game.i18n.localize('GRANBLUE.Spell.new'),
             hit: '3d6 + @disciplina', damage: '', cost: '', range: '',
-            casting: '', difficulty: '', effect: '', description: '',
+            casting: '', difficulty: '', statusEffect: '', effect: '', description: '',
             sphere, arcano: '', level: 1
         });
         await this.#saveRows('spells', rows);

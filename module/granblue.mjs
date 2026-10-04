@@ -16,6 +16,7 @@ import { GranblueAdversarySheet } from './sheets/actor-adversary-sheet.mjs';
 import { GranblueClassSheet } from './sheets/item-class-sheet.mjs';
 import { GranblueHeritageSheet } from './sheets/item-heritage-sheet.mjs';
 import { GranblueSpellSheet } from './sheets/item-spell-sheet.mjs';
+import { applyStatusToSelectedTokens } from './effects.mjs';
 
 /* -------------------------------------------- */
 /*  Init                                        */
@@ -140,7 +141,7 @@ async function createActionMacro(data, slot) {
 }
 
 /* -------------------------------------------- */
-/*  Aplicar dano/cura no token selecionado       */
+/*  Aplicar dano/cura/efeito no token selecionado */
 /* -------------------------------------------- */
 
 Hooks.on('renderChatMessageHTML', (message, html) => {
@@ -150,6 +151,10 @@ Hooks.on('renderChatMessageHTML', (message, html) => {
         btn.addEventListener('click', (ev) => {
             ev.preventDefault();
             const kind = btn.dataset.gbApply;
+            if (kind === 'effect') {
+                applyStatusToSelectedTokens(btn.dataset.effect);
+                return;
+            }
             const amount = Number(btn.dataset.amount) || 0;
             applyToSelectedTokens(kind, amount);
         });

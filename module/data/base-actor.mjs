@@ -51,6 +51,10 @@ export function makeDefensesSchema() {
  * Campos de uma ação (ataque/magia/manobra) armazenada como linha na ficha.
  * As fórmulas de acerto/dano aceitam sintaxe de rolagem do Foundry com atalhos
  * de dados do personagem (ex.: "3d6 + @precisao", "2d8 + @forca").
+ *
+ * `statusEffect` guarda o id de um status effect do Granblue (ver
+ * GRANBLUE.statusEffects): é o efeito que o botão de aplicar — na caixa da
+ * ação e no cartão de chat — coloca nos tokens selecionados. Vazio = nenhum.
  */
 function actionFields() {
     return {
@@ -61,6 +65,7 @@ function actionFields() {
         range: new fields.StringField({ required: true, initial: '', blank: true }),
         casting: new fields.StringField({ required: true, initial: '', blank: true }),
         difficulty: new fields.StringField({ required: true, initial: '', blank: true }),
+        statusEffect: new fields.StringField({ required: true, initial: '', blank: true }),
         effect: new fields.StringField({ required: true, initial: '', blank: true }),
         description: new fields.StringField({ required: true, initial: '', blank: true })
     };

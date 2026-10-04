@@ -1,4 +1,5 @@
 import { GRANBLUE } from '../config.mjs';
+import { describeStatusEffect } from '../effects.mjs';
 
 const CARD_TEMPLATE = 'systems/granblue/templates/chat/roll-card.hbs';
 
@@ -88,6 +89,7 @@ export async function rollActionPart(actor, action, part, mods = {}) {
             part
         )],
         meta: buildActionMeta(action),
+        statusEffect: describeStatusEffect(action.statusEffect),
         rolls: [roll]
     });
     return roll;
@@ -119,6 +121,7 @@ export async function rollActionFull(actor, action, mods = {}) {
         title: action.name,
         sections,
         meta: buildActionMeta(action),
+        statusEffect: describeStatusEffect(action.statusEffect),
         rolls
     });
     return rolls;
@@ -152,18 +155,20 @@ function buildActionMeta(action) {
     if (action.range) meta.push({ label: game.i18n.localize('GRANBLUE.Action.range'), value: action.range });
     if (action.casting) meta.push({ label: game.i18n.localize('GRANBLUE.Action.casting'), value: action.casting });
     if (action.difficulty) meta.push({ label: game.i18n.localize('GRANBLUE.Action.difficulty'), value: action.difficulty });
+    const status = describeStatusEffect(action.statusEffect);
+    if (status) meta.push({ label: game.i18n.localize('GRANBLUE.Action.statusEffect'), value: status.label });
     if (action.effect) meta.push({ label: game.i18n.localize('GRANBLUE.Action.effect'), value: action.effect });
     return meta;
 }
 
 /** Renderiza e publica o cartão de rolagem no chat. */
-async function postRollCard(actor, { title, sections, meta = null, rolls = [] }) {
+async function postRollCard(actor, { title, sections, meta = null, statusEffect = null, rolls = [] }) {
     // Valor sugerido para aplicar dano/cura: o total do dano, senão o da última seção.
     const damageSection = sections.find((s) => s.kind === 'damage');
     const applyAmount = (damageSection ?? sections[sections.length - 1])?.total ?? 0;
 
     const { renderTemplate } = foundry.applications.handlebars;
-    const content = await renderTemplate(CARD_TEMPLATE, { title, sections, meta, applyAmount });
+    const content = await renderTemplate(CARD_TEMPLATE, { title, sections, meta, applyAmount, statusEffect });
 
     await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor }),

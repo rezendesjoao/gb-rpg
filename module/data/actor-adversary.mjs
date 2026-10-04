@@ -39,6 +39,11 @@ export class GranblueAdversary extends foundry.abstract.TypeDataModel {
         schema.movement = new fields.StringField({ required: true, initial: '4', blank: true });
         schema.vision = new fields.StringField({ required: true, initial: '', blank: true });
 
+        // Vantagens / desvantagens da criatura (texto livre, exibido nas Estatísticas).
+        // A desvantagem é o que os jogadores descobrem ao analisar o poder de combate.
+        schema.advantage = new fields.StringField({ required: true, initial: '', blank: true });
+        schema.disadvantage = new fields.StringField({ required: true, initial: '', blank: true });
+
         // Ataques / habilidades
         schema.actions = new fields.ArrayField(makeActionSchema(), { required: true, initial: [] });
 
