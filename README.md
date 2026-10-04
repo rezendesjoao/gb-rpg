@@ -39,7 +39,15 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 Alguns itens já vêm prontos nos compêndios **Granblue** — arraste para a ficha do personagem:
 - **Classes:** Pugilista, Taumaturgo (define vida/dados e habilidades; aplica o Active Effect).
 - **Heranças:** Sage, Elven (aplica os bônus de atributo automaticamente).
-- **Magias (Energia/Persona):** arcanos **Arcana**, **Barreira**, **Cura** e **Espírito** (9 magias cada). Ao arrastar, entram na aba **Magia**, já dentro da esfera delas (com acerto `3d6 + @disciplina` e dano/cura preenchidos).
+- **Magias — as 189 completas:** as **7 esferas × 3 arcanos × 9 níveis**, organizadas em pastas
+  (`Esfera → Arcano`) dentro do compêndio **Granblue — Magias**:
+  Energia (Arcana, Barreira, Cura) · Destruição (Eletricidade, Calor, Frio) ·
+  Criação (Céu, Terra, Água) · Matéria (Planta, Areia, Metal) ·
+  Persona (Psíquica, Ki, Espírito) · Cosmo (Sol, Estrela, Lua) ·
+  Proibida (Tempo, Espaço, Trevas).
+  Cada magia já vem com **custo, alcance, conjuração, dificuldade, acerto `3d6 + @disciplina`,
+  fórmula de dano/cura, efeito resumido e a citação de conjuração**. Ao arrastar para a ficha,
+  a magia entra na aba **Magia**, dentro da esfera dela, pronta para rolar.
 
 As ações (ataques/magias/manobras) são linhas livres na ficha: você digita a fórmula de
 acerto e dano usando atalhos como `@forca`, `@precisao`, `@sabedoria`, `@nivel`, `@ca`.
@@ -55,7 +63,7 @@ Ex.: acerto `3d6 + @precisao`, dano `2d8 + @forca`.
 ## Roadmap (próximas iterações)
 
 - Classes e heranças como **Items** que aplicam bônus/traços automaticamente (via Active Effects).
-- Compêndios (magias por esfera, itens, adversários prontos).
+- Compêndios de itens e adversários prontos (as magias já estão completas).
 - Aplicação automática de status effects e acúmulos.
 - Automação de dano/cura no chat (aplicar em tokens).
 
