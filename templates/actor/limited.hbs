@@ -1,0 +1,33 @@
+{{!--
+    Ficha vista por um jogador que não é dono do ator (NPCs e inimigos
+    liberados pelo mestre): só o cartão de identificação.
+--}}
+<div class="gb-root gb-limited-card">
+    <figure class="gb-limited-portrait">
+        <img src="{{actor.img}}" alt="{{actor.name}}">
+        <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real">
+            <i class="fa-solid fa-expand"></i>
+        </a>
+    </figure>
+
+    <h2 class="gb-limited-name">{{actor.name}}</h2>
+
+    <dl class="gb-limited-grid">
+        <div class="gb-limited-field">
+            <dt>Classe</dt>
+            <dd>{{#if classLabel}}{{classLabel}}{{else}}—{{/if}}</dd>
+        </div>
+        <div class="gb-limited-field">
+            <dt>Herança</dt>
+            <dd>{{#if heritageLabel}}{{heritageLabel}}{{else}}—{{/if}}</dd>
+        </div>
+        <div class="gb-limited-field">
+            <dt>Rank</dt>
+            <dd>{{#if rankLabel}}{{rankLabel}}{{else}}—{{/if}}</dd>
+        </div>
+        <div class="gb-limited-field">
+            <dt>Nível</dt>
+            <dd>{{system.level}}</dd>
+        </div>
+    </dl>
+</div>

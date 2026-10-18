@@ -58,6 +58,42 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     _expanded = new Set();
 
     /* ---------------------------------- */
+    /*  Visão reduzida (jogador sem posse) */
+    /* ---------------------------------- */
+
+    /**
+     * Quem não é mestre nem dono do ator vê apenas o cartão de identificação:
+     * retrato grande, nome, classe, herança, rank e nível. É o que permite
+     * liberar a ficha de um NPC/inimigo para os jogadores sem expor atributos,
+     * ataques, magias, inventário, loot e anotações.
+     */
+    get isRestricted() {
+        return !game.user.isGM && !this.document.isOwner;
+    }
+
+    /** Mesma checagem, no construtor — lá `this.document` ainda não existe. */
+    static isRestrictedFor(document) {
+        return !!document && !game.user.isGM && !document.isOwner;
+    }
+
+    /** @inheritDoc */
+    _initializeApplicationOptions(options) {
+        const opts = super._initializeApplicationOptions(options);
+        if (!this.constructor.isRestrictedFor(options.document)) return opts;
+        // Janela pequena e fixa: o cartão tem pouco conteúdo.
+        opts.classes = [...opts.classes, 'gb-limited'];
+        opts.position = { ...opts.position, width: 460, height: 'auto' };
+        opts.window = { ...opts.window, resizable: false };
+        return opts;
+    }
+
+    /** @inheritDoc */
+    _configureRenderParts(options) {
+        if (!this.isRestricted) return super._configureRenderParts(options);
+        return { limited: { template: 'systems/granblue/templates/actor/limited.hbs', templates: [] } };
+    }
+
+    /* ---------------------------------- */
     /*  Contexto compartilhado            */
     /* ---------------------------------- */
 
@@ -98,7 +134,13 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             caBonus: src.defenses.caBonus,
             classItem,
             heritageItem,
-            hasClass: !!classItem
+            hasClass: !!classItem,
+            // Cartão reduzido (limited.hbs): rótulos prontos para exibição
+            restricted: this.isRestricted,
+            classLabel: classItem?.name ?? '',
+            heritageLabel: heritageItem?.name ?? '',
+            // O personagem guarda a chave do rank ("d1"); o adversário, texto livre
+            rankLabel: GRANBLUE.ranks[sys.rank]?.label ?? (sys.rank ?? '')
         });
 
         // Percentuais das barras de vida/mana (para o preenchimento visual)

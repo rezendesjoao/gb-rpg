@@ -784,3 +784,69 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 .gb-item .gb-action textarea { width: 100%; min-height: 42px; margin-top: 4px; resize: vertical; }
 .gb-ability-type { width: auto; }
 .gb-prog-req { width: 110px; }
+
+/* =========================================================
+   Ficha reduzida — jogador que não é dono do ator
+   Só retrato, nome, classe, herança, rank e nível.
+   ========================================================= */
+.gb-limited-card {
+    gap: 0;
+    background: linear-gradient(170deg, var(--gb-blue), #0c1a29);
+}
+
+.gb-limited-portrait {
+    position: relative;
+    margin: 0;
+    height: 320px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #12293f, #0c1a29);
+    border-bottom: 3px solid var(--gb-gold);
+}
+.gb-limited-portrait img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+.gb-limited-portrait:hover .gb-portrait-zoom { opacity: 1; }
+
+.gb-limited-name {
+    margin: 0;
+    padding: 10px 12px 8px;
+    border: none;
+    color: #fff;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.gb-limited-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 0;
+    padding: 0 12px 14px;
+}
+.gb-limited-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 8px;
+    background: #ffffff14;
+    border: 1px solid var(--gb-gold);
+    border-radius: 6px;
+}
+.gb-limited-field dt {
+    color: var(--gb-gold-light);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.gb-limited-field dd {
+    margin: 0;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
