@@ -77,13 +77,17 @@ export class GranblueItem extends Item {
     /*  Presets (dados para criar a partir do config)    */
     /* ------------------------------------------------ */
 
-    /** Dados de criação de um item de Classe a partir de uma chave do config. */
+    /**
+     * Dados de criação de um item de Classe a partir de uma chave do config.
+     * Traz junto as habilidades do estilo — o mesmo conteúdo do compêndio.
+     */
     static presetClassData(key) {
         const c = GRANBLUE.classes[key];
         if (!c) return null;
         return {
             name: c.label,
             type: 'class',
+            img: c.img ?? 'icons/svg/sword.svg',
             system: {
                 origin: key,
                 grupo: c.grupo,
@@ -91,12 +95,17 @@ export class GranblueItem extends Item {
                 vidaDado: c.vidaDado,
                 danoDado: c.danoDado,
                 manaCondition: c.mana ?? '',
-                weapons: c.weapons ?? ''
+                weapons: c.weapons ?? '',
+                abilities: (c.abilities ?? []).map((a) => ({ ...a })),
+                description: c.description ? `<p>${c.description}</p>` : ''
             }
         };
     }
 
-    /** Dados de criação de um item de Herança a partir de uma chave do config. */
+    /**
+     * Dados de criação de um item de Herança a partir de uma chave do config.
+     * Traz junto traço compartilhado, debilidade e progressos.
+     */
     static presetHeritageData(key) {
         const h = GRANBLUE.heritages[key];
         if (!h) return null;
@@ -105,7 +114,15 @@ export class GranblueItem extends Item {
         return {
             name: h.label,
             type: 'heritage',
-            system: { origin: key, bonuses }
+            img: h.img ?? 'icons/svg/mystery-man.svg',
+            system: {
+                origin: key,
+                bonuses,
+                sharedTrait: h.sharedTrait ?? '',
+                weakness: h.weakness ?? '',
+                progress: (h.progress ?? []).map((p) => ({ ...p })),
+                description: h.description ?? ''
+            }
         };
     }
 }

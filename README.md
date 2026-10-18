@@ -28,8 +28,9 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 - Ficha de **Adversário / NPC** (estatísticas, **vantagens & desvantagens**, ataques, loot, notas).
 - **Classes e Heranças como Items** com **Active Effects automáticos**: a Herança soma os bônus
   de atributo automaticamente; a Classe define a Energia Vital base e os dados de vida/dano.
-  Basta escolher no seletor da ficha (presets das 15 classes e 8 heranças) — os itens e efeitos
-  são criados sozinhos. Também é possível editá-los abrindo o item.
+  Basta escolher no seletor da ficha (as 15 classes e as 8 heranças) — o item, o efeito **e as
+  habilidades** (3 skills da classe; traço, debilidade e 3 progressos da herança) são criados
+  sozinhos, com o mesmo conteúdo do compêndio. Também é possível editá-los abrindo o item.
 - Rolagens de atributo (3d6) e de ações com **cartão de chat** (mostra cada dado) e botões de
   **Dano/Cura/Efeito** que aplicam no token selecionado.
 - **Efeito aplicado** por ação/magia: cada ataque, manobra ou magia escolhe um dos ~35 status
@@ -40,9 +41,16 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 - Iniciativa `3d6 + Reação`. Status effects Granblue no HUD do token.
 
 ### Compêndio (arraste para a ficha)
-Alguns itens já vêm prontos nos compêndios **Granblue** — arraste para a ficha do personagem:
-- **Classes:** Pugilista, Taumaturgo (define vida/dados e habilidades; aplica o Active Effect).
-- **Heranças:** Sage, Elven (aplica os bônus de atributo automaticamente).
+Os itens já vêm prontos nos compêndios **Granblue** — arraste para a ficha do personagem:
+- **Classes — as 15 completas:** organizadas em pastas por grupo (Conjurador, Especial, Vanguarda)
+  dentro do compêndio **Granblue — Classes**. Cada estilo traz Energia Vital base, dado de vida,
+  dado de dano, armas, condição de ganho de Mana e **as 3 habilidades** (passiva/ativa) com o
+  texto completo, e aplica o Active Effect da Energia Vital base.
+- **Heranças — as 8 completas:** Eranko, Oni, Titã, Elven, Pixelatte, Dracun Squama, Sage e Deva,
+  cada uma com **traço compartilhado, debilidade e os 3 progressos** (com o requisito de atributo),
+  aplicando os bônus de atributo automaticamente.
+  O mesmo conteúdo vem pelo **seletor de classe/herança no topo da ficha** — as duas rotas usam a
+  mesma fonte (`module/content/`). Consulta rápida: [CLASSES-HERANCAS-REFERENCIA.md](CLASSES-HERANCAS-REFERENCIA.md).
 - **Magias — as 189 completas:** as **7 esferas × 3 arcanos × 9 níveis**, organizadas em pastas
   (`Esfera → Arcano`) dentro do compêndio **Granblue — Magias**:
   Energia (Arcana, Barreira, Cura) · Destruição (Eletricidade, Calor, Frio) ·
@@ -67,8 +75,7 @@ Ex.: acerto `3d6 + @precisao`, dano `2d8 + @forca`.
 
 ## Roadmap (próximas iterações)
 
-- Classes e heranças como **Items** que aplicam bônus/traços automaticamente (via Active Effects).
-- Compêndios de itens e adversários prontos (as magias já estão completas).
+- Compêndios de itens e adversários prontos (magias, classes e heranças já estão completas).
 - Acúmulos de status effect (hoje o botão aplica/mantém o efeito, sem contar pilhas).
 
 ## Licença

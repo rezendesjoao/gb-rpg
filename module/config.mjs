@@ -1,8 +1,12 @@
 /**
  * Configuração central do sistema Granblue.
  * Todos os dados de referência (atributos, ranks, dificuldades, esferas, classes,
- * status effects) vivem aqui para facilitar manutenção e expansão.
+ * status effects) vivem aqui para facilitar manutenção e expansão. O conteúdo
+ * extenso de classes e heranças fica em content/, importado logo abaixo.
  */
+
+import { CLASSES } from './content/classes.mjs';
+import { HERITAGES } from './content/heritages.mjs';
 
 export const GRANBLUE = {};
 
@@ -128,33 +132,8 @@ GRANBLUE.itemTiers = [1, 2, 3, 4, 5, 6, 7, 8];
 /*  Classes (Estilos de Guerreiro)              */
 /* -------------------------------------------- */
 
-/**
- * As 15 classes, agrupadas. Cada uma define os valores recomendados de vida.
- *   vidaBase  = Energia Vital base
- *   vidaDado  = dado de vida (rolado uma vez)
- *   danoDado  = dado de dano base da classe
- *   grupo     = conjurador | especial | vanguarda
- */
-GRANBLUE.classes = {
-    // Conjurador
-    artista: { label: 'Artista', grupo: 'conjurador', vidaBase: 40, vidaDado: '2d6', danoDado: '2d8', mana: '+1 de Mana cada vez que confere uma melhoria a um aliado.', weapons: 'Adagas / Espadas' },
-    ragda: { label: 'Ragda', grupo: 'conjurador', vidaBase: 40, vidaDado: '2d6', danoDado: '2d6', mana: '+1 de Mana quando inflige um efeito negativo com sucesso a um alvo.', weapons: 'Adaga / Cajado / Grimório / Anel' },
-    escriba: { label: 'Escriba', grupo: 'conjurador', vidaBase: 40, vidaDado: '2d4', danoDado: '2d6', mana: '+1 de Mana cada vez que é bem-sucedido em um teste de Disciplina.', weapons: 'Pena / Caneta (Alcance 4)' },
-    samaritano: { label: 'Samaritano', grupo: 'conjurador', vidaBase: 40, vidaDado: '2d6', danoDado: '2d6', mana: '+1 de Mana quando cura um alvo.', weapons: 'Adaga / Bordão / Cajado / Anel / Grimório' },
-    taumaturgo: { label: 'Taumaturgo', grupo: 'conjurador', vidaBase: 40, vidaDado: '2d6', danoDado: '2d6', mana: '+1 de Mana para cada alvo que acertar com uma magia que cause dano.', weapons: 'Cajado / Grimório / Anel' },
-    // Especial
-    cacador: { label: 'Caçador', grupo: 'especial', vidaBase: 50, vidaDado: '2d6', danoDado: '2d6', mana: '+1 de Mana cada vez que acerta um inimigo já ferido nesta rodada.', weapons: 'Adaga / Machado / Maça / Arco / Pistola / Rifle / Canhoneiro' },
-    francoAtirador: { label: 'Franco-Atirador', grupo: 'especial', vidaBase: 40, vidaDado: '2d6', danoDado: '2d8', mana: '+1 de Mana ao acertar um ataque básico em um inimigo.', weapons: 'Arco / Pistola / Rifle / Canhoneiro' },
-    mismagier: { label: 'Mismágier', grupo: 'especial', vidaBase: 40, vidaDado: '2d6', danoDado: '2d8', mana: '+1 de Mana quando causar dano com ataques básicos.', weapons: 'Adagas / Espada' },
-    wugenji: { label: 'Wugenji', grupo: 'especial', vidaBase: 40, vidaDado: '2d8', danoDado: '2d8', mana: '+1 de Mana quando causa dano com ataques básicos.', weapons: 'Espada (Katana)' },
-    pugilista: { label: 'Pugilista', grupo: 'especial', vidaBase: 50, vidaDado: '2d8', danoDado: '2d6', mana: '+1 de Mana quando causa dano com ataques básicos.', weapons: 'Manopla / Bordão' },
-    // Vanguarda
-    heroi: { label: 'Herói', grupo: 'vanguarda', vidaBase: 40, vidaDado: '2d8', danoDado: '2d8', mana: '+1 de Mana por ação de sua Princesa, máximo de 3 por rodada.', weapons: 'Espada / Adaga / Machado / Martelo / Lança / Manopla' },
-    ferrabras: { label: 'Ferrabrás', grupo: 'vanguarda', vidaBase: 50, vidaDado: '2d8', danoDado: '2d6', mana: '+1 de Mana ao Evadir um ataque.', weapons: 'Espada / Adaga / Lança / Bordão' },
-    uhlan: { label: 'Uhlan', grupo: 'vanguarda', vidaBase: 50, vidaDado: '2d8', danoDado: '2d6', mana: '+1 de Mana quando recebe dano.', weapons: 'Lança' },
-    vingador: { label: 'Vingador', grupo: 'vanguarda', vidaBase: 40, vidaDado: '2d8', danoDado: '2d8', mana: '+1 de Mana quando receber dano.', weapons: 'Espada / Adaga / Machado / Martelo / Lança / Bordão / Maça / Manopla' },
-    centuriao: { label: 'Centurião', grupo: 'vanguarda', vidaBase: 60, vidaDado: '2d10', danoDado: '2d4', mana: '+1 de Mana quando receber dano.', weapons: 'Espada / Lança / Machado / Martelo / Bordão / Maça / Escudo' }
-};
+/** As 15 classes, com vida, dano, condição de Mana e habilidades (ver content/classes.mjs). */
+GRANBLUE.classes = CLASSES;
 
 GRANBLUE.classGroups = {
     conjurador: 'GRANBLUE.ClassGroups.conjurador',
@@ -166,17 +145,8 @@ GRANBLUE.classGroups = {
 /*  Heranças (Raças)                            */
 /* -------------------------------------------- */
 
-/** Heranças com seus bônus de atributo-chave (referência; aplicação manual por ora). */
-GRANBLUE.heritages = {
-    eranko: { label: 'Eranko', bonus: { percepcao: 2, precisao: 1, reacao: 1 } },
-    oni: { label: 'Oni', bonus: { potencia: 2, carisma: 1, forca: 1 } },
-    tita: { label: 'Titã', bonus: { resiliencia: 2, forca: 2, reacao: -1 } },
-    elven: { label: 'Elven', bonus: { sabedoria: 2, potencia: 1, disciplina: 1 } },
-    pixelatte: { label: 'Pixelatte', bonus: { reacao: 2, carisma: 1, precisao: 1 } },
-    dracunSquama: { label: 'Dracun Squama', bonus: { forca: 2, resiliencia: 1, potencia: 1 } },
-    sage: { label: 'Sage', bonus: { precisao: 1, resiliencia: 1, disciplina: 1, sabedoria: 1 } },
-    deva: { label: 'Deva', bonus: { carisma: 2, sabedoria: 1, percepcao: 1 } }
-};
+/** As 8 heranças, com bônus, traço, debilidade e progressos (ver content/heritages.mjs). */
+GRANBLUE.heritages = HERITAGES;
 
 /* -------------------------------------------- */
 /*  Adversários                                 */

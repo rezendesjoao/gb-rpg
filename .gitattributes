@@ -1,0 +1,4 @@
+# Os compêndios são bancos LevelDB. O core.autocrlf=true do Windows trocava o
+# LF final do arquivo CURRENT por CRLF no checkout, e o LevelDB passava a
+# procurar um manifesto chamado "MANIFEST-000006\r" — o pack deixava de abrir.
+packs/** -text -diff

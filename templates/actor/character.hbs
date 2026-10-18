@@ -435,6 +435,12 @@
             </div>
             {{#if heritageItem}}
             <div class="gb-idcard-body">
+                {{#if heritageItem.system.sharedTrait}}
+                <div class="gb-mini-ability"><strong>Traço Compartilhado</strong>{{{heritageItem.system.sharedTrait}}}</div>
+                {{/if}}
+                {{#if heritageItem.system.weakness}}
+                <div class="gb-mini-ability"><strong>Debilidade</strong>{{{heritageItem.system.weakness}}}</div>
+                {{/if}}
                 {{#each heritageProgress as |p|}}
                 <div class="gb-mini-ability"><strong>{{p.name}}</strong>{{#if p.requirement}} <em>({{p.requirement}})</em>{{/if}}{{#if p.description}}<p>{{p.description}}</p>{{/if}}</div>
                 {{/each}}

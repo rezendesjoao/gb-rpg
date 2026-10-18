@@ -759,7 +759,8 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 .gb-idcard-mana { font-size: 0.74rem; color: var(--gb-mana); margin-top: 4px; }
 .gb-mini-ability { font-size: 0.75rem; margin-top: 5px; border-top: 1px dashed var(--gb-line); padding-top: 4px; }
 .gb-mini-ability em { color: #6b6350; }
-.gb-mini-ability p { margin: 2px 0 0; color: #4a4636; }
+.gb-mini-ability p { margin: 2px 0 0; color: #4a4636; white-space: pre-line; }
+.gb-mini-ability ul { margin: 2px 0 0; padding-left: 16px; color: #4a4636; }
 .gb-attr-effect { color: var(--gb-gold-light); font-weight: 700; }
 
 /* Fichas de item */
