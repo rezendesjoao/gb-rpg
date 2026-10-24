@@ -1,5 +1,5 @@
 {{!--
-    Alcance (simples ou complexo), ação gasta no HUD e tipo de dano de uma
+    Alcance (simples ou complexo), ação gasta no HUD e natureza do dano de uma
     ação/magia — na linha da ficha e no item Magia.
     Parâmetros: prefix (início do name, ex.: "system.actions.2." ou "system."),
                 row (dados), spell (true nas magias: padrões mágicos).
@@ -41,11 +41,10 @@
             {{/each}}
         </select>
     </label>
-    <label title="Define qual RD do alvo é abatida do dano"><span>Tipo de dano</span>
+    <label title="Define qual RD do alvo é abatida do dano: a física ou a mágica"><span>Natureza do dano</span>
         <select name="{{prefix}}damageType">
-            <option value="" {{#unless row.damageType}}selected{{/unless}}>Automático ({{#if spell}}mágico{{else}}físico{{/if}})</option>
             {{#each @root.damageTypeOptions as |o|}}
-            <option value="{{o.value}}" {{#if (eqStr o.value ../row.damageType)}}selected{{/if}}>{{o.label}}</option>
+            <option value="{{o.value}}" {{#if (eqStr o.value (gbDamageNature ../row ../spell))}}selected{{/if}}>{{o.label}}</option>
             {{/each}}
         </select>
     </label>

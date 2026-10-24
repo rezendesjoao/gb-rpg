@@ -32,21 +32,23 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
   As Estatísticas mostram os **pontos de atributo** distribuídos/restantes (igual ao personagem) e
   **três caixas de vantagem e três de desvantagem**, cada uma com botão de enviar ao chat.
 - **RD física e RD mágica**, cada uma com **fixa + bônus + temporária = total**, no personagem e no
-  adversário. O botão de dano do cartão de chat abate a RD do tipo do dano (magias = mágico, demais
-  ações = físico, ou o tipo escolhido na ação); Shift+clique = dano verdadeiro.
+  adversário. O botão de dano do cartão de chat abate a RD da **natureza do dano** escolhida na ação
+  (física ou mágica; as magias começam como mágicas); Shift+clique = dano verdadeiro.
 - **Alcance simples ou complexo** em ações e magias: o simples é só a distância em metros; o
   complexo é uma **área a × b** (paralelogramo, círculo ou cone, em metros). Ao rolar, depois do
   diálogo de bônus, um pop-up oferece **posicionar a área no mapa** (Região do Foundry v14: roda do
   mouse gira, clique confirma); os tokens dentro dela viram alvos e o acerto é conferido contra a CA
   de cada um. Há também um botão na linha da ação para só posicionar a área. As 57 magias do
   compêndio que descrevem uma área ("3x3", "linha de 1x6", "cone de 5 m") já vêm com ela preenchida.
-- **HUD de ações** acima da barra de macros, para o token controlado (o mestre troca clicando nos
-  tokens; o jogador só vê os seus, ou o próprio personagem): vida (− / +), mana (**+1** para a
-  condição de Mana da classe), CA, RD física e mágica e deslocamento com bônus ajustável, visão, e
-  os marcadores do turno — movimentação, ação rápida, normal, conjunta (normal + rápida), total
-  (o turno todo), reação e bônus. Clicar numa ação disponível lista as habilidades daquele tipo
-  (ações, magias, habilidades de classe e de herança, itens do inventário) com custo, alcance,
-  efeito, CD e dano; usar uma delas gasta a ação. A **estrela** na linha de uma ação marca o
+- **HUD de ações**, só durante o combate, acima da barra de macros, para o token controlado (o
+  mestre troca clicando nos tokens; o jogador só vê os seus, ou o próprio personagem). O destaque é
+  a **linha do tempo do turno** — movimentação → ação rápida → ação normal → ação bônus → reação —
+  com as exceções à parte: **conjunta** (une a rápida e a normal) e **total** (usa todas as ações do
+  turno). Clicar numa ação disponível lista as habilidades daquele tipo (ações, magias, habilidades
+  de classe e de herança, itens do inventário) com custo, alcance, efeito, CD e dano; a ação normal
+  também lista o que se faz com uma ação rápida. Usar uma delas gasta a ação. Abaixo, compactos:
+  vida e **vida temporária** ajustável, mana (**+1** para a condição de Mana da classe), CA, RD
+  física e mágica e deslocamento com bônus ajustável, e visão. A **estrela** na linha de uma ação marca o
   **ataque básico**, rolado pelo HUD ao custo de uma ação normal. As ações voltam no começo do
   turno do combatente (ou pelo botão de reiniciar). Pode ser desligado em *Configurações*.
 - **Efeitos aplicados por todos:** um jogador aplica um status effect até num monstro do mestre —

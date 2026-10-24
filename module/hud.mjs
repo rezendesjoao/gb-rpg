@@ -7,10 +7,12 @@ import { rangeLabel } from './area.mjs';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
- * HUD de ações do Granblue: um painel fixo acima da barra de macros com o
- * token controlado — vida, mana, CA, RD, deslocamento e visão (com campos
- * para ajustar direto dali), os marcadores da economia de ações do turno e
- * os atalhos de habilidades por tipo de ação.
+ * HUD de ações do Granblue, exibido só durante um combate: um painel fixo
+ * acima da barra de macros com o token controlado. O destaque é a linha do
+ * tempo do turno (movimentação → rápida → normal → bônus → reação, com a
+ * conjunta e a total à parte, como exceções) e os atalhos de habilidades por
+ * tipo de ação; abaixo, compactos, vida (com a vida temporária ajustável),
+ * mana, CA, RD, deslocamento e visão.
  *
  * Mostra o token que o usuário controla e do qual é dono: o mestre troca de
  * HUD clicando nos tokens; o jogador só vê os seus. Sem token controlado, o
@@ -29,7 +31,6 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             basicAttack: GranblueHUD.#onBasicAttack,
             resetTurn: GranblueHUD.#onResetTurn,
             manaPlus: GranblueHUD.#onManaPlus,
-            hpChange: GranblueHUD.#onHpChange,
             step: GranblueHUD.#onStep,
             collapse: GranblueHUD.#onCollapse,
             openSheet: GranblueHUD.#onOpenSheet
@@ -84,9 +85,17 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         return { token, actor: token?.actor ?? actor };
     }
 
-    /** Atualiza o sujeito do HUD e redesenha (ou fecha, se não há ninguém). */
+    /** Há um combate em andamento (já iniciado) na cena vista? */
+    static get inCombat() {
+        return !!game.combat?.started;
+    }
+
+    /**
+     * Atualiza o sujeito do HUD e redesenha — ou fecha, fora de combate ou
+     * sem ninguém para mostrar.
+     */
     refresh() {
-        if (!GranblueHUD.enabled) {
+        if (!GranblueHUD.enabled || !GranblueHUD.inCombat) {
             if (this.rendered) this.close();
             return;
         }
@@ -140,17 +149,21 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             label: game.i18n.localize(cfg.label),
             icon: cfg.icon,
             available: isActionAvailable(actor, key),
-            count: groups[key]?.reduce((n, seg) => n + seg.entries.length, 0) ?? 0,
+            count: GranblueHUD.#segmentsFor(groups, key).reduce((n, seg) => n + seg.entries.length, 0),
             open: this.openType === key,
             composite: !!cfg.consumes
         }));
+        // Linha do tempo do turno (ações simples, na ordem) e, à parte, as
+        // exceções compostas (conjunta e total).
+        const timeline = economy.filter((e) => !e.composite).map((e, i) => ({ ...e, step: i + 1 }));
+        const specials = economy.filter((e) => e.composite);
 
         let open = null;
         if (this.openType) {
             open = {
                 key: this.openType,
                 label: game.i18n.localize(GRANBLUE.actionTypes[this.openType].label),
-                segments: groups[this.openType] ?? []
+                segments: GranblueHUD.#segmentsFor(groups, this.openType)
             };
         }
 
@@ -160,9 +173,12 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             img: this.token?.document?.texture?.src || actor.img,
             subtitle: this.#subtitle(actor, classItem),
             collapsed: this.collapsed,
+            // A vida em si muda pelo dano e pela cura das habilidades; o HUD só
+            // ajusta a vida temporária.
             hp: {
                 value: hp.value,
                 max: hp.max,
+                temp: src.resources.hitPoints.temp ?? 0,
                 pct: hp.max > 0 ? Math.max(0, Math.min(100, Math.round((hp.value / hp.max) * 100))) : 0
             },
             mana: {
@@ -181,10 +197,36 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
                 bonus: src.movementBonus ?? 0
             },
             vision: vision ? (/^\d+([.,]\d+)?$/.test(vision) ? `${vision} m` : vision) : '—',
-            economy,
+            timeline,
+            specials,
             open,
             basic: this.#basicAttack()
         };
+    }
+
+    /**
+     * Segmentos da lista de um tipo de ação, incluindo os tipos menores que ele
+     * abrange (`includes`: a ação normal também mostra as ações rápidas). Cada
+     * entrada de um tipo incluído ganha a etiqueta do tipo de origem.
+     */
+    static #segmentsFor(groups, type) {
+        const own = groups[type] ?? [];
+        const extra = GRANBLUE.actionTypes[type]?.includes ?? [];
+        if (!extra.length) return own;
+        const merged = own.map((seg) => ({ ...seg, entries: [...seg.entries] }));
+        for (const sub of extra) {
+            const via = game.i18n.localize(GRANBLUE.actionTypes[sub].label);
+            for (const seg of groups[sub] ?? []) {
+                let target = merged.find((s) => s.key === seg.key);
+                if (!target) {
+                    target = { ...seg, entries: [] };
+                    merged.push(target);
+                }
+                target.entries.push(...seg.entries.map((e) => ({ ...e, via })));
+            }
+        }
+        const order = ['actions', 'spells', 'class', 'heritage', 'inventory'];
+        return merged.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
     }
 
     /** Linha de baixo do nome: classe/herança ou o tipo de adversário. */
@@ -418,20 +460,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         await this.actor.update({ 'system.resources.mana.value': mana.value + 1 });
     }
 
-    /** Diminui (−) ou aumenta (+, até o máximo) a vida pela quantidade do campo. */
-    static async #onHpChange(event, target) {
-        const hp = this.actor?.system.resources.hitPoints;
-        if (!hp) return;
-        const input = this.element.querySelector('[data-hud-delta]');
-        const amount = Math.abs(Math.trunc(Number(input?.value) || 0));
-        if (!amount) return;
-        const sign = Number(target.dataset.sign) < 0 ? -1 : 1;
-        let value = hp.value + sign * amount;
-        if (sign > 0 && hp.max > 0) value = Math.max(hp.value, Math.min(hp.max, value));
-        await this.actor.update({ 'system.resources.hitPoints.value': value });
-    }
-
-    /** Botões −/+ dos bônus (CA, RD física/mágica, deslocamento). */
+    /** Botões −/+ da vida temporária e dos bônus (CA, RD física/mágica, deslocamento). */
     static async #onStep(event, target) {
         const path = target.dataset.field;
         const current = Number(foundry.utils.getProperty(this.actor?._source ?? {}, path)) || 0;
@@ -488,5 +517,7 @@ export function initHud() {
     Hooks.on('updateUser', (user) => {
         if (user.isSelf) refresh();
     });
+    // Só aparece durante o combate
+    for (const hook of ['createCombat', 'updateCombat', 'deleteCombat', 'combatStart']) Hooks.on(hook, refresh);
     refresh();
 }

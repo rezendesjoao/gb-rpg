@@ -49,3 +49,14 @@ export async function onUpdateCombat(combat, changed) {
     const actor = combat.combatant?.actor;
     if (actor) await resetActions(actor);
 }
+
+/**
+ * Hooks combatStart / deleteCombat: o mestre ativo libera as ações de todos
+ * os combatentes, para nenhum começar (ou sair de) um combate com ações gastas.
+ */
+export async function resetCombatants(combat) {
+    if (!game.user.isActiveGM) return;
+    for (const combatant of combat.combatants) {
+        if (combatant.actor) await resetActions(combatant.actor);
+    }
+}

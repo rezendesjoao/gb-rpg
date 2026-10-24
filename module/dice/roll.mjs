@@ -214,13 +214,9 @@ async function postActionCard(actor, action, { sections, hitTotal, rolls }) {
     });
 }
 
-/**
- * Tipo do dano de uma ação/magia: o escolhido na linha; sem escolha, magias
- * (que têm esfera) causam dano mágico e as demais ações, dano físico.
- */
+/** Natureza do dano de uma ação/magia (magias = as que têm esfera). */
 export function damageTypeOf(action) {
-    if (GRANBLUE.damageTypes[action?.damageType]) return action.damageType;
-    return GRANBLUE.normalizeSphere(action?.sphere) ? 'magico' : 'fisico';
+    return GRANBLUE.damageNature(action, { spell: !!GRANBLUE.normalizeSphere(action?.sphere) });
 }
 
 /** Linhas de metadados (custo/alcance/etc.) exibidas no cartão de uma ação. */

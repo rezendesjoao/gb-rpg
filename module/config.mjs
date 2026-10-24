@@ -227,19 +227,30 @@ GRANBLUE.adversaryKinds = {
 /* -------------------------------------------- */
 
 /**
- * Tipos de ação de um turno, na ordem do HUD. Os tipos com `consumes` são
- * compostos: só estão disponíveis enquanto todas as ações que eles gastam
- * estiverem livres, e usá-los gasta todas elas (a ação conjunta junta a
- * normal e a rápida; a ação total ocupa o turno inteiro).
+ * Tipos de ação de um turno, na ordem cronológica do turno (a "linha do
+ * tempo" do HUD): movimentação → rápida → normal → bônus → reação.
+ *
+ * Os tipos com `consumes` são exceções compostas: só estão disponíveis
+ * enquanto todas as ações que eles gastam estiverem livres, e usá-los gasta
+ * todas elas — a ação conjunta une a rápida e a normal; a ação total usa
+ * todas as ações do turno de uma vez.
+ *
+ * `includes`: tipos menores que também podem ser feitos com este. A ação
+ * rápida é hierarquicamente menor que a normal: tudo o que se faz numa ação
+ * rápida se faz numa normal (mas não o contrário).
  */
 GRANBLUE.actionTypes = {
     movimento: { label: 'GRANBLUE.ActionType.movimento', icon: 'fa-solid fa-person-running' },
     rapida: { label: 'GRANBLUE.ActionType.rapida', icon: 'fa-solid fa-bolt' },
-    normal: { label: 'GRANBLUE.ActionType.normal', icon: 'fa-solid fa-hand-fist' },
-    conjunta: { label: 'GRANBLUE.ActionType.conjunta', icon: 'fa-solid fa-link', consumes: ['normal', 'rapida'] },
-    total: { label: 'GRANBLUE.ActionType.total', icon: 'fa-solid fa-hourglass-half', consumes: ['movimento', 'normal', 'rapida'] },
+    normal: { label: 'GRANBLUE.ActionType.normal', icon: 'fa-solid fa-hand-fist', includes: ['rapida'] },
+    bonus: { label: 'GRANBLUE.ActionType.bonus', icon: 'fa-solid fa-star-half-stroke' },
     reacao: { label: 'GRANBLUE.ActionType.reacao', icon: 'fa-solid fa-shield-halved' },
-    bonus: { label: 'GRANBLUE.ActionType.bonus', icon: 'fa-solid fa-star-half-stroke' }
+    conjunta: { label: 'GRANBLUE.ActionType.conjunta', icon: 'fa-solid fa-link', consumes: ['rapida', 'normal'] },
+    total: {
+        label: 'GRANBLUE.ActionType.total',
+        icon: 'fa-solid fa-hourglass-half',
+        consumes: ['movimento', 'rapida', 'normal', 'bonus', 'reacao']
+    }
 };
 
 /** As ações "simples" (sem `consumes`) — o que de fato é gasto no turno. */
@@ -327,8 +338,17 @@ GRANBLUE.rowSelectOptions = function rowSelectOptions() {
     return {
         actionTypeOptions: options(Object.entries(GRANBLUE.actionTypes).map(([k, cfg]) => [k, cfg.label])),
         areaShapeOptions: options(Object.entries(GRANBLUE.areaShapes)),
-        damageTypeOptions: options(Object.entries(GRANBLUE.damageTypes))
+        damageTypeOptions: options(Object.entries(GRANBLUE.damageTypes)).map((o) => ({ ...o, label: o.label.capitalize() }))
     };
+};
+
+/**
+ * Natureza do dano de uma linha: a escolhida; sem escolha (linhas antigas),
+ * magias causam dano mágico e as demais ações, dano físico.
+ */
+GRANBLUE.damageNature = function damageNature(row, { spell = false } = {}) {
+    if (GRANBLUE.damageTypes[row?.damageType]) return row.damageType;
+    return spell ? 'magico' : 'fisico';
 };
 
 /* -------------------------------------------- */

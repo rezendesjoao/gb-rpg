@@ -20,7 +20,7 @@ import { onRenderChatMessage } from './chat.mjs';
 import { SOCKET, onSocketMessage, sendLootDialog } from './loot.mjs';
 import { onEffectSocket } from './effects.mjs';
 import { GranblueHUD, registerHudSettings, initHud } from './hud.mjs';
-import { onUpdateCombat } from './economy.mjs';
+import { onUpdateCombat, resetCombatants } from './economy.mjs';
 import { registerMigrationSettings, migrateIfNeeded, migrateWorld } from './migration.mjs';
 
 /* -------------------------------------------- */
@@ -185,6 +185,8 @@ Hooks.on('renderChatMessageHTML', onRenderChatMessage);
 /* -------------------------------------------- */
 
 Hooks.on('updateCombat', onUpdateCombat);
+Hooks.on('combatStart', resetCombatants);
+Hooks.on('deleteCombat', resetCombatants);
 
 /* -------------------------------------------- */
 /*  Helpers                                      */
@@ -196,4 +198,6 @@ function registerHandlebarsHelpers() {
         return n >= 0 ? `+${n}` : `${n}`;
     });
     Handlebars.registerHelper('eqStr', (a, b) => String(a) === String(b));
+    // Natureza do dano efetiva de uma linha (ver GRANBLUE.damageNature)
+    Handlebars.registerHelper('gbDamageNature', (row, spell) => GRANBLUE.damageNature(row, { spell: spell === true }));
 }
