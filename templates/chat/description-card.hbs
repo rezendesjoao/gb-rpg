@@ -1,0 +1,10 @@
+{{!-- Cartão de descrição no chat: habilidade passiva, habilidade de classe, traço de herança --}}
+<div class="granblue gb-chat-card gb-chat-card--text">
+    <header class="gb-chat-header">
+        <h3>{{#if icon}}<i class="{{icon}}"></i> {{/if}}{{title}}</h3>
+        {{#if subtitle}}<div class="gb-chat-header-sub">{{subtitle}}</div>{{/if}}
+    </header>
+    <div class="gb-chat-text">
+        {{#if body}}{{{body}}}{{else}}<p class="gb-chat-muted">Sem descrição.</p>{{/if}}
+    </div>
+</div>

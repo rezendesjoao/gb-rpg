@@ -3,7 +3,9 @@ import {
     makeAttributesSchema,
     makeResourcesSchema,
     makeDefensesSchema,
+    makeBiographySchema,
     makeActionSchema,
+    makeLootSchema,
     prepareCommonDerived
 } from './base-actor.mjs';
 
@@ -44,15 +46,14 @@ export class GranblueAdversary extends foundry.abstract.TypeDataModel {
         schema.advantage = new fields.StringField({ required: true, initial: '', blank: true });
         schema.disadvantage = new fields.StringField({ required: true, initial: '', blank: true });
 
-        // Ataques / habilidades
+        // Ataques / habilidades (ativas e passivas)
         schema.actions = new fields.ArrayField(makeActionSchema(), { required: true, initial: [] });
 
-        // Loot: lista de { chance, item }
-        schema.loot = new fields.ArrayField(new fields.SchemaField({
-            chance: new fields.StringField({ required: true, initial: '', blank: true }),
-            item: new fields.StringField({ required: true, initial: '', blank: true })
-        }), { required: true, initial: [] });
+        // Loot: lista de { chance, item, quantity, quality }
+        schema.loot = new fields.ArrayField(makeLootSchema(), { required: true, initial: [] });
 
+        // Biografia (os mesmos campos do personagem) + descrição e notas do mestre
+        schema.biography = makeBiographySchema();
         schema.description = new fields.HTMLField({ required: true, initial: '', blank: true });
         schema.notes = new fields.HTMLField({ required: true, initial: '', blank: true });
 
@@ -71,6 +72,7 @@ export class GranblueAdversary extends foundry.abstract.TypeDataModel {
         data.attributes = this.attributes;
         data.nivel = this.level;
         data.ca = this.defenses.ca;
+        data.rd = this.defenses.rd;
         data.vida = this.resources.hitPoints.value;
         data.vidaMax = this.resources.hitPoints.max;
         data.mana = this.resources.mana.value;

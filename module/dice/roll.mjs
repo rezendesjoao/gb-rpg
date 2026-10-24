@@ -4,7 +4,7 @@ import { describeStatusEffect } from '../effects.mjs';
 const CARD_TEMPLATE = 'systems/granblue/templates/chat/roll-card.hbs';
 
 /** Extrai os dados de exibição de um Roll: cada dado, o modificador e o total. */
-function describeRoll(roll) {
+export function describeRoll(roll) {
     const dice = [];
     let diceSum = 0;
     for (const term of roll.dice) {
@@ -81,15 +81,13 @@ export async function rollActionPart(actor, action, part, mods = {}) {
         return null;
     }
     const isHit = part === 'hit';
-    await postRollCard(actor, {
-        title: action.name,
+    await postActionCard(actor, action, {
         sections: [makeSection(
             game.i18n.localize(isHit ? 'GRANBLUE.Chat.hitRoll' : 'GRANBLUE.Chat.damageRoll'),
             roll,
             part
         )],
-        meta: buildActionMeta(action),
-        statusEffect: describeStatusEffect(action.statusEffect),
+        hitTotal: isHit ? roll.total : null,
         rolls: [roll]
     });
     return roll;
@@ -117,13 +115,7 @@ export async function rollActionFull(actor, action, mods = {}) {
         return null;
     }
 
-    await postRollCard(actor, {
-        title: action.name,
-        sections,
-        meta: buildActionMeta(action),
-        statusEffect: describeStatusEffect(action.statusEffect),
-        rolls
-    });
+    await postActionCard(actor, action, { sections, hitTotal: hitRoll?.total ?? null, rolls });
     return rolls;
 }
 
@@ -137,6 +129,84 @@ export async function rollHitDie(actor, dieFormula) {
         rolls: [roll]
     });
     return roll.total;
+}
+
+/* -------------------------------------------- */
+/*  Alvos, CA e CD                              */
+/* -------------------------------------------- */
+
+/**
+ * Tokens que o usuário marcou como alvo (tecla T ou botão de alvo do HUD) no
+ * momento da rolagem, com a CA atual de cada um — já com Active Effects como
+ * Frost ou Insight, que mexem na CA.
+ */
+function collectTargets() {
+    return Array.from(game.user.targets ?? []).map((token) => {
+        const ca = Number(token.actor?.system?.defenses?.ca);
+        return {
+            uuid: token.document.uuid,
+            name: token.document.name,
+            img: token.document.texture?.src || token.actor?.img || '',
+            ca: Number.isFinite(ca) ? ca : null
+        };
+    });
+}
+
+/**
+ * Confere a rolagem de acerto contra a CA de cada alvo. Empate acerta, a não
+ * ser que a configuração "Empate com a CA acerta" esteja desligada.
+ * `hit` fica null quando não houve rolagem de acerto (ex.: só dano).
+ */
+function checkTargets(targets, hitTotal) {
+    const tieHits = game.settings.get('granblue', 'hitOnTie');
+    return targets.map((t) => {
+        let hit = null;
+        if (hitTotal != null && t.ca != null) hit = tieHits ? hitTotal >= t.ca : hitTotal > t.ca;
+        return { ...t, hit };
+    });
+}
+
+/**
+ * CD de conjuração de uma magia: só quando o campo Dificuldade é um número
+ * puro ("14" ou "CD 14"). Textos como "8 + Potência" não são conferidos.
+ */
+function spellDifficulty(action) {
+    if (!GRANBLUE.normalizeSphere(action.sphere)) return null;
+    const match = String(action.difficulty ?? '').trim().match(/^(?:CD\s*)?(\d+)$/i);
+    return match ? Number(match[1]) : null;
+}
+
+/* -------------------------------------------- */
+/*  Cartões                                     */
+/* -------------------------------------------- */
+
+/** Monta e publica o cartão de uma ação/magia: dados, alvos, CD, efeito e descrição. */
+async function postActionCard(actor, action, { sections, hitTotal, rolls }) {
+    const targets = checkTargets(collectTargets(), hitTotal);
+
+    let check = null;
+    const dc = hitTotal != null ? spellDifficulty(action) : null;
+    if (dc != null) {
+        const success = hitTotal >= dc;
+        check = {
+            dc,
+            result: success ? 'success' : 'failure',
+            label: game.i18n.localize(success ? 'GRANBLUE.Chat.castSuccess' : 'GRANBLUE.Chat.castFailure')
+        };
+    }
+
+    await postRollCard(actor, {
+        title: action.name,
+        description: String(action.description ?? '').trim(),
+        effectText: String(action.effect ?? '').trim(),
+        sections,
+        check,
+        targets,
+        hitTotal,
+        meta: buildActionMeta(action),
+        statusEffect: describeStatusEffect(action.statusEffect),
+        rolls
+    });
 }
 
 /** Linhas de metadados (custo/alcance/etc.) exibidas no cartão de uma ação. */
@@ -155,25 +225,52 @@ function buildActionMeta(action) {
     if (action.range) meta.push({ label: game.i18n.localize('GRANBLUE.Action.range'), value: action.range });
     if (action.casting) meta.push({ label: game.i18n.localize('GRANBLUE.Action.casting'), value: action.casting });
     if (action.difficulty) meta.push({ label: game.i18n.localize('GRANBLUE.Action.difficulty'), value: action.difficulty });
-    const status = describeStatusEffect(action.statusEffect);
-    if (status) meta.push({ label: game.i18n.localize('GRANBLUE.Action.statusEffect'), value: status.label });
-    if (action.effect) meta.push({ label: game.i18n.localize('GRANBLUE.Action.effect'), value: action.effect });
     return meta;
 }
 
+/** Resultado de cada alvo pronto para o template (rótulos de acerto/erro e CA). */
+function describeTargets(targets) {
+    return targets.map((t) => ({
+        ...t,
+        caLabel: t.ca != null ? `CA ${t.ca}` : '',
+        result: t.hit === true ? 'hit' : t.hit === false ? 'miss' : '',
+        resultLabel: t.hit === true
+            ? game.i18n.localize('GRANBLUE.Chat.targetHit')
+            : t.hit === false ? game.i18n.localize('GRANBLUE.Chat.targetMiss') : '',
+        canApply: t.hit !== false
+    }));
+}
+
 /** Renderiza e publica o cartão de rolagem no chat. */
-async function postRollCard(actor, { title, sections, meta = null, statusEffect = null, rolls = [] }) {
+async function postRollCard(actor, {
+    title, sections, meta = null, statusEffect = null, rolls = [],
+    description = '', effectText = '', check = null, targets = [], hitTotal = null
+}) {
     // Valor sugerido para aplicar dano/cura: o total do dano, senão o da última seção.
     const damageSection = sections.find((s) => s.kind === 'damage');
     const applyAmount = (damageSection ?? sections[sections.length - 1])?.total ?? 0;
 
     const { renderTemplate } = foundry.applications.handlebars;
-    const content = await renderTemplate(CARD_TEMPLATE, { title, sections, meta, applyAmount, statusEffect });
+    const content = await renderTemplate(CARD_TEMPLATE, {
+        title,
+        description,
+        effectText,
+        sections,
+        check,
+        targets: describeTargets(targets),
+        hasDamage: !!damageSection,
+        meta: meta?.length ? meta : null,
+        applyAmount,
+        statusEffect
+    });
 
     await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor }),
         content,
         rolls,
-        sound: CONFIG.sounds.dice
+        sound: CONFIG.sounds.dice,
+        // Os alvos ficam guardados na mensagem: sem token selecionado, os botões
+        // de dano/cura/efeito do cartão usam estes alvos (ver chat.mjs).
+        flags: { granblue: { targets, hitTotal } }
     });
 }

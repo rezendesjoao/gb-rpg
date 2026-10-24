@@ -22,6 +22,28 @@
         <label class="gb-field gb-field--sm"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="9"></label>
     </div>
 
+    <div class="gb-action-kind">
+        <label class="gb-kind-select">
+            <span>Tipo</span>
+            <select name="system.passive" data-dtype="Boolean">
+                <option value="false" {{#unless system.passive}}selected{{/unless}}>Ativa</option>
+                <option value="true" {{#if system.passive}}selected{{/if}}>Passiva</option>
+            </select>
+        </label>
+        {{#unless system.passive}}
+        <label class="gb-kind-check" title="Acrescenta uma passiva à magia (útil para itens mágicos): um texto a mais, com botão de enviar ao chat na ficha">
+            <input type="checkbox" name="system.hasPassive" {{#if system.hasPassive}}checked{{/if}}>
+            <span>Possui passiva</span>
+        </label>
+        {{/unless}}
+    </div>
+
+    {{#if system.passive}}
+    <label class="gb-bio gb-passive-field">
+        <span><i class="fa-solid fa-feather"></i> Descrição da passiva <span class="gb-hint">(na ficha vira um texto com botão de enviar ao chat)</span></span>
+        <textarea class="gb-passive-text" name="system.description">{{system.description}}</textarea>
+    </label>
+    {{else}}
     <div class="gb-action-meta">
         <label><span>Custo</span><input type="text" name="system.cost" value="{{system.cost}}"></label>
         <label><span>Alcance</span><input type="text" name="system.range" value="{{system.range}}"></label>
@@ -46,5 +68,12 @@
 
     <label class="gb-bio"><span>Efeito</span><textarea name="system.effect">{{system.effect}}</textarea></label>
     <label class="gb-bio"><span>Descrição / Frase</span><textarea name="system.description">{{system.description}}</textarea></label>
+    {{#if system.hasPassive}}
+    <label class="gb-bio gb-passive-field gb-passive-field--attached">
+        <span><i class="fa-solid fa-feather"></i> Passiva desta magia</span>
+        <textarea class="gb-passive-text" name="system.passiveText" placeholder="O que a passiva faz…">{{system.passiveText}}</textarea>
+    </label>
+    {{/if}}
+    {{/if}}
 </div>
 </div>

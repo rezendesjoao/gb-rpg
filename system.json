@@ -71,7 +71,7 @@
             "packs": ["classes", "heritages", "spells"]
         }
     ],
-    "socket": false,
+    "socket": true,
     "initiative": "3d6 + @attributes.reacao.total",
     "grid": {
         "distance": 1,
@@ -93,6 +93,11 @@
             },
             "adversary": {
                 "htmlFields": [
+                    "biography.appearance",
+                    "biography.demons",
+                    "biography.motivations",
+                    "biography.worldview",
+                    "biography.backstory",
                     "description",
                     "notes"
                 ]

@@ -1,0 +1,12 @@
+{{!-- Cartão de chat das rolagens de loot: chance (d100), quantidade e qualidade --}}
+<div class="granblue gb-chat-card gb-chat-card--loot">
+    <header class="gb-chat-header">
+        <h3><i class="fa-solid fa-sack-dollar"></i> {{title}}</h3>
+        {{#if subtitle}}<div class="gb-chat-header-sub">{{subtitle}}</div>{{/if}}
+    </header>
+    <div class="gb-chat-section">
+        {{#if rollLabel}}<div class="gb-chat-subtitle">{{rollLabel}}</div>{{/if}}
+        {{> "systems/granblue/templates/chat/parts/roll.hbs" roll}}
+    </div>
+    {{#if verdict}}<div class="gb-loot-verdict gb-loot-verdict--{{verdict}}">{{verdictLabel}}</div>{{/if}}
+</div>

@@ -51,6 +51,10 @@
                     <span class="gb-badge-label">CA</span>
                     <span class="gb-badge-value">{{ca}}</span>
                 </div>
+                <label class="gb-badge gb-badge--rd" title="Redução de Dano: abatida do dano aplicado pelo chat (Shift+clique no botão de dano = dano verdadeiro){{#if (ne rd rdSource)}} · com efeitos: {{rd}}{{/if}}">
+                    <span class="gb-badge-label">RD</span>
+                    <input class="gb-badge-input" type="number" name="system.defenses.rd" value="{{rdSource}}" min="0">
+                </label>
                 <label class="gb-field gb-field--sm"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
                 <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
             </div>
@@ -149,54 +153,14 @@
 <section class="gb-tab" data-tab-content="acoes">
     <div class="gb-actions-toolbar">
         <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ação</button>
+        <button type="button" data-action="addAction" data-passive="true"><i class="fa-solid fa-feather"></i> Adicionar passiva</button>
     </div>
     <p class="gb-hint">Ataques e manobras não-mágicas. Magias ficam na aba <strong>Magia</strong>, dentro da esfera delas.
         Atalhos nas fórmulas: <code>@forca @precisao @reacao @resiliencia @percepcao @carisma @sabedoria @potencia @disciplina @nivel @ca</code>.
-        Ao clicar para rolar, abre a janela de bônus situacional.</p>
+        Ao clicar para rolar, abre a janela de bônus situacional. Com um token marcado como alvo (tecla <strong>T</strong>), o cartão confere o acerto contra a CA dele.</p>
 
     {{#each actions as |action idx|}}
-    <div class="gb-action gb-action--collapsed" data-list="actions" data-action-index="{{idx}}">
-        <div class="gb-action-head">
-            <a class="gb-collapse-toggle" data-action="toggleAction" data-index="{{idx}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
-            <input type="text" class="gb-action-name" name="system.actions.{{idx}}.name" value="{{action.name}}">
-            <span class="gb-action-btns">
-                <a class="gb-icn" data-action="moveAction" data-index="{{idx}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
-                <a class="gb-icn" data-action="moveAction" data-index="{{idx}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
-                <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-index="{{idx}}" data-drag-action="{{idx}}" draggable="true" title="Rolar ação (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
-                <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
-                <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i></a>
-                {{#if action.statusEffect}}
-                <a class="gb-btn gb-btn--fx" data-action="applyStatusEffect" data-index="{{idx}}" title="Aplicar o efeito ao(s) token(s) selecionado(s)"><i class="fa-solid fa-wand-sparkles"></i></a>
-                {{/if}}
-                <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-            </span>
-        </div>
-        <div class="gb-action-details">
-            <div class="gb-action-formulas">
-                <label><span>Acerto</span><input type="text" name="system.actions.{{idx}}.hit" value="{{action.hit}}" placeholder="3d6 + @precisao"></label>
-                <label><span>Dano</span><input type="text" name="system.actions.{{idx}}.damage" value="{{action.damage}}" placeholder="2d8 + @forca"></label>
-            </div>
-            <div class="gb-action-meta">
-                <label><span>Custo</span><input type="text" name="system.actions.{{idx}}.cost" value="{{action.cost}}"></label>
-                <label><span>Alcance</span><input type="text" name="system.actions.{{idx}}.range" value="{{action.range}}"></label>
-                <label><span>Conjuração</span><input type="text" name="system.actions.{{idx}}.casting" value="{{action.casting}}"></label>
-                <label><span>Dificuldade</span><input type="text" name="system.actions.{{idx}}.difficulty" value="{{action.difficulty}}"></label>
-            </div>
-            <div class="gb-action-status">
-                <label class="gb-action-fx">
-                    <span>Efeito aplicado</span>
-                    <select name="system.actions.{{idx}}.statusEffect">
-                        <option value="">— nenhum —</option>
-                        {{#each @root.statusEffectOptions as |o|}}
-                        <option value="{{o.value}}" {{#if (eqStr o.value action.statusEffect)}}selected{{/if}}>{{o.label}}</option>
-                        {{/each}}
-                    </select>
-                </label>
-                <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
-            </div>
-            <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.actions.{{idx}}.description" value="{{action.description}}"></label>
-        </div>
-    </div>
+    {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=action index=idx list="actions"}}
     {{else}}
     <p class="gb-empty">Nenhuma ação. Clique em "Adicionar ação".</p>
     {{/each}}
@@ -222,60 +186,7 @@
         </header>
 
         {{#each s.spells as |sp|}}
-        <div class="gb-action gb-action--spell gb-action--collapsed" data-list="spells" data-action-index="{{sp.index}}">
-            <div class="gb-action-head">
-                <a class="gb-collapse-toggle" data-action="toggleAction" data-list="spells" data-index="{{sp.index}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
-                <input type="text" class="gb-action-name" name="system.spells.{{sp.index}}.name" value="{{sp.name}}">
-                {{#if sp.arcano}}<span class="gb-chip gb-chip--arcano" title="Arcano">{{sp.arcano}}</span>{{/if}}
-                <span class="gb-action-btns">
-                    <a class="gb-icn" data-action="moveAction" data-list="spells" data-index="{{sp.index}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
-                    <a class="gb-icn" data-action="moveAction" data-list="spells" data-index="{{sp.index}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
-                    <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-list="spells" data-index="{{sp.index}}" data-drag-action="{{sp.index}}" draggable="true" title="Conjurar (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
-                    <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-list="spells" data-index="{{sp.index}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
-                    <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-list="spells" data-index="{{sp.index}}" data-part="damage" title="Rolar dano / cura"><i class="fa-solid fa-burst"></i></a>
-                    {{#if sp.statusEffect}}
-                    <a class="gb-btn gb-btn--fx" data-action="applyStatusEffect" data-list="spells" data-index="{{sp.index}}" title="Aplicar o efeito ao(s) token(s) selecionado(s)"><i class="fa-solid fa-wand-sparkles"></i></a>
-                    {{/if}}
-                    <a class="gb-btn gb-btn--del" data-action="deleteAction" data-list="spells" data-index="{{sp.index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-                </span>
-            </div>
-            <div class="gb-action-details">
-                <div class="gb-spell-meta">
-                    <label><span>Esfera</span>
-                        <select name="system.spells.{{sp.index}}.sphere" title="Mover a magia para outra esfera">
-                            {{#each @root.sphereOptions as |o|}}
-                            <option value="{{o.value}}" {{#if (eqStr o.value sp.sphereKey)}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
-                    <label><span>Arcano</span><input type="text" name="system.spells.{{sp.index}}.arcano" value="{{sp.arcano}}" placeholder="Cura, Espírito…"></label>
-                    <label><span>Nível</span><input type="number" name="system.spells.{{sp.index}}.level" value="{{sp.level}}" min="1" max="9"></label>
-                </div>
-                <div class="gb-action-formulas">
-                    <label><span>Acerto</span><input type="text" name="system.spells.{{sp.index}}.hit" value="{{sp.hit}}" placeholder="3d6 + @disciplina"></label>
-                    <label><span>Dano / Cura</span><input type="text" name="system.spells.{{sp.index}}.damage" value="{{sp.damage}}" placeholder="2d8 + @potencia"></label>
-                </div>
-                <div class="gb-action-meta">
-                    <label><span>Custo</span><input type="text" name="system.spells.{{sp.index}}.cost" value="{{sp.cost}}" placeholder="mana"></label>
-                    <label><span>Alcance</span><input type="text" name="system.spells.{{sp.index}}.range" value="{{sp.range}}"></label>
-                    <label><span>Conjuração</span><input type="text" name="system.spells.{{sp.index}}.casting" value="{{sp.casting}}"></label>
-                    <label><span>Dificuldade</span><input type="text" name="system.spells.{{sp.index}}.difficulty" value="{{sp.difficulty}}"></label>
-                </div>
-                <div class="gb-action-status">
-                    <label class="gb-action-fx">
-                        <span>Efeito aplicado</span>
-                        <select name="system.spells.{{sp.index}}.statusEffect">
-                            <option value="">— nenhum —</option>
-                            {{#each @root.statusEffectOptions as |o|}}
-                            <option value="{{o.value}}" {{#if (eqStr o.value sp.statusEffect)}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
-                    <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.spells.{{sp.index}}.effect" value="{{sp.effect}}"></label>
-                </div>
-                <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.spells.{{sp.index}}.description" value="{{sp.description}}"></label>
-            </div>
-        </div>
+        {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=sp index=sp.index list="spells" spell=true}}
         {{else}}
         <p class="gb-empty gb-empty--sm">Nenhuma magia nesta esfera.</p>
         {{/each}}
@@ -294,7 +205,7 @@
                 <span class="gb-orphan-warn" title="Esfera não reconhecida"><i class="fa-solid fa-triangle-exclamation"></i></span>
                 <input type="text" class="gb-action-name" name="system.spells.{{sp.index}}.name" value="{{sp.name}}">
                 <select class="gb-orphan-sphere" name="system.spells.{{sp.index}}.sphere">
-                    <option value="" selected>— esfera —</option>
+                    <option value="{{sp.sphere}}" selected>— esfera —</option>
                     {{#each @root.sphereOptions as |o|}}
                     <option value="{{o.value}}">{{o.label}}</option>
                     {{/each}}
@@ -415,8 +326,14 @@
                     <span class="gb-chip">Dano {{classItem.system.danoDado}}</span>
                 </div>
                 {{#if classItem.system.manaCondition}}<div class="gb-idcard-mana"><i class="fa-solid fa-droplet"></i> {{classItem.system.manaCondition}}</div>{{/if}}
-                {{#each classAbilities as |ab|}}
-                <div class="gb-mini-ability"><strong>{{ab.name}}</strong> <em>({{ab.type}})</em>{{#if ab.description}}<p>{{ab.description}}</p>{{/if}}</div>
+                {{#each classAbilities as |ab idx|}}
+                <div class="gb-mini-ability">
+                    <div class="gb-mini-head">
+                        <strong>{{ab.name}}</strong> <em>({{ab.type}})</em>
+                        <a class="gb-mini-chat" data-action="postFeature" data-feature="ability" data-index="{{idx}}" title="Mostrar no chat o que esta habilidade faz"><i class="fa-solid fa-comment"></i></a>
+                    </div>
+                    {{#if ab.description}}<p>{{ab.description}}</p>{{/if}}
+                </div>
                 {{/each}}
             </div>
             {{/if}}
@@ -436,13 +353,31 @@
             {{#if heritageItem}}
             <div class="gb-idcard-body">
                 {{#if heritageItem.system.sharedTrait}}
-                <div class="gb-mini-ability"><strong>Traço Compartilhado</strong>{{{heritageItem.system.sharedTrait}}}</div>
+                <div class="gb-mini-ability">
+                    <div class="gb-mini-head">
+                        <strong>Traço Compartilhado</strong>
+                        <a class="gb-mini-chat" data-action="postFeature" data-feature="trait" title="Mostrar no chat o que este traço faz"><i class="fa-solid fa-comment"></i></a>
+                    </div>
+                    {{{heritageItem.system.sharedTrait}}}
+                </div>
                 {{/if}}
                 {{#if heritageItem.system.weakness}}
-                <div class="gb-mini-ability"><strong>Debilidade</strong>{{{heritageItem.system.weakness}}}</div>
+                <div class="gb-mini-ability">
+                    <div class="gb-mini-head">
+                        <strong>Debilidade</strong>
+                        <a class="gb-mini-chat" data-action="postFeature" data-feature="weakness" title="Mostrar no chat o que esta debilidade faz"><i class="fa-solid fa-comment"></i></a>
+                    </div>
+                    {{{heritageItem.system.weakness}}}
+                </div>
                 {{/if}}
-                {{#each heritageProgress as |p|}}
-                <div class="gb-mini-ability"><strong>{{p.name}}</strong>{{#if p.requirement}} <em>({{p.requirement}})</em>{{/if}}{{#if p.description}}<p>{{p.description}}</p>{{/if}}</div>
+                {{#each heritageProgress as |p idx|}}
+                <div class="gb-mini-ability">
+                    <div class="gb-mini-head">
+                        <strong>{{p.name}}</strong>{{#if p.requirement}} <em>({{p.requirement}})</em>{{/if}}
+                        <a class="gb-mini-chat" data-action="postFeature" data-feature="progress" data-index="{{idx}}" title="Mostrar no chat o que este progresso faz"><i class="fa-solid fa-comment"></i></a>
+                    </div>
+                    {{#if p.description}}<p>{{p.description}}</p>{{/if}}
+                </div>
                 {{/each}}
             </div>
             {{/if}}

@@ -640,9 +640,10 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 }
 
 /* Botões de aplicar dano/cura no token selecionado */
-.gb-chat-apply { display: flex; gap: 6px; padding: 6px 8px; border-top: 1px solid var(--gb-line, #c7bda3); }
+.gb-chat-apply { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 8px; border-top: 1px solid var(--gb-line, #c7bda3); }
 .gb-apply {
     flex: 1;
+    min-width: 0;
     border: none;
     border-radius: 5px;
     padding: 5px 8px;
@@ -650,10 +651,14 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
     font-size: 0.8rem;
     color: #fff;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .gb-apply--dmg { background: var(--gb-hp, #a1332f); }
 .gb-apply--heal { background: var(--gb-ok, #3c7a3c); }
-.gb-apply--fx { background: var(--gb-fx, #6b4fa8); display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+/* O botão de efeito vai para uma linha própria: o nome do efeito é longo */
+.gb-apply--fx { flex-basis: 100%; background: var(--gb-fx, #6b4fa8); display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
 .gb-apply-icn { width: 14px; height: 14px; border: none; filter: brightness(0) invert(1); }
 .gb-apply:hover { filter: brightness(1.12); }
 
@@ -849,4 +854,310 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
     color: #fff;
     font-size: 0.95rem;
     font-weight: 600;
+}
+
+/* =========================================================
+   RD (Redução de Dano) ao lado da CA no cabeçalho
+   ========================================================= */
+.gb-badge--rd { cursor: text; }
+.gb-badge-input {
+    width: 46px;
+    height: auto;
+    padding: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+    color: #fff !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.gb-badge-input:focus { background: rgba(255, 255, 255, 0.12) !important; border-radius: 4px; }
+
+/* Barra de botões das listas (ataque/passiva, espólio/enviar loot) */
+.gb-actions-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* =========================================================
+   Habilidades passivas (ações e magias)
+   ========================================================= */
+.gb-action--passive { border-left-color: var(--gb-gold); }
+.gb-action--spell.gb-action--passive { border-left-style: double; border-left-width: 5px; }
+.gb-chip--passive { background: var(--gb-gold); color: #3a2d0a; flex: 0 0 auto; }
+.gb-btn--chat { background: var(--gb-gold); color: #3a2d0a; }
+.gb-btn--chat[draggable="true"] { cursor: grab; }
+
+.gb-action-kind {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.72rem;
+    color: #6b6350;
+}
+.gb-kind-select { display: flex; align-items: center; gap: 6px; }
+.gb-kind-select select { width: auto; font-size: 0.78rem; }
+.gb-kind-check { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.gb-kind-check input { margin: 0; }
+
+.gb-action-desc textarea { min-height: 38px; resize: vertical; padding: 3px 6px; }
+
+.gb-passive-field { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; font-size: 0.7rem; color: #6b6350; }
+.gb-passive-field > span { display: flex; align-items: center; gap: 5px; }
+.gb-passive-field > span .fa-feather { color: var(--gb-gold); }
+/* Campo um pouco maior e rolável: o texto longo rola dentro dele */
+.gb-passive-text {
+    min-height: 92px;
+    max-height: 260px;
+    overflow-y: auto;
+    resize: vertical;
+    padding: 5px 7px;
+    line-height: 1.35;
+    font-size: 0.82rem;
+    border-left: 3px solid var(--gb-gold) !important;
+}
+.gb-passive-field--attached { padding-top: 6px; border-top: 1px dashed var(--gb-line); }
+
+/* Botão de chat ao lado de habilidades de classe e traços de herança */
+.gb-mini-head { display: flex; align-items: baseline; gap: 4px; }
+.gb-mini-chat {
+    margin-left: auto;
+    flex: 0 0 auto;
+    color: var(--gb-blue);
+    cursor: pointer;
+    padding: 0 3px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    transition: opacity 0.12s, color 0.12s;
+}
+.gb-mini-chat:hover { opacity: 1; color: var(--gb-gold); }
+
+/* =========================================================
+   Cartão de chat: descrição, efeito, CD e alvos
+   ========================================================= */
+.gb-chat-header-sub { font-size: 0.72rem; color: var(--gb-gold-light, #e6c976); margin-top: 1px; }
+.gb-chat-desc {
+    padding: 5px 8px;
+    font-size: 0.78rem;
+    font-style: italic;
+    white-space: pre-line;
+    border-bottom: 1px dashed var(--gb-line, #c7bda3);
+    opacity: 0.9;
+}
+.gb-chat-effect {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    white-space: pre-line;
+    border-top: 1px dashed var(--gb-line, #c7bda3);
+}
+.gb-chat-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 8px 6px;
+    font-size: 0.76rem;
+    background: #6b4fa814;
+    border-top: 1px dashed var(--gb-line, #c7bda3);
+}
+.gb-chat-status-icn {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    border: none;
+    border-radius: 4px;
+    background: var(--gb-fx, #6b4fa8);
+    padding: 2px;
+}
+.gb-chat-check {
+    margin: 2px 8px 4px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    color: #fff;
+}
+.gb-chat-check--success { background: var(--gb-ok, #3c7a3c); }
+.gb-chat-check--failure { background: var(--gb-danger, #8a2a22); }
+
+.gb-chat-targets { padding: 3px 8px 5px; border-top: 1px solid var(--gb-line, #c7bda3); }
+.gb-target { display: flex; align-items: center; gap: 6px; padding: 2px 0; font-size: 0.82rem; }
+.gb-target + .gb-target { border-top: 1px dotted var(--gb-line, #c7bda3); }
+.gb-target-img { width: 24px; height: 24px; object-fit: cover; border: 1px solid var(--gb-gold, #c9a44c); border-radius: 4px; }
+.gb-target-name { flex: 1 1 auto; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-target-ca { font-size: 0.72rem; opacity: 0.8; white-space: nowrap; }
+.gb-target-res {
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #fff;
+    white-space: nowrap;
+}
+.gb-target-res--hit { background: var(--gb-ok, #3c7a3c); }
+.gb-target-res--miss { background: var(--gb-danger, #8a2a22); }
+.gb-target-btns { display: inline-flex; gap: 3px; }
+.gb-target-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    line-height: 1;
+}
+.gb-target-btn--dmg { background: var(--gb-hp, #a1332f); }
+.gb-target-btn--fx { background: var(--gb-fx, #6b4fa8); }
+.gb-target-btn:hover { filter: brightness(1.15); }
+
+/* Cartão de descrição (passivas, habilidades de classe, traços de herança) */
+.gb-chat-text { padding: 5px 9px 7px; font-size: 0.82rem; line-height: 1.4; }
+.gb-chat-text p { margin: 0 0 5px; }
+.gb-chat-text p:last-child { margin-bottom: 0; }
+.gb-chat-muted { font-style: italic; opacity: 0.7; }
+
+/* Cartão de loot */
+.gb-loot-verdict { margin: 0 8px 7px; padding: 4px 8px; border-radius: 5px; font-weight: 700; font-size: 0.82rem; text-align: center; color: #fff; }
+.gb-loot-verdict--success { background: var(--gb-ok, #3c7a3c); }
+.gb-loot-verdict--failure { background: var(--gb-danger, #8a2a22); }
+.gb-loot-verdict--info { background: var(--gb-blue, #1b3a5b); }
+.gb-loot-verdict--quality { background: var(--gb-gold, #c9a44c); color: #3a2d0a; }
+
+/* =========================================================
+   Aba Loot do adversário
+   ========================================================= */
+.gb-loot-row {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr) 96px 168px auto;
+    align-items: end;
+}
+.gb-loot-row--invalid .gb-loot-chance input { border-color: var(--gb-danger); box-shadow: 0 0 3px #8a2a2266; }
+.gb-loot-row select { width: 100%; font-size: 0.8rem; }
+.gb-actions-toolbar .gb-loot-send-btn { background: var(--gb-gold); color: #3a2d0a; }
+.gb-actions-toolbar .gb-loot-send-btn:hover { background: var(--gb-blue); color: #fff; }
+
+/* Diálogo do mestre: enviar a rolagem de loot */
+.gb-loot-preview {
+    list-style: none;
+    margin: 0;
+    padding: 6px 8px;
+    background: var(--gb-paper-2);
+    border: 1px solid var(--gb-line);
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+.gb-loot-preview li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 2px 0; }
+.gb-loot-preview strong { min-width: 38px; color: var(--gb-blue); }
+.gb-loot-preview em { margin-left: auto; color: #6b6350; font-size: 0.72rem; }
+.gb-loot-preview small { flex-basis: 100%; color: var(--gb-danger); }
+.gb-loot-preview--invalid { opacity: 0.65; }
+.gb-loot-users { display: flex; flex-direction: column; gap: 5px; }
+.gb-loot-user em { color: #6b6350; font-style: normal; font-weight: 400; }
+.gb-loot-user--self { color: var(--gb-blue); background: #1b3a5b10; }
+
+/* =========================================================
+   Pop-ups de loot dos jogadores
+   ========================================================= */
+.granblue.gb-loot-app .window-content {
+    background: var(--gb-paper);
+    color: var(--gb-ink);
+    font-family: 'Signika', sans-serif;
+    padding: 10px;
+}
+.gb-loot-pop { display: flex; flex-direction: column; gap: 8px; }
+.gb-loot-pop-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--gb-blue), var(--gb-blue-light));
+    border-bottom: 3px solid var(--gb-gold);
+    border-radius: 6px;
+}
+.gb-loot-pop-head .gb-hint { color: var(--gb-gold-light); }
+.gb-loot-pop-img { width: 46px; height: 46px; object-fit: cover; border: 2px solid var(--gb-gold); border-radius: 6px; }
+.gb-loot-pop-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gb-loot-pop-title strong { font-size: 1.05rem; }
+.gb-loot-pop-gem { font-size: 1.8rem; color: var(--gb-gold-light); }
+
+.gb-loot-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.gb-loot-entry {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: var(--gb-paper-2);
+    border: 1px solid var(--gb-line);
+    border-left: 4px solid var(--gb-gold);
+    border-radius: 6px;
+}
+.gb-loot-entry--success { border-left-color: var(--gb-ok); background: #3c7a3c14; }
+.gb-loot-entry--failure { border-left-color: var(--gb-danger); opacity: 0.8; }
+.gb-loot-entry-n { font-weight: 600; color: var(--gb-blue); }
+.gb-loot-entry-n i { color: var(--gb-gold); }
+.gb-loot-entry-chance { font-size: 1.15rem; font-weight: 800; color: var(--gb-ink); }
+.gb-loot-entry-res { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.8rem; }
+.gb-loot-entry--success .gb-loot-entry-res { color: var(--gb-ok); }
+.gb-loot-entry--failure .gb-loot-entry-res { color: var(--gb-danger); }
+.gb-loot-entry-total {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 26px;
+    background: #fff;
+    border: 2px solid var(--gb-gold);
+    border-radius: 50%;
+    color: var(--gb-ink);
+}
+.gb-loot-roll-btn,
+.gb-loot-store-btn {
+    width: auto;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #fff;
+    background: var(--gb-blue);
+}
+.gb-loot-roll-btn:hover, .gb-loot-store-btn:hover { background: var(--gb-gold); color: #3a2d0a; }
+.gb-loot-roll-btn:disabled { opacity: 0.5; cursor: wait; }
+.gb-loot-store-btn { width: 100%; padding: 7px 10px; background: var(--gb-ok); }
+
+.gb-claim-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    background: var(--gb-paper-2);
+    border: 1px solid var(--gb-line);
+    border-radius: 6px;
+}
+.gb-claim-label { font-weight: 600; color: var(--gb-blue); font-size: 0.85rem; }
+.gb-claim-label code { font-size: 0.75rem; font-weight: 400; background: #00000010; padding: 1px 5px; border-radius: 8px; }
+.gb-claim-label em { display: block; font-size: 0.7rem; font-weight: 400; color: #6b6350; }
+.gb-claim-value { font-size: 1.1rem; font-weight: 800; color: var(--gb-ink); text-align: right; }
+.gb-claim-value small { display: block; font-size: 0.68rem; font-weight: 400; color: #6b6350; }
+.gb-quality--boa { color: var(--gb-ok); }
+.gb-quality--rara { color: var(--gb-mana); }
+.gb-quality--primorosa { color: var(--gb-fx); }
+.gb-quality--materiaPrima { color: #b4781e; }
+.gb-claim-note { margin: 0; text-align: center; }
+.gb-claim-summary {
+    padding: 7px 9px;
+    text-align: center;
+    background: #3c7a3c1a;
+    border: 1px solid var(--gb-ok);
+    border-radius: 6px;
 }

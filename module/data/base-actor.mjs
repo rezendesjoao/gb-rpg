@@ -40,10 +40,25 @@ export function makeResourcesSchema() {
     });
 }
 
-/** Schema de defesas: bônus de CA (a CA final é derivada). */
+/**
+ * Schema de defesas: bônus de CA (a CA final é derivada) e Redução de Dano.
+ * A RD é abatida do dano aplicado pelo cartão de chat (ver chat.mjs).
+ */
 export function makeDefensesSchema() {
     return new fields.SchemaField({
-        caBonus: new fields.NumberField({ required: true, integer: true, initial: 0, nullable: false })
+        caBonus: new fields.NumberField({ required: true, integer: true, initial: 0, nullable: false }),
+        rd: new fields.NumberField({ required: true, integer: true, initial: 0, min: 0, nullable: false })
+    });
+}
+
+/** Schema da biografia (campos HTML), igual no personagem e no adversário. */
+export function makeBiographySchema() {
+    return new fields.SchemaField({
+        appearance: new fields.HTMLField({ required: true, initial: '', blank: true }),
+        demons: new fields.HTMLField({ required: true, initial: '', blank: true }),
+        motivations: new fields.HTMLField({ required: true, initial: '', blank: true }),
+        worldview: new fields.HTMLField({ required: true, initial: '', blank: true }),
+        backstory: new fields.HTMLField({ required: true, initial: '', blank: true })
     });
 }
 
@@ -55,6 +70,11 @@ export function makeDefensesSchema() {
  * `statusEffect` guarda o id de um status effect do Granblue (ver
  * GRANBLUE.statusEffects): é o efeito que o botão de aplicar — na caixa da
  * ação e no cartão de chat — coloca nos tokens selecionados. Vazio = nenhum.
+ *
+ * `passive` transforma a linha numa habilidade passiva: a ficha mostra só a
+ * descrição, num texto maior, com botão de enviar ao chat (sem rolagens).
+ * `hasPassive` anexa uma passiva a uma habilidade ativa — o texto dela fica em
+ * `passiveText`, também com botão de chat.
  */
 function actionFields() {
     return {
@@ -67,7 +87,10 @@ function actionFields() {
         difficulty: new fields.StringField({ required: true, initial: '', blank: true }),
         statusEffect: new fields.StringField({ required: true, initial: '', blank: true }),
         effect: new fields.StringField({ required: true, initial: '', blank: true }),
-        description: new fields.StringField({ required: true, initial: '', blank: true })
+        description: new fields.StringField({ required: true, initial: '', blank: true }),
+        passive: new fields.BooleanField({ required: true, initial: false }),
+        hasPassive: new fields.BooleanField({ required: true, initial: false }),
+        passiveText: new fields.StringField({ required: true, initial: '', blank: true })
     };
 }
 
@@ -104,6 +127,22 @@ export function makeInventorySchema() {
         value: new fields.StringField({ required: true, initial: '', blank: true }),
         equipped: new fields.BooleanField({ required: true, initial: false }),
         description: new fields.StringField({ required: true, initial: '', blank: true })
+    });
+}
+
+/**
+ * Schema de um espólio do adversário (aba Loot).
+ *   chance    texto livre ("35%"), lido por GRANBLUE.parseChance
+ *   quantity  fórmula de rolagem da quantidade ("1d3", "2")
+ *   quality   a MELHOR qualidade que o item pode ter: o d100 de qualidade vai
+ *             de Normal até ela (ver GRANBLUE.qualityChances)
+ */
+export function makeLootSchema() {
+    return new fields.SchemaField({
+        chance: new fields.StringField({ required: true, initial: '', blank: true }),
+        item: new fields.StringField({ required: true, initial: '', blank: true }),
+        quantity: new fields.StringField({ required: true, initial: '1', blank: true }),
+        quality: new fields.StringField({ required: true, initial: 'normal', blank: true })
     });
 }
 

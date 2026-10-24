@@ -1,0 +1,26 @@
+{{!-- Pop-up do jogador: só a chance de cada espólio (sem o nome) e o botão de girar o d100 --}}
+<div class="gb-loot-pop">
+    <header class="gb-loot-pop-head">
+        {{#if img}}<img class="gb-loot-pop-img" src="{{img}}" alt="">{{/if}}
+        <div class="gb-loot-pop-title">
+            <strong>{{source}}</strong>
+            <span class="gb-hint">Gire o d100 de cada espólio: tirar <strong>igual ou menos</strong> que a chance consegue o item.</span>
+        </div>
+    </header>
+
+    <ol class="gb-loot-list">
+        {{#each entries as |e|}}
+        <li class="gb-loot-entry{{#if e.result}} gb-loot-entry--{{e.result.verdict}}{{/if}}">
+            <span class="gb-loot-entry-n"><i class="fa-solid fa-gift"></i> Espólio {{e.number}}</span>
+            <span class="gb-loot-entry-chance" title="Chance de conseguir">{{e.chance}}%</span>
+            {{#if e.result}}
+            <span class="gb-loot-entry-res"><span class="gb-loot-entry-total">{{e.result.total}}</span> {{e.result.label}}</span>
+            {{else}}
+            <button type="button" class="gb-loot-roll-btn" data-action="rollChance" data-index="{{e.index}}" {{#if e.pending}}disabled{{/if}}>
+                <i class="fa-solid fa-dice-d20"></i> Girar d100
+            </button>
+            {{/if}}
+        </li>
+        {{/each}}
+    </ol>
+</div>

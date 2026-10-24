@@ -1,0 +1,46 @@
+{{!-- Pop-up do item conseguido: girar a quantidade e a qualidade, depois guardar no inventário --}}
+<div class="gb-loot-pop">
+    <header class="gb-loot-pop-head gb-loot-pop-head--claim">
+        <i class="fa-solid fa-gem gb-loot-pop-gem"></i>
+        <div class="gb-loot-pop-title">
+            <span class="gb-hint">Espólio de {{source}}</span>
+            <strong>{{item}}</strong>
+        </div>
+    </header>
+
+    <div class="gb-claim-row">
+        <span class="gb-claim-label">Quantidade <code>{{quantityFormula}}</code></span>
+        {{#if quantity}}
+        <span class="gb-claim-value">{{quantity.total}}×</span>
+        {{else}}
+        <button type="button" class="gb-loot-roll-btn" data-action="rollQuantity"><i class="fa-solid fa-dice"></i> Girar</button>
+        {{/if}}
+    </div>
+
+    <div class="gb-claim-row">
+        <span class="gb-claim-label">Qualidade <code>d100</code> <em>{{qualityRange}}</em></span>
+        {{#if quality}}
+        <span class="gb-claim-value gb-quality gb-quality--{{quality.key}}">
+            {{quality.label}}{{#if quality.total}} <small>({{quality.total}}{{#if quality.capped}} · {{quality.rolledLabel}} limitada{{/if}})</small>{{/if}}
+        </span>
+        {{else}}
+        <button type="button" class="gb-loot-roll-btn" data-action="rollQuality"><i class="fa-solid fa-dice-d20"></i> Girar d100</button>
+        {{/if}}
+    </div>
+    {{#if onlyNormal}}<p class="gb-hint gb-claim-note">Este item só existe na qualidade Normal.</p>{{/if}}
+
+    {{#if done}}
+    <div class="gb-claim-summary">
+        Você conseguiu <strong>{{quantity.total}}× {{item}}</strong> ({{quality.label}}).
+    </div>
+    {{#if stored}}
+    <p class="gb-hint gb-claim-note"><i class="fa-solid fa-check"></i> Guardado no inventário de {{characterName}}.</p>
+    {{else if characterName}}
+    <button type="button" class="gb-loot-store-btn" data-action="storeItem">
+        <i class="fa-solid fa-box-archive"></i> Guardar no inventário de {{characterName}}
+    </button>
+    {{else}}
+    <p class="gb-hint gb-claim-note">Você não tem um personagem atribuído — anote o item na sua ficha.</p>
+    {{/if}}
+    {{/if}}
+</div>

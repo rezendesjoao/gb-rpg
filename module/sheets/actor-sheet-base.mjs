@@ -1,9 +1,16 @@
 import { GRANBLUE } from '../config.mjs';
 import { rollDialog } from '../dice/roll-dialog.mjs';
 import { applyStatusToSelectedTokens } from '../effects.mjs';
+import { sendLootDialog } from '../loot.mjs';
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
+
+/** Listas do system gravadas pelo formulário (ver _processFormData). */
+const FORM_LISTS = ['actions', 'spells', 'inventory', 'loot'];
+
+/** Partial da linha de ação/magia, usado pelas fichas de personagem e adversário. */
+export const ACTION_ROW_PARTIAL = 'systems/granblue/templates/actor/parts/action-row.hbs';
 
 /**
  * Ficha base de Ator do Granblue. Concentra os handlers de ação (rolagens,
@@ -27,6 +34,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             rollAttribute: GranblueActorSheetBase.#onRollAttribute,
             rollAction: GranblueActorSheetBase.#onRollAction,
             rollActionFull: GranblueActorSheetBase.#onRollActionFull,
+            postActionText: GranblueActorSheetBase.#onPostActionText,
             applyStatusEffect: GranblueActorSheetBase.#onApplyStatusEffect,
             toggleAction: GranblueActorSheetBase.#onToggleAction,
             addAction: GranblueActorSheetBase.#onAddAction,
@@ -40,7 +48,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             rollHitDie: GranblueActorSheetBase.#onRollHitDie,
             recalcMax: GranblueActorSheetBase.#onRecalcMax,
             addLoot: GranblueActorSheetBase.#onAddLoot,
-            deleteLoot: GranblueActorSheetBase.#onDeleteLoot
+            deleteLoot: GranblueActorSheetBase.#onDeleteLoot,
+            sendLoot: GranblueActorSheetBase.#onSendLoot
         }
     };
 
@@ -132,6 +141,10 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             mana: sys.resources.mana,
             ca: sys.defenses.ca,
             caBonus: src.defenses.caBonus,
+            // RD: o campo edita o valor guardado; `rd` já inclui Active Effects
+            rd: sys.defenses.rd,
+            rdSource: src.defenses.rd,
+            isGM: game.user.isGM,
             classItem,
             heritageItem,
             hasClass: !!classItem,
@@ -149,6 +162,29 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         context.hpPct = hpMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.hitPoints.value / hpMax) * 100))) : 0;
         context.manaPct = manaMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.mana.value / manaMax) * 100))) : 0;
         return context;
+    }
+
+    /**
+     * O Foundry grava as listas (ações, magias, inventário, loot) inteiras a
+     * partir do formulário: um campo que não está na tela voltaria ao valor
+     * padrão. Aqui cada linha enviada é mesclada sobre a linha atual, então
+     * campos escondidos — o acerto/dano de uma habilidade que virou passiva, os
+     * detalhes de uma magia sem esfera — continuam guardados.
+     */
+    _processFormData(event, form, formData) {
+        const data = super._processFormData(event, form, formData);
+        const src = this.document.system._source;
+        for (const list of FORM_LISTS) {
+            const submitted = data.system?.[list];
+            if (!submitted || typeof submitted !== 'object' || Array.isArray(submitted)) continue;
+            const rows = foundry.utils.deepClone(src[list] ?? []);
+            for (const [key, row] of Object.entries(submitted)) {
+                const index = Number(key);
+                if (Number.isInteger(index) && rows[index]) Object.assign(rows[index], row);
+            }
+            data.system[list] = rows;
+        }
+        return data;
     }
 
     /** Constrói lista de opções [{value,label,selected}] a partir de um objeto de escolhas. */
@@ -400,6 +436,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const index = Number(target.dataset.index);
         const action = (this.document.system[list] ?? [])[index];
         if (!action) return;
+        if (action.passive) return this.document.postActionText(index, list, 'passive');
         const parts = [];
         if ((action.hit ?? '').trim()) parts.push({ key: 'hit', label: 'Acerto', base: action.hit.trim() });
         if ((action.damage ?? '').trim()) parts.push({ key: 'damage', label: 'Dano', base: action.damage.trim() });
@@ -409,7 +446,13 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
     }
 
-    /** Aplica o status effect da ação/magia nos tokens selecionados. */
+    /** Envia ao chat a passiva (a própria habilidade passiva ou a anexada). */
+    static async #onPostActionText(event, target) {
+        const list = GranblueActorSheetBase.#listOf(target);
+        await this.document.postActionText(Number(target.dataset.index), list, target.dataset.part || 'passive');
+    }
+
+    /** Aplica o status effect da ação/magia nos tokens selecionados (ou nos alvos). */
     static async #onApplyStatusEffect(event, target) {
         const list = GranblueActorSheetBase.#listOf(target);
         const index = Number(target.dataset.index);
@@ -439,14 +482,19 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         this.#toggleRow('inventory', target);
     }
 
+    /** Cria uma ação; com `data-passive` no botão, já cria uma habilidade passiva. */
     static async #onAddAction(event, target) {
         const list = GranblueActorSheetBase.#listOf(target);
+        const passive = target.dataset.passive === 'true';
         const rows = this.#rows(list);
         rows.push({
-            name: game.i18n.localize('GRANBLUE.Action.new'),
+            name: game.i18n.localize(passive ? 'GRANBLUE.Action.newPassive' : 'GRANBLUE.Action.new'),
             hit: '', damage: '', cost: '', range: '',
-            casting: '', difficulty: '', statusEffect: '', effect: '', description: ''
+            casting: '', difficulty: '', statusEffect: '', effect: '', description: '',
+            passive, hasPassive: false, passiveText: ''
         });
+        // A passiva nova já abre, com o campo de texto à mostra.
+        if (passive) this._expanded.add(`${list}:${rows.length - 1}`);
         await this.#saveRows(list, rows);
     }
 
@@ -458,6 +506,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             name: game.i18n.localize('GRANBLUE.Spell.new'),
             hit: '3d6 + @disciplina', damage: '', cost: '', range: '',
             casting: '', difficulty: '', statusEffect: '', effect: '', description: '',
+            passive: false, hasPassive: false, passiveText: '',
             sphere, arcano: '', level: 1
         });
         await this.#saveRows('spells', rows);
@@ -505,7 +554,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
 
     static async #onAddLoot(event, target) {
         const loot = this.#rows('loot');
-        loot.push({ chance: '', item: '' });
+        loot.push({ chance: '', item: '', quantity: '1', quality: 'normal' });
         await this.#saveRows('loot', loot);
     }
 
@@ -514,5 +563,10 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const loot = this.#rows('loot');
         loot.splice(index, 1);
         await this.#saveRows('loot', loot);
+    }
+
+    /** Mestre: envia o pop-up de rolagem de loot deste adversário aos jogadores. */
+    static async #onSendLoot(event, target) {
+        await sendLootDialog(this.document);
     }
 }

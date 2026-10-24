@@ -21,7 +21,12 @@ export class GranblueSpell extends foundry.abstract.TypeDataModel {
             // Id de um status effect do Granblue aplicado pela magia (vazio = nenhum).
             statusEffect: new fields.StringField({ required: true, initial: '', blank: true }),
             effect: new fields.HTMLField({ required: true, initial: '', blank: true }),
-            description: new fields.HTMLField({ required: true, initial: '', blank: true })
+            description: new fields.HTMLField({ required: true, initial: '', blank: true }),
+            // Magia passiva (só a descrição, com botão de chat) ou passiva anexada
+            // a uma magia ativa — útil para itens mágicos. Ver actionFields().
+            passive: new fields.BooleanField({ required: true, initial: false }),
+            hasPassive: new fields.BooleanField({ required: true, initial: false }),
+            passiveText: new fields.StringField({ required: true, initial: '', blank: true })
         };
     }
 
@@ -37,13 +42,25 @@ export class GranblueSpell extends foundry.abstract.TypeDataModel {
             difficulty: String(this.difficulty ?? ''),
             statusEffect: String(this.statusEffect ?? ''),
             effect: this.stripHtml(this.effect),
-            description: this.stripHtml(this.description)
+            description: this.stripHtml(this.description, { keepLines: true }),
+            passive: !!this.passive,
+            hasPassive: !!this.hasPassive,
+            passiveText: String(this.passiveText ?? '').trim()
         };
     }
 
-    /** Remove tags HTML simples para caber nos campos de texto da ação. */
-    stripHtml(html) {
+    /**
+     * Remove tags HTML simples para caber nos campos de texto da ação.
+     * O efeito vai para um campo de uma linha; com `keepLines` as quebras de
+     * parágrafo viram quebras de linha (a descrição é um campo de várias linhas).
+     */
+    stripHtml(html, { keepLines = false } = {}) {
         if (!html) return '';
-        return String(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        // DOMParser monta um documento inerte (sem scripts nem carregamento) e
+        // ainda decodifica entidades como &quot; e &nbsp;.
+        const marked = String(html).replace(/<br\s*\/?>|<\/(p|div|li|h[1-6])>/gi, '$&\n');
+        const text = new DOMParser().parseFromString(marked, 'text/html').body.textContent ?? '';
+        if (!keepLines) return text.replace(/\s+/g, ' ').trim();
+        return text.replace(/[ \t ]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim();
     }
 }

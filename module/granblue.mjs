@@ -16,7 +16,9 @@ import { GranblueAdversarySheet } from './sheets/actor-adversary-sheet.mjs';
 import { GranblueClassSheet } from './sheets/item-class-sheet.mjs';
 import { GranblueHeritageSheet } from './sheets/item-heritage-sheet.mjs';
 import { GranblueSpellSheet } from './sheets/item-spell-sheet.mjs';
-import { applyStatusToSelectedTokens } from './effects.mjs';
+import { onRenderChatMessage } from './chat.mjs';
+import { SOCKET, onSocketMessage, sendLootDialog } from './loot.mjs';
+import { registerMigrationSettings, migrateIfNeeded, migrateWorld } from './migration.mjs';
 
 /* -------------------------------------------- */
 /*  Init                                        */
@@ -30,7 +32,9 @@ Hooks.once('init', () => {
     game.granblue = {
         config: GRANBLUE,
         documents: { GranblueActor },
-        applications: { GranblueCharacterSheet, GranblueAdversarySheet }
+        applications: { GranblueCharacterSheet, GranblueAdversarySheet },
+        sendLootDialog,
+        migrateWorld
     };
 
     // Document classes
@@ -77,13 +81,30 @@ Hooks.once('init', () => {
         label: 'GRANBLUE.SheetLabels.spell'
     });
 
-    // Pré-carrega o template do cartão de chat
+    // Pré-carrega os templates de chat (o de rolagem usa o partial parts/roll)
     foundry.applications.handlebars.loadTemplates([
-        'systems/granblue/templates/chat/roll-card.hbs'
+        'systems/granblue/templates/chat/roll-card.hbs',
+        'systems/granblue/templates/chat/parts/roll.hbs',
+        'systems/granblue/templates/chat/description-card.hbs',
+        'systems/granblue/templates/chat/loot-card.hbs'
     ]);
 
+    registerSettings();
     registerHandlebarsHelpers();
 });
+
+/** Configurações do sistema (mundo). */
+function registerSettings() {
+    registerMigrationSettings();
+    game.settings.register('granblue', 'hitOnTie', {
+        name: 'GRANBLUE.Settings.hitOnTie.name',
+        hint: 'GRANBLUE.Settings.hitOnTie.hint',
+        scope: 'world',
+        config: true,
+        type: Boolean,
+        default: true
+    });
+}
 
 /* -------------------------------------------- */
 /*  i18nInit — status effects localizados       */
@@ -93,7 +114,9 @@ Hooks.once('i18nInit', () => {
     CONFIG.statusEffects = GRANBLUE.statusEffects.map((e) => ({
         id: e.id,
         img: e.img,
-        name: game.i18n.localize(e.name)
+        name: game.i18n.localize(e.name),
+        // Vai para o Active Effect criado no token (aparece na ficha do efeito)
+        description: game.i18n.localize(e.description)
     }));
     // Condição especial padrão de "morto" continua disponível
     CONFIG.specialStatusEffects ??= {};
@@ -103,7 +126,10 @@ Hooks.once('i18nInit', () => {
 /*  Ready                                        */
 /* -------------------------------------------- */
 
-Hooks.once('ready', () => {
+Hooks.once('ready', async () => {
+    // Pop-ups de loot enviados pelo mestre (ver loot.mjs)
+    game.socket.on(SOCKET, onSocketMessage);
+    await migrateIfNeeded();
     console.log('Granblue | Sistema pronto');
 });
 
@@ -141,53 +167,10 @@ async function createActionMacro(data, slot) {
 }
 
 /* -------------------------------------------- */
-/*  Aplicar dano/cura/efeito no token selecionado */
+/*  Cartões de chat: dano/cura/efeito, alvos     */
 /* -------------------------------------------- */
 
-Hooks.on('renderChatMessageHTML', (message, html) => {
-    const root = html instanceof HTMLElement ? html : html?.[0];
-    if (!root) return;
-    root.querySelectorAll('[data-gb-apply]').forEach((btn) => {
-        btn.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            const kind = btn.dataset.gbApply;
-            if (kind === 'effect') {
-                applyStatusToSelectedTokens(btn.dataset.effect);
-                return;
-            }
-            const amount = Number(btn.dataset.amount) || 0;
-            applyToSelectedTokens(kind, amount);
-        });
-    });
-});
-
-async function applyToSelectedTokens(kind, amount) {
-    const tokens = canvas.tokens?.controlled ?? [];
-    if (!tokens.length) {
-        ui.notifications?.warn('Granblue: selecione ao menos um token para aplicar dano/cura.');
-        return;
-    }
-    let applied = 0;
-    for (const token of tokens) {
-        const actor = token.actor;
-        const hp = actor?.system?.resources?.hitPoints;
-        if (!hp) continue;
-        const max = hp.max ?? 0;
-        const newValue = kind === 'damage' ? hp.value - amount : Math.min(max, hp.value + amount);
-        try {
-            await actor.update({ 'system.resources.hitPoints.value': newValue });
-            applied++;
-        } catch (err) {
-            console.warn('Granblue | Sem permissão para alterar', actor?.name, err);
-        }
-    }
-    if (applied) {
-        const verbo = kind === 'damage' ? 'Dano' : 'Cura';
-        ui.notifications?.info(`Granblue: ${verbo} de ${amount} aplicado a ${applied} token(s).`);
-    } else {
-        ui.notifications?.warn('Granblue: nenhum token elegível (verifique permissões).');
-    }
-}
+Hooks.on('renderChatMessageHTML', onRenderChatMessage);
 
 /* -------------------------------------------- */
 /*  Helpers                                      */

@@ -1,4 +1,5 @@
 import { rollAttributeTest, rollActionPart, rollActionFull, rollHitDie } from '../dice/roll.mjs';
+import { postDescriptionCard } from '../chat.mjs';
 import { GRANBLUE } from '../config.mjs';
 
 /**
@@ -71,11 +72,64 @@ export class GranblueActor extends Actor {
         return rollActionPart(this, action, part, mods);
     }
 
-    /** Rola a ação/magia inteira (acerto + dano) pela sua posição na lista. */
+    /**
+     * Rola a ação/magia inteira (acerto + dano) pela sua posição na lista.
+     * Uma habilidade passiva não rola: manda a descrição para o chat.
+     */
     async rollActionFull(index, mods = {}, list = 'actions') {
         const action = this.actionList(list)[index];
         if (!action) return null;
+        if (action.passive) return this.postActionText(index, list, 'passive');
         return rollActionFull(this, action, mods);
+    }
+
+    /**
+     * Envia ao chat o texto de uma habilidade/magia: `passive` = a própria
+     * habilidade passiva (sua descrição); `attached` = a passiva anexada a uma
+     * habilidade ativa (`passiveText`).
+     */
+    async postActionText(index, list = 'actions', part = 'passive') {
+        const action = this.actionList(list)[index];
+        if (!action) return null;
+        const isSpell = list === 'spells';
+        const kind = game.i18n.localize(isSpell ? 'GRANBLUE.Chat.passiveSpell' : 'GRANBLUE.Chat.passiveAbility');
+        const sphere = GRANBLUE.normalizeSphere(action.sphere);
+        const subtitle = [
+            part === 'attached' ? game.i18n.localize('GRANBLUE.Chat.attachedPassive') : kind,
+            sphere ? game.i18n.localize(GRANBLUE.spheres[sphere].label) : ''
+        ].filter(Boolean).join(' · ');
+        return postDescriptionCard(this, {
+            title: action.name,
+            subtitle,
+            icon: 'fa-solid fa-feather',
+            text: part === 'attached' ? action.passiveText : action.description
+        });
+    }
+
+    /* ---------------------------------- */
+    /*  Dano e cura                        */
+    /* ---------------------------------- */
+
+    /**
+     * Aplica dano na Energia Vital abatendo a Redução de Dano (RD).
+     * `ignoreRD` = dano verdadeiro. Devolve { raw, rd, taken }.
+     */
+    async applyDamage(amount, { ignoreRD = false } = {}) {
+        const raw = Math.max(0, Math.floor(Number(amount) || 0));
+        const rd = ignoreRD ? 0 : Math.max(0, Number(this.system.defenses?.rd) || 0);
+        const taken = Math.max(0, raw - rd);
+        const hp = this.system.resources.hitPoints;
+        if (taken) await this.update({ 'system.resources.hitPoints.value': hp.value - taken });
+        return { raw, rd, taken };
+    }
+
+    /** Cura a Energia Vital até o máximo (nunca reduz a vida atual). Devolve { healed }. */
+    async applyHealing(amount) {
+        const heal = Math.max(0, Math.floor(Number(amount) || 0));
+        const hp = this.system.resources.hitPoints;
+        const value = Math.max(hp.value, Math.min(hp.max ?? 0, hp.value + heal));
+        if (value !== hp.value) await this.update({ 'system.resources.hitPoints.value': value });
+        return { healed: value - hp.value };
     }
 
     /** Consome uma quantidade de um recurso (vida ou mana), sem passar de 0 abaixo. */
@@ -89,7 +143,7 @@ export class GranblueActor extends Actor {
 
     /**
      * Rola a ação/magia inteira pelo nome (usado por macros da barra de atalhos).
-     * Procura primeiro nas ações e depois nas magias.
+     * Procura primeiro nas ações e depois nas magias. Passivas vão para o chat.
      */
     async rollActionByName(name) {
         for (const list of ['actions', 'spells']) {

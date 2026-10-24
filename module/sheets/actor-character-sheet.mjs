@@ -1,5 +1,6 @@
-import { GranblueActorSheetBase } from './actor-sheet-base.mjs';
+import { GranblueActorSheetBase, ACTION_ROW_PARTIAL } from './actor-sheet-base.mjs';
 import { GranblueItem } from '../documents/item.mjs';
+import { postDescriptionCard } from '../chat.mjs';
 import { GRANBLUE } from '../config.mjs';
 
 /** Monta os grupos de classe (optgroups) marcando a classe atual. */
@@ -22,14 +23,19 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         position: { width: 980, height: 840 },
         actions: {
             openEmbedded: GranblueCharacterSheet.#onOpenEmbedded,
-            removeEmbedded: GranblueCharacterSheet.#onRemoveEmbedded
+            removeEmbedded: GranblueCharacterSheet.#onRemoveEmbedded,
+            postFeature: GranblueCharacterSheet.#onPostFeature
         }
     };
 
     static DEFAULT_TAB = 'atributos';
 
     static PARTS = {
-        main: { template: 'systems/granblue/templates/actor/character.hbs', scrollable: [''] }
+        main: {
+            template: 'systems/granblue/templates/actor/character.hbs',
+            templates: [ACTION_ROW_PARTIAL],
+            scrollable: ['']
+        }
     };
 
     async _prepareContext(options) {
@@ -180,5 +186,56 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
     static async #onRemoveEmbedded(event, target) {
         const id = target.dataset.itemId;
         if (id) await this.document.deleteEmbeddedDocuments('Item', [id]);
+    }
+
+    /**
+     * Mostra no chat o que uma habilidade de classe ou um traço de herança faz
+     * (botão ao lado de cada um na aba Classe & Herança).
+     */
+    static async #onPostFeature(event, target) {
+        const actor = this.document;
+        const index = Number(target.dataset.index);
+        const classItem = actor.items.find((i) => i.type === 'class');
+        const heritage = actor.items.find((i) => i.type === 'heritage');
+
+        switch (target.dataset.feature) {
+            case 'ability': {
+                const ab = classItem?.system.abilities?.[index];
+                if (!ab) return;
+                const kind = ab.type === 'ativa' ? 'Habilidade ativa' : 'Habilidade passiva';
+                return postDescriptionCard(actor, {
+                    title: ab.name,
+                    subtitle: `${classItem.name} · ${kind}`,
+                    icon: 'fa-solid fa-hand-fist',
+                    text: ab.description
+                });
+            }
+            case 'trait':
+            case 'weakness': {
+                if (!heritage) return;
+                const isTrait = target.dataset.feature === 'trait';
+                const { TextEditor } = foundry.applications.ux;
+                const html = await TextEditor.implementation.enrichHTML(
+                    isTrait ? heritage.system.sharedTrait : heritage.system.weakness,
+                    { rollData: actor.getRollData(), relativeTo: heritage }
+                );
+                return postDescriptionCard(actor, {
+                    title: isTrait ? 'Traço Compartilhado' : 'Debilidade',
+                    subtitle: heritage.name,
+                    icon: 'fa-solid fa-dna',
+                    html
+                });
+            }
+            case 'progress': {
+                const p = heritage?.system.progress?.[index];
+                if (!p) return;
+                return postDescriptionCard(actor, {
+                    title: p.name,
+                    subtitle: [heritage.name, p.requirement].filter(Boolean).join(' · '),
+                    icon: 'fa-solid fa-dna',
+                    text: p.description
+                });
+            }
+        }
     }
 }

@@ -1,0 +1,12 @@
+{{!-- Rolagem no chat: cada dado, o modificador e o total (cartões de ação e de loot) --}}
+<div class="gb-roll">
+    <div class="gb-roll-dice">
+        {{#each dice as |d|}}
+            {{#each d.values as |v|}}
+            <span class="gb-die-face gb-die-d{{d.faces}}" title="d{{d.faces}}">{{v}}</span>
+            {{/each}}
+        {{/each}}
+        {{#if modifier}}<span class="gb-roll-mod">{{granblueSigned modifier}}</span>{{/if}}
+    </div>
+    <div class="gb-roll-total">{{total}}</div>
+</div>

@@ -3,6 +3,7 @@ import {
     makeAttributesSchema,
     makeResourcesSchema,
     makeDefensesSchema,
+    makeBiographySchema,
     makeActionSchema,
     makeSpellSchema,
     makeInventorySchema,
@@ -61,13 +62,7 @@ export class GranblueCharacter extends foundry.abstract.TypeDataModel {
         schema.currency = new fields.NumberField({ required: true, integer: true, initial: 0, min: 0, nullable: false });
 
         // Biografia (campos HTML)
-        schema.biography = new fields.SchemaField({
-            appearance: new fields.HTMLField({ required: true, initial: '', blank: true }),
-            demons: new fields.HTMLField({ required: true, initial: '', blank: true }),
-            motivations: new fields.HTMLField({ required: true, initial: '', blank: true }),
-            worldview: new fields.HTMLField({ required: true, initial: '', blank: true }),
-            backstory: new fields.HTMLField({ required: true, initial: '', blank: true })
-        });
+        schema.biography = makeBiographySchema();
         schema.notes = new fields.HTMLField({ required: true, initial: '', blank: true });
 
         return schema;
@@ -102,7 +97,7 @@ export class GranblueCharacter extends foundry.abstract.TypeDataModel {
         };
     }
 
-    /** Dados de rolagem: atalhos @forca, @precisao, ... além de @nivel, @ca, etc. */
+    /** Dados de rolagem: atalhos @forca, @precisao, ... além de @nivel, @ca, @rd, etc. */
     getRollData() {
         const data = {};
         for (const [key, attr] of Object.entries(this.attributes)) {
@@ -111,6 +106,7 @@ export class GranblueCharacter extends foundry.abstract.TypeDataModel {
         data.attributes = this.attributes;
         data.nivel = this.level;
         data.ca = this.defenses.ca;
+        data.rd = this.defenses.rd;
         data.vida = this.resources.hitPoints.value;
         data.vidaMax = this.resources.hitPoints.max;
         data.mana = this.resources.mana.value;

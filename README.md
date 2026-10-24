@@ -25,7 +25,31 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 - Aba **Inventário**: itens por categoria (armas, equipamento defensivo, consumíveis, materiais,
   tesouros), com quantidade, Tier, Qualidade, peso, valor e marcação de *equipado* — lista pura,
   sem rolagens.
-- Ficha de **Adversário / NPC** (estatísticas, **vantagens & desvantagens**, ataques, loot, notas).
+- Ficha de **Adversário / NPC** com a mesma **arte em painel lateral** do personagem e as abas
+  Estatísticas (**vantagens & desvantagens**), Ataques, **Loot** e **Biografia** (os mesmos campos
+  da biografia do personagem, mais descrição e notas).
+- **RD (Redução de Dano)** ao lado da CA, no personagem e no adversário: o botão de dano do cartão de
+  chat abate a RD de cada token (Shift+clique = dano verdadeiro, ignora a RD).
+- **Alvos x CA:** com um token marcado como alvo (tecla **T**), o cartão de ataque/magia confere o
+  acerto contra a CA de cada alvo e mostra *Acertou/Errou* (a CA do monstro só o mestre vê) e botões
+  de aplicar dano/efeito direto em cada alvo. Sem token selecionado, os botões do rodapé usam os
+  alvos atingidos. Magias com Dificuldade numérica também mostram *Conjuração · CD X: sucesso/falha*.
+  Empate com a CA acerta (dá para mudar em *Configurações → Granblue*).
+- O cartão de ataque mostra a **descrição** da ação, o texto do **efeito** e o resumo da regra do
+  **status effect** aplicado (Burn, Frost…), que também vai para o efeito colocado no token.
+- **Habilidades passivas:** ataques, manobras e magias podem ser do tipo *Passiva* (só um texto maior
+  e rolável, com botão de enviar ao chat) ou ativas com **passiva anexada** (*Possui passiva*: um texto
+  a mais, também com botão de chat). Vale para o item Magia do compêndio — útil para itens mágicos.
+- Na aba **Classe & Herança**, cada habilidade de classe, traço, debilidade e progresso tem um botão
+  que mostra no chat o que ele faz.
+- **Loot do adversário:** cada espólio tem chance, quantidade (fórmula, ex. `1d3`) e até qual
+  qualidade pode chegar. O mestre clica em *Enviar rolagem de loot aos jogadores*: cada jogador
+  recebe um pop-up só com a **chance** de cada espólio (sem o nome) e o d100; quem tirar igual ou
+  menos consegue o item e gira a quantidade e a qualidade (d100: Boa ≤50, Rara ≤25, Primorosa ≤12,
+  Matéria-prima ≤5, limitada à qualidade máxima) e pode guardar direto no inventário. A dificuldade
+  do encontro soma o bônus de drop (+10/+20/+30%), editável no envio.
+- **Atualização automática das fichas:** ao abrir o mundo depois de atualizar o sistema, o mestre grava
+  em todas as fichas (do mundo e dos compêndios do mundo) os campos novos, sem apagar nada.
 - **Classes e Heranças como Items** com **Active Effects automáticos**: a Herança soma os bônus
   de atributo automaticamente; a Classe define a Energia Vital base e os dados de vida/dano.
   Basta escolher no seletor da ficha (as 15 classes e as 8 heranças) — o item, o efeito **e as

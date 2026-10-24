@@ -128,6 +128,45 @@ GRANBLUE.itemQualities = {
 /** Tiers de material/equipamento (1 a 8). */
 GRANBLUE.itemTiers = [1, 2, 3, 4, 5, 6, 7, 8];
 
+/**
+ * Chance (%) de cada qualidade no d100 de qualidade de um espólio (journal
+ * "Itens → Materiais"): tirar igual ou menos que a % dá aquela qualidade.
+ * Ordem da mais comum para a mais rara — a mesma de `itemQualities`.
+ */
+GRANBLUE.qualityChances = {
+    normal: 100,
+    boa: 50,
+    rara: 25,
+    primorosa: 12,
+    materiaPrima: 5
+};
+
+/**
+ * Qualidade obtida com um d100, limitada à melhor qualidade que o espólio pode
+ * ter (nem toda fonte de material chega às melhores qualidades).
+ * Devolve { key, rolled, capped }: `rolled` é a qualidade que o dado deu e
+ * `capped` indica que ela foi rebaixada até `maxQuality`.
+ */
+GRANBLUE.qualityFromRoll = function qualityFromRoll(result, maxQuality = 'materiaPrima') {
+    const keys = Object.keys(GRANBLUE.qualityChances);
+    const maxIndex = keys.includes(maxQuality) ? keys.indexOf(maxQuality) : keys.length - 1;
+    let index = 0;
+    keys.forEach((key, i) => {
+        if (result <= GRANBLUE.qualityChances[key]) index = i;
+    });
+    return { key: keys[Math.min(index, maxIndex)], rolled: keys[index], capped: index > maxIndex };
+};
+
+/**
+ * Lê a chance de um espólio digitada como texto ("35%", "35", "12,5 %") e
+ * devolve um número de 0 a 100, ou null quando não há número nenhum.
+ */
+GRANBLUE.parseChance = function parseChance(value) {
+    const match = String(value ?? '').replace(',', '.').match(/\d+(\.\d+)?/);
+    if (!match) return null;
+    return Math.min(100, Math.max(0, Number(match[0])));
+};
+
 /* -------------------------------------------- */
 /*  Classes (Estilos de Guerreiro)              */
 /* -------------------------------------------- */
@@ -166,50 +205,59 @@ GRANBLUE.adversaryTypes = {
     eliteBoss: 'GRANBLUE.Adversary.type.eliteBoss'
 };
 
+/** Bônus (%) na chance de drop pela dificuldade do encontro (journal "Encontros"). */
+GRANBLUE.dropBonus = {
+    normal: 0,
+    intermediaria: 10,
+    dificil: 20,
+    lendaria: 30
+};
+
 /* -------------------------------------------- */
 /*  Status Effects (Condições)                  */
 /* -------------------------------------------- */
 
 /**
  * Condições do sistema Granblue. Ícones usam SVGs do core do Foundry
- * (sempre presentes em qualquer instalação).
+ * (sempre presentes em qualquer instalação). `description` é o resumo da regra
+ * (journal "Efeitos"): aparece no cartão de chat e no efeito aplicado ao token.
  */
 GRANBLUE.statusEffects = [
-    { id: 'poison', name: 'GRANBLUE.Effects.poison', img: 'icons/svg/poison.svg' },
-    { id: 'antiheal', name: 'GRANBLUE.Effects.antiheal', img: 'icons/svg/degen.svg' },
-    { id: 'burn', name: 'GRANBLUE.Effects.burn', img: 'icons/svg/fire.svg' },
-    { id: 'frost', name: 'GRANBLUE.Effects.frost', img: 'icons/svg/frozen.svg' },
-    { id: 'freeze', name: 'GRANBLUE.Effects.freeze', img: 'icons/svg/ice-aura.svg' },
-    { id: 'paralysis', name: 'GRANBLUE.Effects.paralysis', img: 'icons/svg/paralysis.svg' },
-    { id: 'blind', name: 'GRANBLUE.Effects.blind', img: 'icons/svg/blind.svg' },
-    { id: 'knockdown', name: 'GRANBLUE.Effects.knockdown', img: 'icons/svg/falling.svg' },
-    { id: 'knockup', name: 'GRANBLUE.Effects.knockup', img: 'icons/svg/upgrade.svg' },
-    { id: 'soak', name: 'GRANBLUE.Effects.soak', img: 'icons/svg/acid.svg' },
-    { id: 'sneeze', name: 'GRANBLUE.Effects.sneeze', img: 'icons/svg/aura.svg' },
-    { id: 'sleep', name: 'GRANBLUE.Effects.sleep', img: 'icons/svg/sleep.svg' },
-    { id: 'confuse', name: 'GRANBLUE.Effects.confuse', img: 'icons/svg/daze.svg' },
-    { id: 'charged', name: 'GRANBLUE.Effects.charged', img: 'icons/svg/lightning.svg' },
-    { id: 'curse', name: 'GRANBLUE.Effects.curse', img: 'icons/svg/skull.svg' },
-    { id: 'wildness', name: 'GRANBLUE.Effects.wildness', img: 'icons/svg/terror.svg' },
-    { id: 'slow', name: 'GRANBLUE.Effects.slow', img: 'icons/svg/downgrade.svg' },
-    { id: 'bleeding', name: 'GRANBLUE.Effects.bleeding', img: 'icons/svg/blood.svg' },
-    { id: 'chained', name: 'GRANBLUE.Effects.chained', img: 'icons/svg/net.svg' },
-    { id: 'insight', name: 'GRANBLUE.Effects.insight', img: 'icons/svg/eye.svg' },
-    { id: 'venom', name: 'GRANBLUE.Effects.venom', img: 'icons/svg/biohazard.svg' },
-    { id: 'bomb', name: 'GRANBLUE.Effects.bomb', img: 'icons/svg/explosion.svg' },
-    { id: 'petrify', name: 'GRANBLUE.Effects.petrify', img: 'icons/svg/stoned.svg' },
-    { id: 'bio', name: 'GRANBLUE.Effects.bio', img: 'icons/svg/hazard.svg' },
-    { id: 'rust', name: 'GRANBLUE.Effects.rust', img: 'icons/svg/downgrade.svg' },
-    { id: 'silence', name: 'GRANBLUE.Effects.silence', img: 'icons/svg/silenced.svg' },
-    { id: 'stun', name: 'GRANBLUE.Effects.stun', img: 'icons/svg/daze.svg' },
-    { id: 'forget', name: 'GRANBLUE.Effects.forget', img: 'icons/svg/black-hole.svg' },
-    { id: 'fear', name: 'GRANBLUE.Effects.fear', img: 'icons/svg/terror.svg' },
-    { id: 'charm', name: 'GRANBLUE.Effects.charm', img: 'icons/svg/heal.svg' },
-    { id: 'nightmare', name: 'GRANBLUE.Effects.nightmare', img: 'icons/svg/deaf.svg' },
-    { id: 'impeto', name: 'GRANBLUE.Effects.impeto', img: 'icons/svg/upgrade.svg' },
-    { id: 'darkness', name: 'GRANBLUE.Effects.darkness', img: 'icons/svg/black-hole.svg' },
-    { id: 'imortal', name: 'GRANBLUE.Effects.imortal', img: 'icons/svg/angel.svg' },
-    { id: 'radiance', name: 'GRANBLUE.Effects.radiance', img: 'icons/svg/sun.svg' }
+    { id: 'poison', name: 'GRANBLUE.Effects.poison', img: 'icons/svg/poison.svg', description: 'GRANBLUE.EffectsDesc.poison' },
+    { id: 'antiheal', name: 'GRANBLUE.Effects.antiheal', img: 'icons/svg/degen.svg', description: 'GRANBLUE.EffectsDesc.antiheal' },
+    { id: 'burn', name: 'GRANBLUE.Effects.burn', img: 'icons/svg/fire.svg', description: 'GRANBLUE.EffectsDesc.burn' },
+    { id: 'frost', name: 'GRANBLUE.Effects.frost', img: 'icons/svg/frozen.svg', description: 'GRANBLUE.EffectsDesc.frost' },
+    { id: 'freeze', name: 'GRANBLUE.Effects.freeze', img: 'icons/svg/ice-aura.svg', description: 'GRANBLUE.EffectsDesc.freeze' },
+    { id: 'paralysis', name: 'GRANBLUE.Effects.paralysis', img: 'icons/svg/paralysis.svg', description: 'GRANBLUE.EffectsDesc.paralysis' },
+    { id: 'blind', name: 'GRANBLUE.Effects.blind', img: 'icons/svg/blind.svg', description: 'GRANBLUE.EffectsDesc.blind' },
+    { id: 'knockdown', name: 'GRANBLUE.Effects.knockdown', img: 'icons/svg/falling.svg', description: 'GRANBLUE.EffectsDesc.knockdown' },
+    { id: 'knockup', name: 'GRANBLUE.Effects.knockup', img: 'icons/svg/upgrade.svg', description: 'GRANBLUE.EffectsDesc.knockup' },
+    { id: 'soak', name: 'GRANBLUE.Effects.soak', img: 'icons/svg/acid.svg', description: 'GRANBLUE.EffectsDesc.soak' },
+    { id: 'sneeze', name: 'GRANBLUE.Effects.sneeze', img: 'icons/svg/aura.svg', description: 'GRANBLUE.EffectsDesc.sneeze' },
+    { id: 'sleep', name: 'GRANBLUE.Effects.sleep', img: 'icons/svg/sleep.svg', description: 'GRANBLUE.EffectsDesc.sleep' },
+    { id: 'confuse', name: 'GRANBLUE.Effects.confuse', img: 'icons/svg/daze.svg', description: 'GRANBLUE.EffectsDesc.confuse' },
+    { id: 'charged', name: 'GRANBLUE.Effects.charged', img: 'icons/svg/lightning.svg', description: 'GRANBLUE.EffectsDesc.charged' },
+    { id: 'curse', name: 'GRANBLUE.Effects.curse', img: 'icons/svg/skull.svg', description: 'GRANBLUE.EffectsDesc.curse' },
+    { id: 'wildness', name: 'GRANBLUE.Effects.wildness', img: 'icons/svg/terror.svg', description: 'GRANBLUE.EffectsDesc.wildness' },
+    { id: 'slow', name: 'GRANBLUE.Effects.slow', img: 'icons/svg/downgrade.svg', description: 'GRANBLUE.EffectsDesc.slow' },
+    { id: 'bleeding', name: 'GRANBLUE.Effects.bleeding', img: 'icons/svg/blood.svg', description: 'GRANBLUE.EffectsDesc.bleeding' },
+    { id: 'chained', name: 'GRANBLUE.Effects.chained', img: 'icons/svg/net.svg', description: 'GRANBLUE.EffectsDesc.chained' },
+    { id: 'insight', name: 'GRANBLUE.Effects.insight', img: 'icons/svg/eye.svg', description: 'GRANBLUE.EffectsDesc.insight' },
+    { id: 'venom', name: 'GRANBLUE.Effects.venom', img: 'icons/svg/biohazard.svg', description: 'GRANBLUE.EffectsDesc.venom' },
+    { id: 'bomb', name: 'GRANBLUE.Effects.bomb', img: 'icons/svg/explosion.svg', description: 'GRANBLUE.EffectsDesc.bomb' },
+    { id: 'petrify', name: 'GRANBLUE.Effects.petrify', img: 'icons/svg/stoned.svg', description: 'GRANBLUE.EffectsDesc.petrify' },
+    { id: 'bio', name: 'GRANBLUE.Effects.bio', img: 'icons/svg/hazard.svg', description: 'GRANBLUE.EffectsDesc.bio' },
+    { id: 'rust', name: 'GRANBLUE.Effects.rust', img: 'icons/svg/downgrade.svg', description: 'GRANBLUE.EffectsDesc.rust' },
+    { id: 'silence', name: 'GRANBLUE.Effects.silence', img: 'icons/svg/silenced.svg', description: 'GRANBLUE.EffectsDesc.silence' },
+    { id: 'stun', name: 'GRANBLUE.Effects.stun', img: 'icons/svg/daze.svg', description: 'GRANBLUE.EffectsDesc.stun' },
+    { id: 'forget', name: 'GRANBLUE.Effects.forget', img: 'icons/svg/unconscious.svg', description: 'GRANBLUE.EffectsDesc.forget' },
+    { id: 'fear', name: 'GRANBLUE.Effects.fear', img: 'icons/svg/terror.svg', description: 'GRANBLUE.EffectsDesc.fear' },
+    { id: 'charm', name: 'GRANBLUE.Effects.charm', img: 'icons/svg/heal.svg', description: 'GRANBLUE.EffectsDesc.charm' },
+    { id: 'nightmare', name: 'GRANBLUE.Effects.nightmare', img: 'icons/svg/deaf.svg', description: 'GRANBLUE.EffectsDesc.nightmare' },
+    { id: 'impeto', name: 'GRANBLUE.Effects.impeto', img: 'icons/svg/upgrade.svg', description: 'GRANBLUE.EffectsDesc.impeto' },
+    { id: 'darkness', name: 'GRANBLUE.Effects.darkness', img: 'icons/svg/bones.svg', description: 'GRANBLUE.EffectsDesc.darkness' },
+    { id: 'imortal', name: 'GRANBLUE.Effects.imortal', img: 'icons/svg/angel.svg', description: 'GRANBLUE.EffectsDesc.imortal' },
+    { id: 'radiance', name: 'GRANBLUE.Effects.radiance', img: 'icons/svg/sun.svg', description: 'GRANBLUE.EffectsDesc.radiance' }
 ];
 
 /**

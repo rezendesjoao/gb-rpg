@@ -1,55 +1,66 @@
 {{!-- Ficha de Adversário / NPC --}}
 <div class="gb-root">
-<header class="gb-header gb-header--adv">
-    <img class="gb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" title="Trocar imagem">
-    <div class="gb-identity">
-        <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do adversário">
-        <div class="gb-identity-grid">
-            <label class="gb-field gb-field--sm"><span>Rank</span><input type="text" name="system.rank" value="{{system.rank}}"></label>
-            <label class="gb-field gb-field--sm"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="0"></label>
-            <label class="gb-field">
-                <span>Dificuldade</span>
-                <select name="system.difficulty">
-                    {{#each difficultyOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
-                </select>
-            </label>
-            <label class="gb-field">
-                <span>Tipagem</span>
-                <select name="system.creatureType">
-                    {{#each typeOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
-                </select>
-            </label>
-        </div>
-    </div>
-    <div class="gb-header-stats">
-        <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus"><span class="gb-badge-label">CA</span><span class="gb-badge-value">{{ca}}</span></div>
-        <label class="gb-field gb-field--sm"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
-        <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
-    </div>
-</header>
+<div class="gb-top">
+    <figure class="gb-portrait-panel">
+        <img class="gb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" title="Clique para trocar a imagem">
+        <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
+    </figure>
+    <div class="gb-top-main">
+        <header class="gb-header gb-header--adv">
+            <div class="gb-identity">
+                <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do adversário">
+                <div class="gb-identity-grid">
+                    <label class="gb-field">
+                        <span>Dificuldade</span>
+                        <select name="system.difficulty">
+                            {{#each difficultyOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field">
+                        <span>Tipagem</span>
+                        <select name="system.creatureType">
+                            {{#each typeOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field gb-field--sm"><span>Rank</span><input type="text" name="system.rank" value="{{system.rank}}"></label>
+                    <label class="gb-field gb-field--sm"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="0"></label>
+                </div>
+            </div>
+            <div class="gb-header-stats">
+                <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus"><span class="gb-badge-label">CA</span><span class="gb-badge-value">{{ca}}</span></div>
+                <label class="gb-badge gb-badge--rd" title="Redução de Dano: abatida do dano aplicado pelo chat (Shift+clique no botão de dano = dano verdadeiro){{#if (ne rd rdSource)}} · com efeitos: {{rd}}{{/if}}">
+                    <span class="gb-badge-label">RD</span>
+                    <input class="gb-badge-input" type="number" name="system.defenses.rd" value="{{rdSource}}" min="0">
+                </label>
+                <label class="gb-field gb-field--sm"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
+                <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
+            </div>
+        </header>
 
-{{!-- Barra de vitais sempre visível --}}
-<div class="gb-vitals">
-    <div class="gb-vital gb-vital--hp">
-        <div class="gb-vital-fill" style="width:{{hpPct}}%"></div>
-        <div class="gb-vital-content">
-            <span class="gb-vital-name"><i class="fa-solid fa-heart"></i> Energia Vital</span>
-            <span class="gb-vital-nums">
-                <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" title="Vida atual">
-                <span class="gb-vital-sep">/</span>
-                <input type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima">
-            </span>
-        </div>
-    </div>
-    <div class="gb-vital gb-vital--mana">
-        <div class="gb-vital-fill" style="width:{{manaPct}}%"></div>
-        <div class="gb-vital-content">
-            <span class="gb-vital-name"><i class="fa-solid fa-droplet"></i> Mana</span>
-            <span class="gb-vital-nums">
-                <input type="number" name="system.resources.mana.value" value="{{mana.value}}" title="Mana atual">
-                <span class="gb-vital-sep">/</span>
-                <input type="number" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima">
-            </span>
+        {{!-- Barra de vitais sempre visível --}}
+        <div class="gb-vitals">
+            <div class="gb-vital gb-vital--hp">
+                <div class="gb-vital-fill" style="width:{{hpPct}}%"></div>
+                <div class="gb-vital-content">
+                    <span class="gb-vital-name"><i class="fa-solid fa-heart"></i> Energia Vital</span>
+                    <span class="gb-vital-nums">
+                        <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" title="Vida atual">
+                        <span class="gb-vital-sep">/</span>
+                        <input type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima">
+                    </span>
+                </div>
+            </div>
+            <div class="gb-vital gb-vital--mana">
+                <div class="gb-vital-fill" style="width:{{manaPct}}%"></div>
+                <div class="gb-vital-content">
+                    <span class="gb-vital-name"><i class="fa-solid fa-droplet"></i> Mana</span>
+                    <span class="gb-vital-nums">
+                        <input type="number" name="system.resources.mana.value" value="{{mana.value}}" title="Mana atual">
+                        <span class="gb-vital-sep">/</span>
+                        <input type="number" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima">
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -57,7 +68,8 @@
 <nav class="gb-tabs">
     <a data-tab-nav="principal"><i class="fa-solid fa-dragon"></i> Estatísticas</a>
     <a data-tab-nav="acoes"><i class="fa-solid fa-khanda"></i> Ataques</a>
-    <a data-tab-nav="loot"><i class="fa-solid fa-sack-dollar"></i> Loot & Notas</a>
+    <a data-tab-nav="loot"><i class="fa-solid fa-sack-dollar"></i> Loot</a>
+    <a data-tab-nav="bio"><i class="fa-solid fa-book"></i> Biografia</a>
 </nav>
 
 {{!-- ===================== ESTATÍSTICAS ===================== --}}
@@ -118,72 +130,58 @@
 <section class="gb-tab" data-tab-content="acoes">
     <div class="gb-actions-toolbar">
         <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ataque</button>
+        <button type="button" data-action="addAction" data-passive="true"><i class="fa-solid fa-feather"></i> Adicionar passiva</button>
     </div>
     {{#each actions as |action idx|}}
-    <div class="gb-action gb-action--collapsed" data-action-index="{{idx}}">
-        <div class="gb-action-head">
-            <a class="gb-collapse-toggle" data-action="toggleAction" data-index="{{idx}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
-            <input type="text" class="gb-action-name" name="system.actions.{{idx}}.name" value="{{action.name}}">
-            <span class="gb-action-btns">
-                <a class="gb-icn" data-action="moveAction" data-index="{{idx}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
-                <a class="gb-icn" data-action="moveAction" data-index="{{idx}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
-                <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-index="{{idx}}" data-drag-action="{{idx}}" draggable="true" title="Rolar ataque (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
-                <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
-                <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-index="{{idx}}" data-part="damage" title="Rolar dano"><i class="fa-solid fa-burst"></i></a>
-                {{#if action.statusEffect}}
-                <a class="gb-btn gb-btn--fx" data-action="applyStatusEffect" data-index="{{idx}}" title="Aplicar o efeito ao(s) token(s) selecionado(s)"><i class="fa-solid fa-wand-sparkles"></i></a>
-                {{/if}}
-                <a class="gb-btn gb-btn--del" data-action="deleteAction" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-            </span>
-        </div>
-        <div class="gb-action-details">
-            <div class="gb-action-formulas">
-                <label><span>Acerto</span><input type="text" name="system.actions.{{idx}}.hit" value="{{action.hit}}" placeholder="3d6 + @precisao"></label>
-                <label><span>Dano</span><input type="text" name="system.actions.{{idx}}.damage" value="{{action.damage}}" placeholder="2d8 + @forca"></label>
-            </div>
-            <div class="gb-action-meta">
-                <label><span>Custo</span><input type="text" name="system.actions.{{idx}}.cost" value="{{action.cost}}"></label>
-                <label><span>Alcance</span><input type="text" name="system.actions.{{idx}}.range" value="{{action.range}}"></label>
-                <label><span>Conjuração</span><input type="text" name="system.actions.{{idx}}.casting" value="{{action.casting}}"></label>
-                <label><span>Dificuldade</span><input type="text" name="system.actions.{{idx}}.difficulty" value="{{action.difficulty}}"></label>
-            </div>
-            <div class="gb-action-status">
-                <label class="gb-action-fx">
-                    <span>Efeito aplicado</span>
-                    <select name="system.actions.{{idx}}.statusEffect">
-                        <option value="">— nenhum —</option>
-                        {{#each @root.statusEffectOptions as |o|}}
-                        <option value="{{o.value}}" {{#if (eqStr o.value action.statusEffect)}}selected{{/if}}>{{o.label}}</option>
-                        {{/each}}
-                    </select>
-                </label>
-                <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.actions.{{idx}}.effect" value="{{action.effect}}"></label>
-            </div>
-            <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.actions.{{idx}}.description" value="{{action.description}}"></label>
-        </div>
-    </div>
+    {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=action index=idx list="actions"}}
     {{else}}
     <p class="gb-empty">Nenhum ataque cadastrado.</p>
     {{/each}}
 </section>
 
-{{!-- ===================== LOOT & NOTAS ===================== --}}
+{{!-- ===================== LOOT ===================== --}}
 <section class="gb-tab" data-tab-content="loot">
     <div class="gb-actions-toolbar">
         <button type="button" data-action="addLoot"><i class="fa-solid fa-plus"></i> Adicionar espólio</button>
+        {{#if isGM}}
+        <button type="button" class="gb-loot-send-btn" data-action="sendLoot" title="Abre para os jogadores um pop-up com a chance de cada espólio (sem o nome) e o d100 de cada um">
+            <i class="fa-solid fa-paper-plane"></i> Enviar rolagem de loot aos jogadores
+        </button>
+        {{/if}}
     </div>
+    <p class="gb-hint">
+        <strong>Chance</strong>: tirar no d100 igual ou menos consegue o item{{#if dropBonus}} — a dificuldade {{difficultyLabel}} soma <strong>+{{dropBonus}}%</strong> no envio{{/if}}.
+        <strong>Quantidade</strong>: número ou fórmula (<code>1d3</code>, <code>2</code>).
+        <strong>Qualidades</strong>: até onde o item pode chegar — o d100 de qualidade dá Boa ≤50, Rara ≤25, Primorosa ≤12, Matéria-prima ≤5.
+    </p>
     <div class="gb-loot">
         {{#each loot as |l idx|}}
-        <div class="gb-loot-row">
-            <label><span>Chance</span><input type="text" name="system.loot.{{idx}}.chance" value="{{l.chance}}" placeholder="100%"></label>
-            <label class="gb-loot-item"><span>Item</span><input type="text" name="system.loot.{{idx}}.item" value="{{l.item}}"></label>
+        <div class="gb-loot-row{{#if l.invalid}} gb-loot-row--invalid{{/if}}">
+            <label class="gb-loot-chance"><span>Chance</span><input type="text" name="system.loot.{{idx}}.chance" value="{{l.chance}}" placeholder="35%"{{#if l.invalid}} title="Chance sem número: este espólio não vai para a rolagem"{{/if}}></label>
+            <label class="gb-loot-item"><span>Item</span><input type="text" name="system.loot.{{idx}}.item" value="{{l.item}}" placeholder="Couro de Lobo"></label>
+            <label class="gb-loot-qty"><span>Quantidade</span><input type="text" name="system.loot.{{idx}}.quantity" value="{{l.quantity}}" placeholder="1d3"></label>
+            <label class="gb-loot-quality"><span>Qualidades</span>
+                <select name="system.loot.{{idx}}.quality">
+                    {{#each @root.lootQualityOptions as |o|}}
+                    <option value="{{o.value}}" {{#if (eqStr o.value l.quality)}}selected{{/if}}>{{o.label}}</option>
+                    {{/each}}
+                </select>
+            </label>
             <a class="gb-btn gb-btn--del" data-action="deleteLoot" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
         </div>
         {{else}}
         <p class="gb-empty">Nenhum espólio cadastrado.</p>
         {{/each}}
     </div>
+</section>
 
+{{!-- ===================== BIOGRAFIA ===================== --}}
+<section class="gb-tab" data-tab-content="bio">
+    <label class="gb-bio"><span>Atribuições Aparentes</span><textarea name="system.biography.appearance">{{biography.appearance}}</textarea></label>
+    <label class="gb-bio"><span>"Inner Demons" e Conflitos</span><textarea name="system.biography.demons">{{biography.demons}}</textarea></label>
+    <label class="gb-bio"><span>Metas e Motivações</span><textarea name="system.biography.motivations">{{biography.motivations}}</textarea></label>
+    <label class="gb-bio"><span>Worldview</span><textarea name="system.biography.worldview">{{biography.worldview}}</textarea></label>
+    <label class="gb-bio"><span>Backstory</span><textarea name="system.biography.backstory">{{biography.backstory}}</textarea></label>
     <label class="gb-bio"><span>Descrição</span><textarea name="system.description">{{description}}</textarea></label>
     <label class="gb-bio"><span>Notas</span><textarea name="system.notes">{{notes}}</textarea></label>
 </section>

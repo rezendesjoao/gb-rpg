@@ -4,22 +4,43 @@
         <h3>{{title}}</h3>
     </header>
 
+    {{#if description}}<div class="gb-chat-desc">{{description}}</div>{{/if}}
+
     {{#each sections as |s|}}
     <div class="gb-chat-section">
         {{#if s.subtitle}}<div class="gb-chat-subtitle">{{s.subtitle}}</div>{{/if}}
-        <div class="gb-roll">
-            <div class="gb-roll-dice">
-                {{#each s.dice as |d|}}
-                    {{#each d.values as |v|}}
-                    <span class="gb-die-face gb-die-d{{d.faces}}" title="d{{d.faces}}">{{v}}</span>
-                    {{/each}}
-                {{/each}}
-                {{#if s.modifier}}<span class="gb-roll-mod">{{granblueSigned s.modifier}}</span>{{/if}}
-            </div>
-            <div class="gb-roll-total">{{s.total}}</div>
-        </div>
+        {{> "systems/granblue/templates/chat/parts/roll.hbs" s}}
     </div>
     {{/each}}
+
+    {{#if check}}
+    <div class="gb-chat-check gb-chat-check--{{check.result}}">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Conjuração · CD {{check.dc}}: <strong>{{check.label}}</strong>
+    </div>
+    {{/if}}
+
+    {{#if targets.length}}
+    <div class="gb-chat-targets">
+        {{#each targets as |t|}}
+        <div class="gb-target" data-gb-target="{{t.uuid}}">
+            {{#if t.img}}<img class="gb-target-img" src="{{t.img}}" alt="">{{/if}}
+            <span class="gb-target-name">{{t.name}}</span>
+            {{#if t.caLabel}}<span class="gb-target-ca" data-gb-owner-only>{{t.caLabel}}</span>{{/if}}
+            {{#if t.result}}<span class="gb-target-res gb-target-res--{{t.result}}">{{t.resultLabel}}</span>{{/if}}
+            {{#if t.canApply}}
+            <span class="gb-target-btns" data-gb-owner-only>
+                {{#if @root.hasDamage}}
+                <button type="button" class="gb-target-btn gb-target-btn--dmg" data-gb-apply="damage" data-amount="{{@root.applyAmount}}" data-target="{{t.uuid}}" title="Aplicar {{@root.applyAmount}} de dano em {{t.name}} (a RD dele é abatida; Shift+clique = dano verdadeiro)"><i class="fa-solid fa-heart-crack"></i></button>
+                {{/if}}
+                {{#if @root.statusEffect}}
+                <button type="button" class="gb-target-btn gb-target-btn--fx" data-gb-apply="effect" data-effect="{{@root.statusEffect.id}}" data-target="{{t.uuid}}" title="Aplicar {{@root.statusEffect.label}} em {{t.name}}"><img class="gb-apply-icn" src="{{@root.statusEffect.img}}" alt=""></button>
+                {{/if}}
+            </span>
+            {{/if}}
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
 
     {{#if meta}}
     <ul class="gb-chat-meta">
@@ -27,15 +48,23 @@
     </ul>
     {{/if}}
 
+    {{#if effectText}}<div class="gb-chat-effect"><strong>Efeito:</strong> {{effectText}}</div>{{/if}}
+    {{#if statusEffect}}
+    <div class="gb-chat-status">
+        <img class="gb-chat-status-icn" src="{{statusEffect.img}}" alt="">
+        <span><strong>{{statusEffect.label}}</strong>{{#if statusEffect.description}}: {{statusEffect.description}}{{/if}}</span>
+    </div>
+    {{/if}}
+
     <div class="gb-chat-apply">
-        <button type="button" class="gb-apply gb-apply--dmg" data-gb-apply="damage" data-amount="{{applyAmount}}" title="Aplicar dano ao(s) token(s) selecionado(s)">
+        <button type="button" class="gb-apply gb-apply--dmg" data-gb-apply="damage" data-amount="{{applyAmount}}" title="Aplicar dano nos tokens selecionados (sem seleção: nos alvos atingidos). A RD de cada um é abatida — Shift+clique aplica dano verdadeiro, ignorando a RD.">
             <i class="fa-solid fa-heart-crack"></i> Dano {{applyAmount}}
         </button>
-        <button type="button" class="gb-apply gb-apply--heal" data-gb-apply="heal" data-amount="{{applyAmount}}" title="Curar o(s) token(s) selecionado(s)">
+        <button type="button" class="gb-apply gb-apply--heal" data-gb-apply="heal" data-amount="{{applyAmount}}" title="Curar os tokens selecionados (sem seleção: os alvos da rolagem)">
             <i class="fa-solid fa-heart"></i> Cura {{applyAmount}}
         </button>
         {{#if statusEffect}}
-        <button type="button" class="gb-apply gb-apply--fx" data-gb-apply="effect" data-effect="{{statusEffect.id}}" title="Aplicar {{statusEffect.label}} ao(s) token(s) selecionado(s)">
+        <button type="button" class="gb-apply gb-apply--fx" data-gb-apply="effect" data-effect="{{statusEffect.id}}" title="Aplicar {{statusEffect.label}} nos tokens selecionados (sem seleção: nos alvos atingidos)">
             <img class="gb-apply-icn" src="{{statusEffect.img}}" alt=""> {{statusEffect.label}}
         </button>
         {{/if}}
