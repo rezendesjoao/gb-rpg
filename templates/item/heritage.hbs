@@ -30,6 +30,12 @@
         <div class="gb-action-head">
             <input type="text" class="gb-action-name" name="system.progress.{{idx}}.name" value="{{p.name}}">
             <input type="text" name="system.progress.{{idx}}.requirement" value="{{p.requirement}}" placeholder="Requisito" class="gb-prog-req">
+            <select name="system.progress.{{idx}}.actionType" class="gb-ability-action" title="Ação gasta ao usar pelo HUD — automática = o tipo citado na descrição">
+                <option value="" {{#unless p.actionType}}selected{{/unless}}>HUD: automático</option>
+                {{#each @root.actionTypeOptions as |o|}}
+                <option value="{{o.value}}" {{#if (eqStr o.value p.actionType)}}selected{{/if}}>HUD: {{o.label}}</option>
+                {{/each}}
+            </select>
             <a class="gb-btn gb-btn--del" data-action="deleteRow" data-array="system.progress" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
         </div>
         <textarea name="system.progress.{{idx}}.description" placeholder="Descrição do progresso">{{p.description}}</textarea>

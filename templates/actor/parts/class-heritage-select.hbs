@@ -1,0 +1,23 @@
+{{!-- Seletores de Classe e Herança do cabeçalho (personagem e antagonista) --}}
+<label class="gb-field">
+    <span>Classe</span>
+    <select data-gb-chooser="class">
+        <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
+        {{#each classGroups as |grp|}}
+        <optgroup label="{{grp.label}}">
+            {{#each grp.options as |o|}}
+            <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+            {{/each}}
+        </optgroup>
+        {{/each}}
+    </select>
+</label>
+<label class="gb-field">
+    <span>Herança</span>
+    <select data-gb-chooser="heritage">
+        <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
+        {{#each heritageOptions as |o|}}
+        <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+        {{/each}}
+    </select>
+</label>

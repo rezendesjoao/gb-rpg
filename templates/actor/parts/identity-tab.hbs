@@ -1,0 +1,78 @@
+{{!-- Aba Classe & Herança (personagem e adversário antagonista) --}}
+<div class="gb-idcards">
+    <div class="gb-idcard gb-idcard--class">
+        <div class="gb-idcard-head">
+            <h3><i class="fa-solid fa-hand-fist"></i> Classe</h3>
+            {{#if classItem}}
+            <span class="gb-idcard-name">{{classItem.name}}</span>
+            <a class="gb-btn gb-btn--hit" data-action="openEmbedded" data-item-id="{{classItem.id}}" title="Abrir"><i class="fa-solid fa-up-right-from-square"></i></a>
+            <a class="gb-btn gb-btn--del" data-action="removeEmbedded" data-item-id="{{classItem.id}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+            {{else}}
+            <span class="gb-empty-inline">selecione no topo</span>
+            {{/if}}
+        </div>
+        {{#if classItem}}
+        <div class="gb-idcard-body">
+            <div class="gb-chips">
+                <span class="gb-chip">Vida {{classItem.system.vidaBase}}</span>
+                <span class="gb-chip">Dado {{classItem.system.vidaDado}}</span>
+                <span class="gb-chip">Dano {{classItem.system.danoDado}}</span>
+            </div>
+            {{#if classItem.system.manaCondition}}<div class="gb-idcard-mana"><i class="fa-solid fa-droplet"></i> {{classItem.system.manaCondition}}</div>{{/if}}
+            {{#each classAbilities as |ab idx|}}
+            <div class="gb-mini-ability">
+                <div class="gb-mini-head">
+                    <strong>{{ab.name}}</strong> <em>({{ab.type}})</em>
+                    <a class="gb-mini-chat" data-action="postFeature" data-feature="ability" data-index="{{idx}}" title="Mostrar no chat o que esta habilidade faz"><i class="fa-solid fa-comment"></i></a>
+                </div>
+                {{#if ab.description}}<p>{{ab.description}}</p>{{/if}}
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+
+    <div class="gb-idcard gb-idcard--heritage">
+        <div class="gb-idcard-head">
+            <h3><i class="fa-solid fa-dna"></i> Herança</h3>
+            {{#if heritageItem}}
+            <span class="gb-idcard-name">{{heritageItem.name}}</span>
+            <a class="gb-btn gb-btn--hit" data-action="openEmbedded" data-item-id="{{heritageItem.id}}" title="Abrir"><i class="fa-solid fa-up-right-from-square"></i></a>
+            <a class="gb-btn gb-btn--del" data-action="removeEmbedded" data-item-id="{{heritageItem.id}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+            {{else}}
+            <span class="gb-empty-inline">selecione no topo</span>
+            {{/if}}
+        </div>
+        {{#if heritageItem}}
+        <div class="gb-idcard-body">
+            {{#if heritageItem.system.sharedTrait}}
+            <div class="gb-mini-ability">
+                <div class="gb-mini-head">
+                    <strong>Traço Compartilhado</strong>
+                    <a class="gb-mini-chat" data-action="postFeature" data-feature="trait" title="Mostrar no chat o que este traço faz"><i class="fa-solid fa-comment"></i></a>
+                </div>
+                {{{heritageItem.system.sharedTrait}}}
+            </div>
+            {{/if}}
+            {{#if heritageItem.system.weakness}}
+            <div class="gb-mini-ability">
+                <div class="gb-mini-head">
+                    <strong>Debilidade</strong>
+                    <a class="gb-mini-chat" data-action="postFeature" data-feature="weakness" title="Mostrar no chat o que esta debilidade faz"><i class="fa-solid fa-comment"></i></a>
+                </div>
+                {{{heritageItem.system.weakness}}}
+            </div>
+            {{/if}}
+            {{#each heritageProgress as |p idx|}}
+            <div class="gb-mini-ability">
+                <div class="gb-mini-head">
+                    <strong>{{p.name}}</strong>{{#if p.requirement}} <em>({{p.requirement}})</em>{{/if}}
+                    <a class="gb-mini-chat" data-action="postFeature" data-feature="progress" data-index="{{idx}}" title="Mostrar no chat o que este progresso faz"><i class="fa-solid fa-comment"></i></a>
+                </div>
+                {{#if p.description}}<p>{{p.description}}</p>{{/if}}
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+</div>

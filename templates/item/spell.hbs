@@ -44,12 +44,12 @@
         <textarea class="gb-passive-text" name="system.description">{{system.description}}</textarea>
     </label>
     {{else}}
-    <div class="gb-action-meta">
+    <div class="gb-action-meta gb-action-meta--3">
         <label><span>Custo</span><input type="text" name="system.cost" value="{{system.cost}}"></label>
-        <label><span>Alcance</span><input type="text" name="system.range" value="{{system.range}}"></label>
         <label><span>Conjuração</span><input type="text" name="system.casting" value="{{system.casting}}"></label>
         <label><span>Dificuldade</span><input type="text" name="system.difficulty" value="{{system.difficulty}}"></label>
     </div>
+    {{> "systems/granblue/templates/actor/parts/range-fields.hbs" prefix="system." row=system spell=true}}
 
     <div class="gb-action-formulas">
         <label><span>Acerto</span><input type="text" name="system.hit" value="{{system.hit}}" placeholder="3d6 + @disciplina"></label>

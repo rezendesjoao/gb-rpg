@@ -9,7 +9,11 @@ export class GranblueSpellSheet extends GranblueItemSheetBase {
     };
 
     static PARTS = {
-        main: { template: 'systems/granblue/templates/item/spell.hbs', scrollable: [''] }
+        main: {
+            template: 'systems/granblue/templates/item/spell.hbs',
+            templates: ['systems/granblue/templates/actor/parts/range-fields.hbs'],
+            scrollable: ['']
+        }
     };
 
     async _prepareContext(options) {

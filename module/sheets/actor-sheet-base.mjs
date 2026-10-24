@@ -2,24 +2,48 @@ import { GRANBLUE } from '../config.mjs';
 import { rollDialog } from '../dice/roll-dialog.mjs';
 import { applyStatusToSelectedTokens } from '../effects.mjs';
 import { sendLootDialog } from '../loot.mjs';
+import { useAction, useActionPart } from '../use-action.mjs';
+import { placeArea } from '../area.mjs';
+import { GranblueItem } from '../documents/item.mjs';
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
 /** Listas do system gravadas pelo formulário (ver _processFormData). */
-const FORM_LISTS = ['actions', 'spells', 'inventory', 'loot'];
+const FORM_LISTS = ['actions', 'spells', 'inventory', 'loot', 'advantages', 'disadvantages'];
 
 /** Partial da linha de ação/magia, usado pelas fichas de personagem e adversário. */
 export const ACTION_ROW_PARTIAL = 'systems/granblue/templates/actor/parts/action-row.hbs';
 
+/** Partials compartilhados pelas fichas de personagem e adversário. */
+export const SHEET_PARTIALS = [
+    ACTION_ROW_PARTIAL,
+    'systems/granblue/templates/actor/parts/range-fields.hbs',
+    'systems/granblue/templates/actor/parts/defense-row.hbs',
+    'systems/granblue/templates/actor/parts/magic-tab.hbs',
+    'systems/granblue/templates/actor/parts/identity-tab.hbs',
+    'systems/granblue/templates/actor/parts/class-heritage-select.hbs'
+];
+
+/** Monta os grupos de classe (optgroups) marcando a classe atual. */
+function buildClassGroups(current) {
+    const groups = {};
+    for (const [key, cfg] of Object.entries(GRANBLUE.classes)) {
+        const g = cfg.grupo;
+        groups[g] ??= { key: g, label: game.i18n.localize(GRANBLUE.classGroups[g]), options: [] };
+        groups[g].options.push({ value: key, label: cfg.label, selected: key === current });
+    }
+    return Object.values(groups);
+}
+
 /**
  * Ficha base de Ator do Granblue. Concentra os handlers de ação (rolagens,
- * edição de imagem, listas editáveis) e a lógica de abas, compartilhados entre
- * Personagem e Adversário.
+ * edição de imagem, listas editáveis), a lógica de abas e o que personagem e
+ * adversário compartilham (magias por esfera, classe e herança, RD).
  *
  * As listas editáveis (`system.actions`, `system.spells`, `system.inventory`)
  * usam os mesmos handlers: o botão informa a lista em `data-list`
- * (ausente = `actions`, que é o caso da ficha de adversário).
+ * (ausente = `actions`).
  */
 export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorSheetV2) {
     static DEFAULT_OPTIONS = {
@@ -36,6 +60,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             rollActionFull: GranblueActorSheetBase.#onRollActionFull,
             postActionText: GranblueActorSheetBase.#onPostActionText,
             applyStatusEffect: GranblueActorSheetBase.#onApplyStatusEffect,
+            toggleBasicAttack: GranblueActorSheetBase.#onToggleBasicAttack,
+            placeArea: GranblueActorSheetBase.#onPlaceArea,
             toggleAction: GranblueActorSheetBase.#onToggleAction,
             addAction: GranblueActorSheetBase.#onAddAction,
             deleteAction: GranblueActorSheetBase.#onDeleteAction,
@@ -49,7 +75,10 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             recalcMax: GranblueActorSheetBase.#onRecalcMax,
             addLoot: GranblueActorSheetBase.#onAddLoot,
             deleteLoot: GranblueActorSheetBase.#onDeleteLoot,
-            sendLoot: GranblueActorSheetBase.#onSendLoot
+            sendLoot: GranblueActorSheetBase.#onSendLoot,
+            openEmbedded: GranblueActorSheetBase.#onOpenEmbedded,
+            removeEmbedded: GranblueActorSheetBase.#onRemoveEmbedded,
+            postFeature: GranblueActorSheetBase.#onPostFeature
         }
     };
 
@@ -141,9 +170,10 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             mana: sys.resources.mana,
             ca: sys.defenses.ca,
             caBonus: src.defenses.caBonus,
-            // RD: o campo edita o valor guardado; `rd` já inclui Active Effects
-            rd: sys.defenses.rd,
-            rdSource: src.defenses.rd,
+            // RD física e mágica: os campos editam o valor guardado; o total já
+            // inclui Active Effects
+            rd: GranblueActorSheetBase.#rdContext(sys, src),
+            movementTotal: sys.movementTotal,
             isGM: game.user.isGM,
             classItem,
             heritageItem,
@@ -153,8 +183,50 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             classLabel: classItem?.name ?? '',
             heritageLabel: heritageItem?.name ?? '',
             // O personagem guarda a chave do rank ("d1"); o adversário, texto livre
-            rankLabel: GRANBLUE.ranks[sys.rank]?.label ?? (sys.rank ?? '')
+            rankLabel: GRANBLUE.ranks[sys.rank]?.label ?? (sys.rank ?? ''),
+            pointBuy: sys.pointBuy,
+            // Seletores das linhas de ação/magia (ação no HUD, área, tipo de dano)
+            ...GRANBLUE.rowSelectOptions()
         });
+
+        // Classe e herança (personagem e adversário antagonista)
+        const classOrigin = classItem?.system.origin ?? '';
+        const heritageOrigin = heritageItem?.system.origin ?? '';
+        Object.assign(context, {
+            classBlankSelected: !classOrigin,
+            classGroups: buildClassGroups(classOrigin),
+            heritageBlankSelected: !heritageOrigin,
+            heritageOptions: Object.entries(GRANBLUE.heritages).map(([key, cfg]) => ({
+                value: key, label: cfg.label, selected: key === heritageOrigin
+            })),
+            classAbilities: classItem?.system.abilities ?? [],
+            heritageProgress: heritageItem?.system.progress ?? []
+        });
+
+        // Esferas de magia: cada uma leva junto as suas magias (com o índice real
+        // na lista `system.spells`, que é o que os handlers usam).
+        if (Array.isArray(sys.spells)) {
+            const spells = sys.spells.map((spell, index) => ({
+                ...spell,
+                index,
+                sphereKey: GRANBLUE.normalizeSphere(spell.sphere)
+            }));
+            context.spheres = Object.entries(GRANBLUE.spheres).map(([key, cfg]) => ({
+                key,
+                label: game.i18n.localize(cfg.label),
+                custo: cfg.custo,
+                value: sys.spheres?.[key] ?? 0,
+                unlocked: (sys.spheres?.[key] ?? 0) > 0,
+                spells: spells.filter((s) => s.sphereKey === key)
+            }));
+            // Magias com esfera irreconhecível não somem da ficha: caem num grupo à parte.
+            context.orphanSpells = spells.filter((s) => !s.sphereKey);
+            context.sphereOptions = Object.entries(GRANBLUE.spheres).map(([key, cfg]) => ({
+                value: key,
+                label: game.i18n.localize(cfg.label)
+            }));
+            context.spherePoints = sys.spherePoints;
+        }
 
         // Percentuais das barras de vida/mana (para o preenchimento visual)
         const hpMax = sys.resources.hitPoints.max || 0;
@@ -162,6 +234,30 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         context.hpPct = hpMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.hitPoints.value / hpMax) * 100))) : 0;
         context.manaPct = manaMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.mana.value / manaMax) * 100))) : 0;
         return context;
+    }
+
+    /**
+     * RD física e mágica para a ficha: os campos fixa/bônus/temporária com o
+     * valor guardado, o total preparado (com Active Effects) e se um efeito
+     * está mexendo nela.
+     */
+    static #rdContext(sys, src) {
+        const out = {};
+        for (const key of ['physical', 'magical']) {
+            const s = src.defenses.rd[key];
+            const p = sys.defenses.rd[key];
+            out[key] = {
+                key,
+                label: game.i18n.localize(key === 'physical' ? 'GRANBLUE.RD.physical' : 'GRANBLUE.RD.magical'),
+                short: game.i18n.localize(key === 'physical' ? 'GRANBLUE.RD.physicalShort' : 'GRANBLUE.RD.magicalShort'),
+                fixed: s.fixed,
+                bonus: s.bonus,
+                temp: s.temp,
+                total: p.total,
+                fromEffects: (p.fixed + p.bonus + p.temp) !== (s.fixed + s.bonus + s.temp)
+            };
+        }
+        return out;
     }
 
     /**
@@ -180,7 +276,13 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             const rows = foundry.utils.deepClone(src[list] ?? []);
             for (const [key, row] of Object.entries(submitted)) {
                 const index = Number(key);
-                if (Number.isInteger(index) && rows[index]) Object.assign(rows[index], row);
+                if (!Number.isInteger(index) || index < 0) continue;
+                // Listas de texto (vantagens) trocam o valor; as de objeto mesclam.
+                if (row !== null && typeof row === 'object') {
+                    if (rows[index]) Object.assign(rows[index], row);
+                } else {
+                    rows[index] = row;
+                }
             }
             data.system[list] = rows;
         }
@@ -206,6 +308,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         if (!root) return;
 
         const applyTab = (tab) => {
+            // Uma aba que sumiu (ex.: antagonista virou monstro) volta à padrão.
+            if (!root.querySelector(`[data-tab-content="${tab}"]`)) tab = this.constructor.DEFAULT_TAB;
             this._tab = tab;
             root.querySelectorAll('[data-tab-nav]').forEach((a) =>
                 a.classList.toggle('active', a.dataset.tabNav === tab));
@@ -220,6 +324,17 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             });
         });
         applyTab(this._tab);
+
+        // Seletores de classe / herança (criam o item a partir do preset)
+        root.querySelectorAll('[data-gb-chooser]').forEach((sel) => {
+            sel.addEventListener('change', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const kind = sel.dataset.gbChooser;
+                if (kind === 'class') this.#setClass(sel.value);
+                else if (kind === 'heritage') this.#setHeritage(sel.value);
+            });
+        });
 
         // Arrastar uma ação/magia para a barra de macros (hotbar)
         root.querySelectorAll('[data-drag-action]').forEach((el) => {
@@ -251,13 +366,37 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     }
 
     /* ---------------------------------- */
+    /*  Classe e herança                  */
+    /* ---------------------------------- */
+
+    /** Substitui o item de Classe do ator pelo preset escolhido. */
+    async #setClass(origin) {
+        const existing = this.document.items.filter((i) => i.type === 'class').map((i) => i.id);
+        if (existing.length) await this.document.deleteEmbeddedDocuments('Item', existing);
+        if (origin) {
+            const data = GranblueItem.presetClassData(origin);
+            if (data) await this.document.createEmbeddedDocuments('Item', [data]);
+        }
+        await this.document.recalcMax();
+    }
+
+    /** Substitui o item de Herança do ator pelo preset escolhido. */
+    async #setHeritage(origin) {
+        const existing = this.document.items.filter((i) => i.type === 'heritage').map((i) => i.id);
+        if (existing.length) await this.document.deleteEmbeddedDocuments('Item', existing);
+        if (origin) {
+            const data = GranblueItem.presetHeritageData(origin);
+            if (data) await this.document.createEmbeddedDocuments('Item', [data]);
+        }
+    }
+
+    /* ---------------------------------- */
     /*  Drop de itens (mecanismo nativo)   */
     /* ---------------------------------- */
 
     /**
      * Sobrescreve o drop de item do ActorSheetV2 (chamado uma única vez pelo core):
-     * magia → aba Magia (ou ação, no adversário); classe/herança → substitui a
-     * existente; demais → padrão.
+     * magia → aba Magia; classe/herança → substitui a existente; demais → padrão.
      */
     async _onDropItem(event, item) {
         if (item.type === 'spell') return this.#dropSpell(item);
@@ -267,8 +406,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     }
 
     /**
-     * Magia arrastada → entra na lista de magias, na esfera dela (personagem).
-     * Atores sem a lista de magias (adversário) continuam recebendo uma ação.
+     * Magia arrastada → entra na lista de magias, na esfera dela.
+     * Atores sem a lista de magias continuam recebendo uma ação.
      */
     async #dropSpell(item) {
         const sys = item.system ?? {};
@@ -413,37 +552,16 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         await this.document.rollAttribute(key, { mana: mods.mana, bonus: mods.main.bonus, dice: mods.main.dice });
     }
 
+    /** Rola só o acerto ou só o dano (botões da linha expandida). */
     static async #onRollAction(event, target) {
         const list = GranblueActorSheetBase.#listOf(target);
-        const index = Number(target.dataset.index);
-        const part = target.dataset.part;
-        const action = (this.document.system[list] ?? [])[index];
-        if (!action) return;
-        const base = (action[part] ?? '').trim();
-        const label = part === 'hit' ? 'Acerto' : 'Dano';
-        const mods = await rollDialog({
-            title: `${action.name} — ${label}`,
-            parts: base ? [{ key: 'main', label, base }] : [],
-            consume: GranblueActorSheetBase.#parseCost(action.cost)
-        });
-        if (!mods) return;
-        await this.document.rollAction(index, part, mods.main ?? {}, list);
-        await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
+        await useActionPart(this.document, list, Number(target.dataset.index), target.dataset.part);
     }
 
+    /** Rola a ação/magia inteira: bônus, área (alcance complexo), acerto e dano. */
     static async #onRollActionFull(event, target) {
         const list = GranblueActorSheetBase.#listOf(target);
-        const index = Number(target.dataset.index);
-        const action = (this.document.system[list] ?? [])[index];
-        if (!action) return;
-        if (action.passive) return this.document.postActionText(index, list, 'passive');
-        const parts = [];
-        if ((action.hit ?? '').trim()) parts.push({ key: 'hit', label: 'Acerto', base: action.hit.trim() });
-        if ((action.damage ?? '').trim()) parts.push({ key: 'damage', label: 'Dano', base: action.damage.trim() });
-        const mods = await rollDialog({ title: action.name, parts, consume: GranblueActorSheetBase.#parseCost(action.cost) });
-        if (!mods) return;
-        await this.document.rollActionFull(index, { hit: mods.hit, damage: mods.damage }, list);
-        await GranblueActorSheetBase.#applyConsume(this.document, mods.consume);
+        await useAction(this.document, list, Number(target.dataset.index));
     }
 
     /** Envia ao chat a passiva (a própria habilidade passiva ou a anexada). */
@@ -461,16 +579,36 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         await applyStatusToSelectedTokens(action.statusEffect);
     }
 
-    /** Extrai o número inicial do campo de custo (ex.: "5", "5^n" → 5). */
-    static #parseCost(cost) {
-        const n = Number.parseInt(String(cost ?? ''), 10);
-        return Number.isFinite(n) ? n : 0;
+    /**
+     * Marca/desmarca o ataque básico. Só um por ator: marcar uma ação desmarca
+     * a anterior (nas ações e nas magias).
+     */
+    static async #onToggleBasicAttack(event, target) {
+        const list = GranblueActorSheetBase.#listOf(target);
+        const index = Number(target.dataset.index);
+        const turnOn = !this.document.system[list]?.[index]?.basicAttack;
+        const update = {};
+        for (const name of ['actions', 'spells']) {
+            if (!Array.isArray(this.document.system[name])) continue;
+            const rows = this.#rows(name);
+            rows.forEach((row, i) => { row.basicAttack = turnOn && name === list && i === index; });
+            update[`system.${name}`] = rows;
+        }
+        await this.document.update(update);
     }
 
-    /** Consome o recurso escolhido no diálogo, se houver. */
-    static async #applyConsume(actor, consume) {
-        if (consume && consume.resource !== 'none' && consume.amount > 0) {
-            await actor.spendResource(consume.resource, consume.amount);
+    /** Posiciona a área da ação no mapa e marca os tokens dentro dela como alvos. */
+    static async #onPlaceArea(event, target) {
+        const list = GranblueActorSheetBase.#listOf(target);
+        const action = this.document.system[list]?.[Number(target.dataset.index)];
+        if (!action) return;
+        // Minimiza a ficha para liberar o mapa enquanto a área é posicionada.
+        const wasMinimized = this.minimized;
+        if (!wasMinimized) await this.minimize();
+        try {
+            await placeArea(this.document, action);
+        } finally {
+            if (!wasMinimized) await this.maximize();
         }
     }
 
@@ -489,7 +627,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const rows = this.#rows(list);
         rows.push({
             name: game.i18n.localize(passive ? 'GRANBLUE.Action.newPassive' : 'GRANBLUE.Action.new'),
-            hit: '', damage: '', cost: '', range: '',
+            hit: '', damage: '', cost: '', range: '', rangeMeters: null,
             casting: '', difficulty: '', statusEffect: '', effect: '', description: '',
             passive, hasPassive: false, passiveText: ''
         });
@@ -504,7 +642,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const rows = this.#rows('spells');
         rows.push({
             name: game.i18n.localize('GRANBLUE.Spell.new'),
-            hit: '3d6 + @disciplina', damage: '', cost: '', range: '',
+            hit: '3d6 + @disciplina', damage: '', cost: '', range: '', rangeMeters: null,
             casting: '', difficulty: '', statusEffect: '', effect: '', description: '',
             passive: false, hasPassive: false, passiveText: '',
             sphere, arcano: '', level: 1
@@ -519,7 +657,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         rows.push({
             name: game.i18n.localize('GRANBLUE.Inventory.new'),
             category, quantity: 1, tier: '', quality: '',
-            weight: '', value: '', equipped: false, description: ''
+            weight: '', value: '', equipped: false, actionType: '', description: ''
         });
         await this.#saveRows('inventory', rows);
     }
@@ -568,5 +706,32 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     /** Mestre: envia o pop-up de rolagem de loot deste adversário aos jogadores. */
     static async #onSendLoot(event, target) {
         await sendLootDialog(this.document);
+    }
+
+    static async #onOpenEmbedded(event, target) {
+        const id = target.dataset.itemId;
+        this.document.items.get(id)?.sheet?.render(true);
+    }
+
+    static async #onRemoveEmbedded(event, target) {
+        const id = target.dataset.itemId;
+        if (id) await this.document.deleteEmbeddedDocuments('Item', [id]);
+    }
+
+    /**
+     * Mostra no chat o que uma habilidade de classe, um traço de herança ou uma
+     * vantagem/desvantagem do adversário faz (botões de chat da ficha).
+     */
+    static async #onPostFeature(event, target) {
+        const actor = this.document;
+        const index = Number(target.dataset.index) || 0;
+        switch (target.dataset.feature) {
+            case 'ability': return actor.postClassAbility(index);
+            case 'trait':
+            case 'weakness':
+            case 'progress': return actor.postHeritageFeature(target.dataset.feature, index);
+            case 'advantages':
+            case 'disadvantages': return actor.postAdvantage(target.dataset.feature, index);
+        }
     }
 }

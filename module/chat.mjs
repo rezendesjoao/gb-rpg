@@ -101,24 +101,28 @@ async function onApplyClick(event, btn, message) {
         return;
     }
     const amount = Number(btn.dataset.amount) || 0;
-    if (kind === 'damage') await applyDamageTo(tokens, amount, { ignoreRD: event.shiftKey });
+    if (kind === 'damage') {
+        await applyDamageTo(tokens, amount, { ignoreRD: event.shiftKey, type: btn.dataset.damageType || 'fisico' });
+    }
     else await applyHealingTo(tokens, amount);
 }
 
 /**
- * Aplica dano em cada token abatendo a RD dele (ver GranblueActor#applyDamage).
- * `ignoreRD` (Shift+clique) aplica como dano verdadeiro.
+ * Aplica dano em cada token abatendo a RD dele do tipo do dano (física ou
+ * mágica — ver GranblueActor#applyDamage). `ignoreRD` (Shift+clique) aplica
+ * como dano verdadeiro.
  */
-export async function applyDamageTo(tokens, amount, { ignoreRD = false } = {}) {
+export async function applyDamageTo(tokens, amount, { ignoreRD = false, type = 'fisico' } = {}) {
     const lines = [];
     for (const token of tokens) {
         const actor = token.actor;
         // Sem permissão (jogador num monstro): pula, sem o erro cru do Foundry.
         if (typeof actor?.applyDamage !== 'function' || !actor.isOwner) continue;
         try {
-            const r = await actor.applyDamage(amount, { ignoreRD });
+            const r = await actor.applyDamage(amount, { ignoreRD, type });
+            const rdLabel = game.i18n.localize(r.type === 'magico' ? 'GRANBLUE.RD.magicalShort' : 'GRANBLUE.RD.physicalShort');
             lines.push(r.rd
-                ? game.i18n.format('GRANBLUE.Chat.damageLineRD', { name: token.name, taken: r.taken, raw: r.raw, rd: r.rd })
+                ? game.i18n.format('GRANBLUE.Chat.damageLineRD', { name: token.name, taken: r.taken, raw: r.raw, rd: r.rd, rdLabel })
                 : game.i18n.format('GRANBLUE.Chat.damageLine', { name: token.name, taken: r.taken }));
         } catch (err) {
             console.warn('Granblue | Sem permissão para alterar', actor?.name, err);

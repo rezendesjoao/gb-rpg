@@ -1,4 +1,4 @@
-{{!-- Ficha de Adversário / NPC --}}
+{{!-- Ficha de Adversário / NPC (monstro ou personagem antagonista) --}}
 <div class="gb-root">
 <div class="gb-top">
     <figure class="gb-portrait-panel">
@@ -10,6 +10,15 @@
             <div class="gb-identity">
                 <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do adversário">
                 <div class="gb-identity-grid">
+                    <label class="gb-field" title="Monstro (tipagem e loot) ou personagem antagonista (também com classe e herança)">
+                        <span>Ficha de</span>
+                        <select name="system.kind">
+                            {{#each kindOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+                        </select>
+                    </label>
+                    {{#if isAntagonist}}
+                    {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
+                    {{/if}}
                     <label class="gb-field">
                         <span>Dificuldade</span>
                         <select name="system.difficulty">
@@ -28,11 +37,13 @@
             </div>
             <div class="gb-header-stats">
                 <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus"><span class="gb-badge-label">CA</span><span class="gb-badge-value">{{ca}}</span></div>
-                <label class="gb-badge gb-badge--rd" title="Redução de Dano: abatida do dano aplicado pelo chat (Shift+clique no botão de dano = dano verdadeiro){{#if (ne rd rdSource)}} · com efeitos: {{rd}}{{/if}}">
-                    <span class="gb-badge-label">RD</span>
-                    <input class="gb-badge-input" type="number" name="system.defenses.rd" value="{{rdSource}}" min="0">
-                </label>
-                <label class="gb-field gb-field--sm"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
+                <div class="gb-badge gb-badge--rd" title="RD física (fixa + bônus + temporária): abatida do dano físico aplicado pelo chat">
+                    <span class="gb-badge-label">RD F</span><span class="gb-badge-value">{{rd.physical.total}}</span>
+                </div>
+                <div class="gb-badge gb-badge--rdm" title="RD mágica (fixa + bônus + temporária): abatida do dano mágico aplicado pelo chat">
+                    <span class="gb-badge-label">RD M</span><span class="gb-badge-value">{{rd.magical.total}}</span>
+                </div>
+                <label class="gb-field gb-field--sm" title="Deslocamento base em metros{{#if system.movementBonus}} — total com bônus: {{movementTotal}} m{{/if}}"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
                 <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
             </div>
         </header>
@@ -68,6 +79,8 @@
 <nav class="gb-tabs">
     <a data-tab-nav="principal"><i class="fa-solid fa-dragon"></i> Estatísticas</a>
     <a data-tab-nav="acoes"><i class="fa-solid fa-khanda"></i> Ataques</a>
+    <a data-tab-nav="magia"><i class="fa-solid fa-wand-sparkles"></i> Magia</a>
+    {{#if isAntagonist}}<a data-tab-nav="identidade"><i class="fa-solid fa-id-badge"></i> Classe & Herança</a>{{/if}}
     <a data-tab-nav="loot"><i class="fa-solid fa-sack-dollar"></i> Loot</a>
     <a data-tab-nav="bio"><i class="fa-solid fa-book"></i> Biografia</a>
 </nav>
@@ -78,7 +91,11 @@
         <div class="gb-res-block gb-res-block--hp">
             <h4><i class="fa-solid fa-heart"></i> Energia Vital</h4>
             <div class="gb-res-grid">
-                <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hp.base}}"></label>
+                {{#if hasClass}}
+                <label><span>Base</span><span class="gb-derived" title="Classe: {{classItem.name}}">{{hp.base}}</span></label>
+                {{else}}
+                <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hpSource.base}}"></label>
+                {{/if}}
                 <label><span>Dado</span><input type="number" name="system.resources.hitPoints.die" value="{{hp.die}}"></label>
                 <label><span>Res×3</span><span class="gb-derived">{{hp.mod}}</span></label>
                 <label><span>Temp</span><input type="number" name="system.resources.hitPoints.temp" value="{{hp.temp}}"></label>
@@ -95,17 +112,28 @@
             <div class="gb-hint">Máx sugerido: <strong>{{mana.maxFormula}}</strong> (Sab×2)</div>
         </div>
     </div>
+    {{> "systems/granblue/templates/actor/parts/defense-row.hbs"}}
 
     <h3 class="gb-section-title"><i class="fa-solid fa-scale-unbalanced"></i> Vantagens &amp; Desvantagens</h3>
     <div class="gb-adv-grid">
-        <label class="gb-adv gb-adv--pro">
-            <span><i class="fa-solid fa-circle-plus"></i> Vantagem</span>
-            <textarea name="system.advantage" placeholder="O que favorece esta criatura: resistências, imunidades, terreno…">{{system.advantage}}</textarea>
-        </label>
-        <label class="gb-adv gb-adv--con">
-            <span><i class="fa-solid fa-circle-minus"></i> Desvantagem</span>
-            <textarea name="system.disadvantage" placeholder="A fraqueza revelada ao analisar o poder de combate…">{{system.disadvantage}}</textarea>
-        </label>
+        <div class="gb-adv gb-adv--pro">
+            <span><i class="fa-solid fa-circle-plus"></i> Vantagens</span>
+            {{#each advantages as |a|}}
+            <div class="gb-adv-box">
+                <textarea name="system.advantages.{{a.index}}" placeholder="O que favorece esta criatura: resistências, imunidades, terreno…">{{a.text}}</textarea>
+                <a class="gb-mini-chat" data-action="postFeature" data-feature="advantages" data-index="{{a.index}}" title="Mostrar esta vantagem no chat"><i class="fa-solid fa-comment"></i></a>
+            </div>
+            {{/each}}
+        </div>
+        <div class="gb-adv gb-adv--con">
+            <span><i class="fa-solid fa-circle-minus"></i> Desvantagens</span>
+            {{#each disadvantages as |d|}}
+            <div class="gb-adv-box">
+                <textarea name="system.disadvantages.{{d.index}}" placeholder="A fraqueza revelada ao analisar o poder de combate…">{{d.text}}</textarea>
+                <a class="gb-mini-chat" data-action="postFeature" data-feature="disadvantages" data-index="{{d.index}}" title="Mostrar esta desvantagem no chat"><i class="fa-solid fa-comment"></i></a>
+            </div>
+            {{/each}}
+        </div>
     </div>
 
     <h3 class="gb-section-title">Atributos <span class="gb-hint">clique para testar (3d6 + atributo)</span></h3>
@@ -115,7 +143,7 @@
             <a class="gb-attr-roll" data-action="rollAttribute" data-attribute="{{attr.key}}" title="{{attr.func}}">
                 <span class="gb-attr-name">{{attr.label}}</span>
                 <span class="gb-attr-total">{{attr.total}}</span>
-                <span class="gb-attr-dice">3d6</span>
+                <span class="gb-attr-dice">3d6{{#if attr.effect}} <span class="gb-attr-effect" title="Bônus de herança/efeitos">({{granblueSigned attr.effect}})</span>{{/if}}</span>
             </a>
             <div class="gb-attr-inputs">
                 <label><span>Valor</span><input type="number" name="system.attributes.{{attr.key}}.value" value="{{attr.value}}"></label>
@@ -123,6 +151,10 @@
             </div>
         </div>
         {{/each}}
+    </div>
+    <div class="gb-pointbuy">
+        Pontos de atributo: <strong>{{pointBuy.spent}}</strong> / {{pointBuy.total}}
+        <span class="{{#if pointBuy.remaining}}gb-remaining{{/if}}">(restam {{pointBuy.remaining}})</span>
     </div>
 </section>
 
@@ -132,12 +164,26 @@
         <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ataque</button>
         <button type="button" data-action="addAction" data-passive="true"><i class="fa-solid fa-feather"></i> Adicionar passiva</button>
     </div>
+    <p class="gb-hint">Ataques e manobras não-mágicas. Magias ficam na aba <strong>Magia</strong>, dentro da esfera delas.
+        A estrela marca o ataque básico, rolado pelo HUD ao custo de uma ação normal.</p>
     {{#each actions as |action idx|}}
     {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=action index=idx list="actions"}}
     {{else}}
     <p class="gb-empty">Nenhum ataque cadastrado.</p>
     {{/each}}
 </section>
+
+{{!-- ===================== MAGIA ===================== --}}
+<section class="gb-tab" data-tab-content="magia">
+    {{> "systems/granblue/templates/actor/parts/magic-tab.hbs"}}
+</section>
+
+{{#if isAntagonist}}
+{{!-- ===================== CLASSE & HERANÇA (antagonista) ===================== --}}
+<section class="gb-tab" data-tab-content="identidade">
+    {{> "systems/granblue/templates/actor/parts/identity-tab.hbs"}}
+</section>
+{{/if}}
 
 {{!-- ===================== LOOT ===================== --}}
 <section class="gb-tab" data-tab-content="loot">

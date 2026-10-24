@@ -23,10 +23,12 @@ export class GranblueHeritage extends foundry.abstract.TypeDataModel {
         schema.sharedTrait = new fields.HTMLField({ required: true, initial: '', blank: true });
         schema.weakness = new fields.HTMLField({ required: true, initial: '', blank: true });
 
-        // Progressos (habilidades desbloqueadas por limites de atributo)
+        // Progressos (habilidades desbloqueadas por limites de atributo).
+        // `actionType`: ação gasta ao usá-lo pelo HUD (vazio = o citado na descrição).
         schema.progress = new fields.ArrayField(new fields.SchemaField({
             name: new fields.StringField({ required: true, initial: 'Progresso', blank: false }),
             requirement: new fields.StringField({ required: true, initial: '', blank: true }),
+            actionType: new fields.StringField({ required: true, initial: '', blank: true }),
             description: new fields.StringField({ required: true, initial: '', blank: true })
         }), { required: true, initial: [] });
 

@@ -18,6 +18,9 @@ import { GranblueHeritageSheet } from './sheets/item-heritage-sheet.mjs';
 import { GranblueSpellSheet } from './sheets/item-spell-sheet.mjs';
 import { onRenderChatMessage } from './chat.mjs';
 import { SOCKET, onSocketMessage, sendLootDialog } from './loot.mjs';
+import { onEffectSocket } from './effects.mjs';
+import { GranblueHUD, registerHudSettings, initHud } from './hud.mjs';
+import { onUpdateCombat } from './economy.mjs';
 import { registerMigrationSettings, migrateIfNeeded, migrateWorld } from './migration.mjs';
 
 /* -------------------------------------------- */
@@ -32,7 +35,7 @@ Hooks.once('init', () => {
     game.granblue = {
         config: GRANBLUE,
         documents: { GranblueActor },
-        applications: { GranblueCharacterSheet, GranblueAdversarySheet },
+        applications: { GranblueCharacterSheet, GranblueAdversarySheet, GranblueHUD },
         sendLootDialog,
         migrateWorld
     };
@@ -96,6 +99,7 @@ Hooks.once('init', () => {
 /** Configurações do sistema (mundo). */
 function registerSettings() {
     registerMigrationSettings();
+    registerHudSettings();
     game.settings.register('granblue', 'hitOnTie', {
         name: 'GRANBLUE.Settings.hitOnTie.name',
         hint: 'GRANBLUE.Settings.hitOnTie.hint',
@@ -129,7 +133,11 @@ Hooks.once('i18nInit', () => {
 Hooks.once('ready', async () => {
     // Pop-ups de loot enviados pelo mestre (ver loot.mjs)
     game.socket.on(SOCKET, onSocketMessage);
+    // Efeitos pedidos por jogadores em tokens que eles não controlam
+    game.socket.on(SOCKET, onEffectSocket);
     await migrateIfNeeded();
+    // HUD de ações do token controlado (ver hud.mjs)
+    initHud();
     console.log('Granblue | Sistema pronto');
 });
 
@@ -171,6 +179,12 @@ async function createActionMacro(data, slot) {
 /* -------------------------------------------- */
 
 Hooks.on('renderChatMessageHTML', onRenderChatMessage);
+
+/* -------------------------------------------- */
+/*  Combate: libera as ações a cada turno        */
+/* -------------------------------------------- */
+
+Hooks.on('updateCombat', onUpdateCombat);
 
 /* -------------------------------------------- */
 /*  Helpers                                      */

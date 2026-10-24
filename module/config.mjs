@@ -213,6 +213,124 @@ GRANBLUE.dropBonus = {
     lendaria: 30
 };
 
+/**
+ * Modelo da ficha de adversário: um monstro (tipagem, loot) ou um personagem
+ * antagonista, que também ganha classe e herança como um personagem jogador.
+ */
+GRANBLUE.adversaryKinds = {
+    monstro: 'GRANBLUE.Adversary.kind.monstro',
+    antagonista: 'GRANBLUE.Adversary.kind.antagonista'
+};
+
+/* -------------------------------------------- */
+/*  Economia de ações (HUD)                     */
+/* -------------------------------------------- */
+
+/**
+ * Tipos de ação de um turno, na ordem do HUD. Os tipos com `consumes` são
+ * compostos: só estão disponíveis enquanto todas as ações que eles gastam
+ * estiverem livres, e usá-los gasta todas elas (a ação conjunta junta a
+ * normal e a rápida; a ação total ocupa o turno inteiro).
+ */
+GRANBLUE.actionTypes = {
+    movimento: { label: 'GRANBLUE.ActionType.movimento', icon: 'fa-solid fa-person-running' },
+    rapida: { label: 'GRANBLUE.ActionType.rapida', icon: 'fa-solid fa-bolt' },
+    normal: { label: 'GRANBLUE.ActionType.normal', icon: 'fa-solid fa-hand-fist' },
+    conjunta: { label: 'GRANBLUE.ActionType.conjunta', icon: 'fa-solid fa-link', consumes: ['normal', 'rapida'] },
+    total: { label: 'GRANBLUE.ActionType.total', icon: 'fa-solid fa-hourglass-half', consumes: ['movimento', 'normal', 'rapida'] },
+    reacao: { label: 'GRANBLUE.ActionType.reacao', icon: 'fa-solid fa-shield-halved' },
+    bonus: { label: 'GRANBLUE.ActionType.bonus', icon: 'fa-solid fa-star-half-stroke' }
+};
+
+/** As ações "simples" (sem `consumes`) — o que de fato é gasto no turno. */
+GRANBLUE.baseActionTypes = function baseActionTypes(type) {
+    const cfg = GRANBLUE.actionTypes[type];
+    if (!cfg) return [];
+    return cfg.consumes ?? [type];
+};
+
+/** Texto sem acento e em minúsculas, para comparar rótulos digitados à mão. */
+function plain(value) {
+    return String(value ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+}
+
+/**
+ * Tipo de ação a partir do campo Conjuração de uma magia ("Rápida", "Normal",
+ * "Total"…). Devolve '' quando o texto não é um tipo conhecido.
+ */
+GRANBLUE.actionTypeFromCasting = function actionTypeFromCasting(casting) {
+    const text = plain(casting).trim();
+    if (!text) return '';
+    if (text.includes('conjunta')) return 'conjunta';
+    if (text.includes('total')) return 'total';
+    if (text.includes('rapida')) return 'rapida';
+    if (text.includes('bonus')) return 'bonus';
+    if (text.includes('reacao')) return 'reacao';
+    if (text.includes('movimento')) return 'movimento';
+    if (text.includes('normal')) return 'normal';
+    return '';
+};
+
+/**
+ * Tipo de ação citado no texto de uma habilidade ("usando uma ação rápida",
+ * "como reação"…): vale a primeira menção. Devolve '' quando não há nenhuma.
+ */
+GRANBLUE.inferActionType = function inferActionType(text) {
+    const source = plain(text);
+    const patterns = [
+        ['conjunta', /acao conjunta/],
+        ['total', /acao total/],
+        ['rapida', /acao rapida/],
+        ['bonus', /acao bonus/],
+        ['normal', /acao normal/],
+        ['reacao', /(como|uma|sua) reacao/],
+        ['movimento', /acao de movimento/]
+    ];
+    let best = '';
+    let bestIndex = Infinity;
+    for (const [type, re] of patterns) {
+        const match = re.exec(source);
+        if (match && match.index < bestIndex) {
+            best = type;
+            bestIndex = match.index;
+        }
+    }
+    return best;
+};
+
+/* -------------------------------------------- */
+/*  Alcance, área e dano                        */
+/* -------------------------------------------- */
+
+/**
+ * Formas de área de um alcance complexo (a × b em metros: a = largura,
+ * b = comprimento). Viram Regiões do Foundry ao serem posicionadas no mapa.
+ */
+GRANBLUE.areaShapes = {
+    rect: 'GRANBLUE.Area.shape.rect',
+    circle: 'GRANBLUE.Area.shape.circle',
+    cone: 'GRANBLUE.Area.shape.cone'
+};
+
+/** Tipos de dano: cada um é reduzido pela RD correspondente do alvo. */
+GRANBLUE.damageTypes = {
+    fisico: 'GRANBLUE.Damage.fisico',
+    magico: 'GRANBLUE.Damage.magico'
+};
+
+/**
+ * Opções [{value,label}] dos seletores das linhas de ação/magia/habilidade:
+ * tipo de ação do HUD, forma da área e tipo de dano.
+ */
+GRANBLUE.rowSelectOptions = function rowSelectOptions() {
+    const options = (entries) => entries.map(([value, label]) => ({ value, label: game.i18n.localize(label) }));
+    return {
+        actionTypeOptions: options(Object.entries(GRANBLUE.actionTypes).map(([k, cfg]) => [k, cfg.label])),
+        areaShapeOptions: options(Object.entries(GRANBLUE.areaShapes)),
+        damageTypeOptions: options(Object.entries(GRANBLUE.damageTypes))
+    };
+};
+
 /* -------------------------------------------- */
 /*  Status Effects (Condições)                  */
 /* -------------------------------------------- */

@@ -106,21 +106,104 @@ export class GranblueActor extends Actor {
         });
     }
 
+    /**
+     * Mostra no chat o que uma habilidade de classe faz (aba Classe & Herança
+     * e HUD). Devolve a mensagem, ou null se a habilidade não existe.
+     */
+    async postClassAbility(index) {
+        const classItem = this.items.find((i) => i.type === 'class');
+        const ab = classItem?.system.abilities?.[index];
+        if (!ab) return null;
+        const kind = ab.type === 'ativa' ? 'Habilidade ativa' : 'Habilidade passiva';
+        return postDescriptionCard(this, {
+            title: ab.name,
+            subtitle: `${classItem.name} · ${kind}`,
+            icon: 'fa-solid fa-hand-fist',
+            text: ab.description
+        });
+    }
+
+    /**
+     * Mostra no chat um traço da herança: `trait` (traço compartilhado),
+     * `weakness` (debilidade) ou `progress` (o progresso de índice `index`).
+     */
+    async postHeritageFeature(feature, index = 0) {
+        const heritage = this.items.find((i) => i.type === 'heritage');
+        if (!heritage) return null;
+        if (feature === 'progress') {
+            const p = heritage.system.progress?.[index];
+            if (!p) return null;
+            return postDescriptionCard(this, {
+                title: p.name,
+                subtitle: [heritage.name, p.requirement].filter(Boolean).join(' · '),
+                icon: 'fa-solid fa-dna',
+                text: p.description
+            });
+        }
+        const isTrait = feature === 'trait';
+        const { TextEditor } = foundry.applications.ux;
+        const html = await TextEditor.implementation.enrichHTML(
+            isTrait ? heritage.system.sharedTrait : heritage.system.weakness,
+            { rollData: this.getRollData(), relativeTo: heritage }
+        );
+        return postDescriptionCard(this, {
+            title: isTrait ? 'Traço Compartilhado' : 'Debilidade',
+            subtitle: heritage.name,
+            icon: 'fa-solid fa-dna',
+            html
+        });
+    }
+
+    /** Mostra no chat um item do inventário (uso pelo HUD). */
+    async postInventoryItem(index) {
+        const item = this.system.inventory?.[index];
+        if (!item) return null;
+        const category = game.i18n.localize(GRANBLUE.itemCategories[item.category] ?? GRANBLUE.itemCategories.outros);
+        return postDescriptionCard(this, {
+            title: item.name,
+            subtitle: [category, item.quality ? game.i18n.localize(GRANBLUE.itemQualities[item.quality] ?? item.quality) : '']
+                .filter(Boolean).join(' · '),
+            icon: 'fa-solid fa-bag-shopping',
+            text: item.description
+        });
+    }
+
+    /**
+     * Mostra no chat uma das vantagens (`advantages`) ou desvantagens
+     * (`disadvantages`) do adversário, pela caixa `index`.
+     */
+    async postAdvantage(list, index) {
+        const text = String(this.system[list]?.[index] ?? '').trim();
+        if (!text) {
+            ui.notifications?.warn(game.i18n.localize('GRANBLUE.Adversary.emptyAdvantage'));
+            return null;
+        }
+        const isAdvantage = list === 'advantages';
+        return postDescriptionCard(this, {
+            title: game.i18n.localize(isAdvantage ? 'GRANBLUE.Adversary.advantage' : 'GRANBLUE.Adversary.disadvantage'),
+            subtitle: this.name,
+            icon: isAdvantage ? 'fa-solid fa-circle-plus' : 'fa-solid fa-circle-minus',
+            text
+        });
+    }
+
     /* ---------------------------------- */
     /*  Dano e cura                        */
     /* ---------------------------------- */
 
     /**
-     * Aplica dano na Energia Vital abatendo a Redução de Dano (RD).
-     * `ignoreRD` = dano verdadeiro. Devolve { raw, rd, taken }.
+     * Aplica dano na Energia Vital abatendo a Redução de Dano (RD) do tipo do
+     * dano: `type` "magico" usa a RD mágica, qualquer outro a física.
+     * `ignoreRD` = dano verdadeiro. Devolve { raw, rd, taken, type }.
      */
-    async applyDamage(amount, { ignoreRD = false } = {}) {
+    async applyDamage(amount, { ignoreRD = false, type = 'fisico' } = {}) {
         const raw = Math.max(0, Math.floor(Number(amount) || 0));
-        const rd = ignoreRD ? 0 : Math.max(0, Number(this.system.defenses?.rd) || 0);
+        const part = type === 'magico' ? 'magical' : 'physical';
+        const rd = ignoreRD ? 0 : Math.max(0, Number(this.system.defenses?.rd?.[part]?.total) || 0);
         const taken = Math.max(0, raw - rd);
         const hp = this.system.resources.hitPoints;
         if (taken) await this.update({ 'system.resources.hitPoints.value': hp.value - taken });
-        return { raw, rd, taken };
+        return { raw, rd, taken, type: part === 'magical' ? 'magico' : 'fisico' };
     }
 
     /** Cura a Energia Vital até o máximo (nunca reduz a vida atual). Devolve { healed }. */

@@ -25,10 +25,12 @@ export class GranblueClass extends foundry.abstract.TypeDataModel {
         schema.manaCondition = new fields.StringField({ required: true, initial: '', blank: true });
         schema.weapons = new fields.StringField({ required: true, initial: '', blank: true });
 
-        // Habilidades da classe
+        // Habilidades da classe. `actionType` é a ação gasta ao usá-la pelo HUD;
+        // vazio = o tipo citado na descrição (ver GRANBLUE.inferActionType).
         schema.abilities = new fields.ArrayField(new fields.SchemaField({
             name: new fields.StringField({ required: true, initial: 'Habilidade', blank: false }),
             type: new fields.StringField({ required: true, initial: 'passiva', choices: ['passiva', 'ativa'] }),
+            actionType: new fields.StringField({ required: true, initial: '', blank: true }),
             description: new fields.StringField({ required: true, initial: '', blank: true })
         }), { required: true, initial: [] });
 

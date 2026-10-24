@@ -28,9 +28,9 @@
             {{#if t.caLabel}}<span class="gb-target-ca" data-gb-owner-only>{{t.caLabel}}</span>{{/if}}
             {{#if t.result}}<span class="gb-target-res gb-target-res--{{t.result}}">{{t.resultLabel}}</span>{{/if}}
             {{#if t.canApply}}
-            <span class="gb-target-btns" data-gb-owner-only>
+            <span class="gb-target-btns">
                 {{#if @root.hasDamage}}
-                <button type="button" class="gb-target-btn gb-target-btn--dmg" data-gb-apply="damage" data-amount="{{@root.applyAmount}}" data-target="{{t.uuid}}" title="Aplicar {{@root.applyAmount}} de dano em {{t.name}} (a RD dele é abatida; Shift+clique = dano verdadeiro)"><i class="fa-solid fa-heart-crack"></i></button>
+                <button type="button" class="gb-target-btn gb-target-btn--dmg" data-gb-owner-only data-gb-apply="damage" data-amount="{{@root.applyAmount}}" data-damage-type="{{@root.damageType}}" data-target="{{t.uuid}}" title="Aplicar {{@root.applyAmount}} de dano {{@root.damageTypeLabel}} em {{t.name}} (a RD {{@root.damageTypeLabel}} dele é abatida; Shift+clique = dano verdadeiro)"><i class="fa-solid fa-heart-crack"></i></button>
                 {{/if}}
                 {{#if @root.statusEffect}}
                 <button type="button" class="gb-target-btn gb-target-btn--fx" data-gb-apply="effect" data-effect="{{@root.statusEffect.id}}" data-target="{{t.uuid}}" title="Aplicar {{@root.statusEffect.label}} em {{t.name}}"><img class="gb-apply-icn" src="{{@root.statusEffect.img}}" alt=""></button>
@@ -57,12 +57,14 @@
     {{/if}}
 
     <div class="gb-chat-apply">
-        <button type="button" class="gb-apply gb-apply--dmg" data-gb-apply="damage" data-amount="{{applyAmount}}" title="Aplicar dano nos tokens selecionados (sem seleção: nos alvos atingidos). A RD de cada um é abatida — Shift+clique aplica dano verdadeiro, ignorando a RD.">
-            <i class="fa-solid fa-heart-crack"></i> Dano {{applyAmount}}
+        {{#if hasRolls}}
+        <button type="button" class="gb-apply gb-apply--dmg" data-gb-apply="damage" data-amount="{{applyAmount}}" data-damage-type="{{damageType}}" title="Aplicar dano {{damageTypeLabel}} nos tokens selecionados (sem seleção: nos alvos atingidos). A RD {{damageTypeLabel}} de cada um é abatida — Shift+clique aplica dano verdadeiro, ignorando a RD.">
+            <i class="fa-solid fa-heart-crack"></i> Dano {{applyAmount}}{{#if hasDamage}} <small class="gb-dmg-type">{{damageTypeLabel}}</small>{{/if}}
         </button>
         <button type="button" class="gb-apply gb-apply--heal" data-gb-apply="heal" data-amount="{{applyAmount}}" title="Curar os tokens selecionados (sem seleção: os alvos da rolagem)">
             <i class="fa-solid fa-heart"></i> Cura {{applyAmount}}
         </button>
+        {{/if}}
         {{#if statusEffect}}
         <button type="button" class="gb-apply gb-apply--fx" data-gb-apply="effect" data-effect="{{statusEffect.id}}" title="Aplicar {{statusEffect.label}} nos tokens selecionados (sem seleção: nos alvos atingidos)">
             <img class="gb-apply-icn" src="{{statusEffect.img}}" alt=""> {{statusEffect.label}}

@@ -33,6 +33,12 @@
                 <option value="passiva" {{#if (eqStr ab.type "passiva")}}selected{{/if}}>Passiva</option>
                 <option value="ativa" {{#if (eqStr ab.type "ativa")}}selected{{/if}}>Ativa</option>
             </select>
+            <select name="system.abilities.{{idx}}.actionType" class="gb-ability-action" title="Ação gasta ao usar pelo HUD — automática = o tipo citado na descrição">
+                <option value="" {{#unless ab.actionType}}selected{{/unless}}>HUD: automático</option>
+                {{#each @root.actionTypeOptions as |o|}}
+                <option value="{{o.value}}" {{#if (eqStr o.value ab.actionType)}}selected{{/if}}>HUD: {{o.label}}</option>
+                {{/each}}
+            </select>
             <a class="gb-btn gb-btn--del" data-action="deleteRow" data-array="system.abilities" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
         </div>
         <textarea name="system.abilities.{{idx}}.description" placeholder="Descrição da habilidade">{{ab.description}}</textarea>

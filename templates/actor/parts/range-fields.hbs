@@ -1,0 +1,52 @@
+{{!--
+    Alcance (simples ou complexo), ação gasta no HUD e tipo de dano de uma
+    ação/magia — na linha da ficha e no item Magia.
+    Parâmetros: prefix (início do name, ex.: "system.actions.2." ou "system."),
+                row (dados), spell (true nas magias: padrões mágicos).
+    Alcance simples = só a distância (marcador narrativo); complexo = uma área
+    a × b posicionada no mapa (Regiões do Foundry) que marca os alvos.
+--}}
+<div class="gb-range{{#if (eqStr row.rangeType "complex")}} gb-range--complex{{/if}}">
+    <label class="gb-range-type"><span>Alcance</span>
+        <select name="{{prefix}}rangeType">
+            <option value="simple" {{#unless (eqStr row.rangeType "complex")}}selected{{/unless}}>Simples</option>
+            <option value="complex" {{#if (eqStr row.rangeType "complex")}}selected{{/if}}>Complexo (área)</option>
+        </select>
+    </label>
+    <label title="Distância em metros{{#if row.range}} — texto antigo: {{row.range}}{{/if}}"><span>Distância (m)</span>
+        <input type="number" name="{{prefix}}rangeMeters" value="{{row.rangeMeters}}" min="0" step="0.5" placeholder="{{#if row.range}}{{row.range}}{{else}}—{{/if}}">
+    </label>
+    {{#if (eqStr row.rangeType "complex")}}
+    <label><span>Forma</span>
+        <select name="{{prefix}}areaShape">
+            {{#each @root.areaShapeOptions as |o|}}
+            <option value="{{o.value}}" {{#if (eqStr o.value ../row.areaShape)}}selected{{/if}}>{{o.label}}</option>
+            {{/each}}
+        </select>
+    </label>
+    <label title="a = largura da área (no cone, a abertura no fim; no círculo, o diâmetro)"><span>Largura a (m)</span>
+        <input type="number" name="{{prefix}}areaWidth" value="{{row.areaWidth}}" min="0" step="0.5" placeholder="3">
+    </label>
+    <label title="b = comprimento da área (no cone, o alcance dele)"><span>Comprimento b (m)</span>
+        <input type="number" name="{{prefix}}areaLength" value="{{row.areaLength}}" min="0" step="0.5" placeholder="3">
+    </label>
+    {{/if}}
+</div>
+<div class="gb-action-economy">
+    <label title="Tipo de ação gasto ao usar pelo HUD"><span>Ação no HUD</span>
+        <select name="{{prefix}}actionType">
+            <option value="" {{#unless row.actionType}}selected{{/unless}}>Automática ({{#if spell}}pela conjuração{{else}}normal{{/if}})</option>
+            {{#each @root.actionTypeOptions as |o|}}
+            <option value="{{o.value}}" {{#if (eqStr o.value ../row.actionType)}}selected{{/if}}>{{o.label}}</option>
+            {{/each}}
+        </select>
+    </label>
+    <label title="Define qual RD do alvo é abatida do dano"><span>Tipo de dano</span>
+        <select name="{{prefix}}damageType">
+            <option value="" {{#unless row.damageType}}selected{{/unless}}>Automático ({{#if spell}}mágico{{else}}físico{{/if}})</option>
+            {{#each @root.damageTypeOptions as |o|}}
+            <option value="{{o.value}}" {{#if (eqStr o.value ../row.damageType)}}selected{{/if}}>{{o.label}}</option>
+            {{/each}}
+        </select>
+    </label>
+</div>

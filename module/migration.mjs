@@ -3,8 +3,11 @@
  *
  * Os data models já completam sozinhos, em memória, os campos que uma ficha
  * antiga não tem (RD, biografia do adversário, quantidade/qualidade do loot,
- * opções de passiva). Esta migração grava esses campos no banco do mundo uma
- * única vez, para que todas as fichas fiquem de fato no modelo novo.
+ * opções de passiva) e convertem os que mudaram de forma (a RD única virou
+ * física + mágica, a vantagem única virou três caixas, o alcance em texto
+ * virou metros — ver migrateData nos data models). Esta migração grava esses
+ * campos no banco do mundo uma única vez, para que todas as fichas fiquem de
+ * fato no modelo novo.
  *
  * Ela só ESCREVE os campos novos, sempre com o valor que a ficha já mostra —
  * nada existente é apagado ou alterado. Tokens não vinculados não são tocados:
@@ -12,7 +15,7 @@
  */
 
 /** Versão do modelo de dados. Aumente quando houver uma nova migração. */
-export const MIGRATION_VERSION = 2;
+export const MIGRATION_VERSION = 3;
 
 export function registerMigrationSettings() {
     game.settings.register('granblue', 'migrationVersion', {
@@ -39,13 +42,21 @@ export async function migrateIfNeeded() {
  */
 function actorUpdateData(actor) {
     const src = actor._source.system;
-    const update = { 'system.defenses.rd': src.defenses.rd };
+    const update = {
+        'system.defenses.rd': src.defenses.rd,
+        'system.movementBonus': src.movementBonus
+    };
     if (Array.isArray(src.actions)) update['system.actions'] = src.actions;
+    if (Array.isArray(src.spells)) update['system.spells'] = src.spells;
     if (actor.type === 'character') {
-        if (Array.isArray(src.spells)) update['system.spells'] = src.spells;
+        if (Array.isArray(src.inventory)) update['system.inventory'] = src.inventory;
     }
     if (actor.type === 'adversary') {
+        update['system.kind'] = src.kind;
         update['system.biography'] = src.biography;
+        update['system.spheres'] = src.spheres;
+        update['system.advantages'] = src.advantages;
+        update['system.disadvantages'] = src.disadvantages;
         if (Array.isArray(src.loot)) update['system.loot'] = src.loot;
     }
     return foundry.utils.deepClone(update);

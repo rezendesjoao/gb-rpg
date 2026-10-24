@@ -10,28 +10,7 @@
             <div class="gb-identity">
                 <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
                 <div class="gb-identity-grid">
-                    <label class="gb-field">
-                        <span>Classe</span>
-                        <select data-gb-chooser="class">
-                            <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
-                            {{#each classGroups as |grp|}}
-                            <optgroup label="{{grp.label}}">
-                                {{#each grp.options as |o|}}
-                                <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                                {{/each}}
-                            </optgroup>
-                            {{/each}}
-                        </select>
-                    </label>
-                    <label class="gb-field">
-                        <span>Herança</span>
-                        <select data-gb-chooser="heritage">
-                            <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
-                            {{#each heritageOptions as |o|}}
-                            <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
+                    {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
                     <label class="gb-field gb-field--sm">
                         <span>Rank</span>
                         <select name="system.rank">
@@ -51,11 +30,15 @@
                     <span class="gb-badge-label">CA</span>
                     <span class="gb-badge-value">{{ca}}</span>
                 </div>
-                <label class="gb-badge gb-badge--rd" title="Redução de Dano: abatida do dano aplicado pelo chat (Shift+clique no botão de dano = dano verdadeiro){{#if (ne rd rdSource)}} · com efeitos: {{rd}}{{/if}}">
-                    <span class="gb-badge-label">RD</span>
-                    <input class="gb-badge-input" type="number" name="system.defenses.rd" value="{{rdSource}}" min="0">
-                </label>
-                <label class="gb-field gb-field--sm"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
+                <div class="gb-badge gb-badge--rd" title="RD física (fixa + bônus + temporária): abatida do dano físico aplicado pelo chat. Detalhes na aba Atributos.">
+                    <span class="gb-badge-label">RD F</span>
+                    <span class="gb-badge-value">{{rd.physical.total}}</span>
+                </div>
+                <div class="gb-badge gb-badge--rdm" title="RD mágica (fixa + bônus + temporária): abatida do dano mágico aplicado pelo chat. Detalhes na aba Atributos.">
+                    <span class="gb-badge-label">RD M</span>
+                    <span class="gb-badge-value">{{rd.magical.total}}</span>
+                </div>
+                <label class="gb-field gb-field--sm" title="Deslocamento base em metros{{#if system.movementBonus}} — total com bônus: {{movementTotal}} m{{/if}}"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
                 <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
             </div>
         </header>
@@ -147,6 +130,7 @@
             <a class="gb-recalc" data-action="recalcMax" title="Sabedoria × 2"><i class="fa-solid fa-arrows-rotate"></i> Recalcular</a>
         </div>
     </div>
+    {{> "systems/granblue/templates/actor/parts/defense-row.hbs"}}
 </section>
 
 {{!-- ===================== AÇÕES ===================== --}}
@@ -168,57 +152,7 @@
 
 {{!-- ===================== MAGIA ===================== --}}
 <section class="gb-tab" data-tab-content="magia">
-    <h3 class="gb-section-title">Esferas de Magia</h3>
-    <p class="gb-hint">Pontos de esfera: <strong>{{spherePoints.spent}}</strong> / {{spherePoints.total}} (restam {{spherePoints.remaining}}).
-        Custo de desbloqueio entre parênteses. Crie a magia dentro da esfera dela — a rolagem fica aqui mesmo.</p>
-
-    {{#each spheres as |s|}}
-    <section class="gb-sphere-group{{#unless s.unlocked}} gb-sphere-group--locked{{/unless}}" data-sphere="{{s.key}}">
-        <header class="gb-sphere-head">
-            <h4 class="gb-sphere-title">{{s.label}} <em>({{s.custo}})</em></h4>
-            <label class="gb-sphere-pts" title="Pontos investidos nesta esfera">
-                <span>Pontos</span>
-                <input type="number" name="system.spheres.{{s.key}}" value="{{s.value}}" min="0">
-            </label>
-            <button type="button" class="gb-sphere-add" data-action="addSpell" data-sphere="{{s.key}}" title="Criar uma magia nesta esfera">
-                <i class="fa-solid fa-plus"></i> Nova magia
-            </button>
-        </header>
-
-        {{#each s.spells as |sp|}}
-        {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=sp index=sp.index list="spells" spell=true}}
-        {{else}}
-        <p class="gb-empty gb-empty--sm">Nenhuma magia nesta esfera.</p>
-        {{/each}}
-    </section>
-    {{/each}}
-
-    {{#if orphanSpells}}
-    <section class="gb-sphere-group gb-sphere-group--orphan">
-        <header class="gb-sphere-head">
-            <h4 class="gb-sphere-title">Sem esfera definida</h4>
-            <span class="gb-hint">Escolha a esfera de cada magia para movê-la para o grupo certo.</span>
-        </header>
-        {{#each orphanSpells as |sp|}}
-        <div class="gb-action gb-action--spell gb-action--orphan" data-list="spells" data-action-index="{{sp.index}}">
-            <div class="gb-action-head">
-                <span class="gb-orphan-warn" title="Esfera não reconhecida"><i class="fa-solid fa-triangle-exclamation"></i></span>
-                <input type="text" class="gb-action-name" name="system.spells.{{sp.index}}.name" value="{{sp.name}}">
-                <select class="gb-orphan-sphere" name="system.spells.{{sp.index}}.sphere">
-                    <option value="{{sp.sphere}}" selected>— esfera —</option>
-                    {{#each @root.sphereOptions as |o|}}
-                    <option value="{{o.value}}">{{o.label}}</option>
-                    {{/each}}
-                </select>
-                <span class="gb-action-btns">
-                    <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-list="spells" data-index="{{sp.index}}" title="Conjurar"><i class="fa-solid fa-dice-d20"></i></a>
-                    <a class="gb-btn gb-btn--del" data-action="deleteAction" data-list="spells" data-index="{{sp.index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-                </span>
-            </div>
-        </div>
-        {{/each}}
-    </section>
-    {{/if}}
+    {{> "systems/granblue/templates/actor/parts/magic-tab.hbs"}}
 
     <h3 class="gb-section-title">Progressos de Rank</h3>
     <div class="gb-progress">
@@ -293,6 +227,14 @@
                     </label>
                     <label><span>Peso</span><input type="text" name="system.inventory.{{it.index}}.weight" value="{{it.weight}}" placeholder="0"></label>
                     <label><span>Valor</span><input type="text" name="system.inventory.{{it.index}}.value" value="{{it.value}}" placeholder="rupias"></label>
+                    <label title="Ação gasta ao usar o item pelo HUD — sem ação, o item não aparece lá"><span>Ação no HUD</span>
+                        <select name="system.inventory.{{it.index}}.actionType">
+                            <option value="" {{#unless it.actionType}}selected{{/unless}}>—</option>
+                            {{#each @root.actionTypeOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.actionType)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
                 </div>
                 <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.inventory.{{it.index}}.description" value="{{it.description}}"></label>
             </div>
@@ -306,83 +248,7 @@
 
 {{!-- ===================== CLASSE & HERANÇA ===================== --}}
 <section class="gb-tab" data-tab-content="identidade">
-    <div class="gb-idcards">
-        <div class="gb-idcard gb-idcard--class">
-            <div class="gb-idcard-head">
-                <h3><i class="fa-solid fa-hand-fist"></i> Classe</h3>
-                {{#if classItem}}
-                <span class="gb-idcard-name">{{classItem.name}}</span>
-                <a class="gb-btn gb-btn--hit" data-action="openEmbedded" data-item-id="{{classItem.id}}" title="Abrir"><i class="fa-solid fa-up-right-from-square"></i></a>
-                <a class="gb-btn gb-btn--del" data-action="removeEmbedded" data-item-id="{{classItem.id}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-                {{else}}
-                <span class="gb-empty-inline">selecione no topo</span>
-                {{/if}}
-            </div>
-            {{#if classItem}}
-            <div class="gb-idcard-body">
-                <div class="gb-chips">
-                    <span class="gb-chip">Vida {{classItem.system.vidaBase}}</span>
-                    <span class="gb-chip">Dado {{classItem.system.vidaDado}}</span>
-                    <span class="gb-chip">Dano {{classItem.system.danoDado}}</span>
-                </div>
-                {{#if classItem.system.manaCondition}}<div class="gb-idcard-mana"><i class="fa-solid fa-droplet"></i> {{classItem.system.manaCondition}}</div>{{/if}}
-                {{#each classAbilities as |ab idx|}}
-                <div class="gb-mini-ability">
-                    <div class="gb-mini-head">
-                        <strong>{{ab.name}}</strong> <em>({{ab.type}})</em>
-                        <a class="gb-mini-chat" data-action="postFeature" data-feature="ability" data-index="{{idx}}" title="Mostrar no chat o que esta habilidade faz"><i class="fa-solid fa-comment"></i></a>
-                    </div>
-                    {{#if ab.description}}<p>{{ab.description}}</p>{{/if}}
-                </div>
-                {{/each}}
-            </div>
-            {{/if}}
-        </div>
-
-        <div class="gb-idcard gb-idcard--heritage">
-            <div class="gb-idcard-head">
-                <h3><i class="fa-solid fa-dna"></i> Herança</h3>
-                {{#if heritageItem}}
-                <span class="gb-idcard-name">{{heritageItem.name}}</span>
-                <a class="gb-btn gb-btn--hit" data-action="openEmbedded" data-item-id="{{heritageItem.id}}" title="Abrir"><i class="fa-solid fa-up-right-from-square"></i></a>
-                <a class="gb-btn gb-btn--del" data-action="removeEmbedded" data-item-id="{{heritageItem.id}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-                {{else}}
-                <span class="gb-empty-inline">selecione no topo</span>
-                {{/if}}
-            </div>
-            {{#if heritageItem}}
-            <div class="gb-idcard-body">
-                {{#if heritageItem.system.sharedTrait}}
-                <div class="gb-mini-ability">
-                    <div class="gb-mini-head">
-                        <strong>Traço Compartilhado</strong>
-                        <a class="gb-mini-chat" data-action="postFeature" data-feature="trait" title="Mostrar no chat o que este traço faz"><i class="fa-solid fa-comment"></i></a>
-                    </div>
-                    {{{heritageItem.system.sharedTrait}}}
-                </div>
-                {{/if}}
-                {{#if heritageItem.system.weakness}}
-                <div class="gb-mini-ability">
-                    <div class="gb-mini-head">
-                        <strong>Debilidade</strong>
-                        <a class="gb-mini-chat" data-action="postFeature" data-feature="weakness" title="Mostrar no chat o que esta debilidade faz"><i class="fa-solid fa-comment"></i></a>
-                    </div>
-                    {{{heritageItem.system.weakness}}}
-                </div>
-                {{/if}}
-                {{#each heritageProgress as |p idx|}}
-                <div class="gb-mini-ability">
-                    <div class="gb-mini-head">
-                        <strong>{{p.name}}</strong>{{#if p.requirement}} <em>({{p.requirement}})</em>{{/if}}
-                        <a class="gb-mini-chat" data-action="postFeature" data-feature="progress" data-index="{{idx}}" title="Mostrar no chat o que este progresso faz"><i class="fa-solid fa-comment"></i></a>
-                    </div>
-                    {{#if p.description}}<p>{{p.description}}</p>{{/if}}
-                </div>
-                {{/each}}
-            </div>
-            {{/if}}
-        </div>
-    </div>
+    {{> "systems/granblue/templates/actor/parts/identity-tab.hbs"}}
 </section>
 
 {{!-- ===================== BIOGRAFIA ===================== --}}

@@ -26,10 +26,31 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
   tesouros), com quantidade, Tier, Qualidade, peso, valor e marcação de *equipado* — lista pura,
   sem rolagens.
 - Ficha de **Adversário / NPC** com a mesma **arte em painel lateral** do personagem e as abas
-  Estatísticas (**vantagens & desvantagens**), Ataques, **Loot** e **Biografia** (os mesmos campos
-  da biografia do personagem, mais descrição e notas).
-- **RD (Redução de Dano)** ao lado da CA, no personagem e no adversário: o botão de dano do cartão de
-  chat abate a RD de cada token (Shift+clique = dano verdadeiro, ignora a RD).
+  Estatísticas, Ataques, **Magia** (as mesmas esferas do personagem), **Loot** e **Biografia** (os
+  mesmos campos da biografia do personagem, mais descrição e notas). O seletor **Ficha de** separa o
+  **monstro** do **personagem antagonista**, que ganha classe, herança e a aba Classe & Herança.
+  As Estatísticas mostram os **pontos de atributo** distribuídos/restantes (igual ao personagem) e
+  **três caixas de vantagem e três de desvantagem**, cada uma com botão de enviar ao chat.
+- **RD física e RD mágica**, cada uma com **fixa + bônus + temporária = total**, no personagem e no
+  adversário. O botão de dano do cartão de chat abate a RD do tipo do dano (magias = mágico, demais
+  ações = físico, ou o tipo escolhido na ação); Shift+clique = dano verdadeiro.
+- **Alcance simples ou complexo** em ações e magias: o simples é só a distância em metros; o
+  complexo é uma **área a × b** (paralelogramo, círculo ou cone, em metros). Ao rolar, depois do
+  diálogo de bônus, um pop-up oferece **posicionar a área no mapa** (Região do Foundry v14: roda do
+  mouse gira, clique confirma); os tokens dentro dela viram alvos e o acerto é conferido contra a CA
+  de cada um. Há também um botão na linha da ação para só posicionar a área. As 57 magias do
+  compêndio que descrevem uma área ("3x3", "linha de 1x6", "cone de 5 m") já vêm com ela preenchida.
+- **HUD de ações** acima da barra de macros, para o token controlado (o mestre troca clicando nos
+  tokens; o jogador só vê os seus, ou o próprio personagem): vida (− / +), mana (**+1** para a
+  condição de Mana da classe), CA, RD física e mágica e deslocamento com bônus ajustável, visão, e
+  os marcadores do turno — movimentação, ação rápida, normal, conjunta (normal + rápida), total
+  (o turno todo), reação e bônus. Clicar numa ação disponível lista as habilidades daquele tipo
+  (ações, magias, habilidades de classe e de herança, itens do inventário) com custo, alcance,
+  efeito, CD e dano; usar uma delas gasta a ação. A **estrela** na linha de uma ação marca o
+  **ataque básico**, rolado pelo HUD ao custo de uma ação normal. As ações voltam no começo do
+  turno do combatente (ou pelo botão de reiniciar). Pode ser desligado em *Configurações*.
+- **Efeitos aplicados por todos:** um jogador aplica um status effect até num monstro do mestre —
+  o pedido vai pelo socket e o mestre conectado aplica.
 - **Alvos x CA:** com um token marcado como alvo (tecla **T**), o cartão de ataque/magia confere o
   acerto contra a CA de cada alvo e mostra *Acertou/Errou* (a CA do monstro só o mestre vê) e botões
   de aplicar dano/efeito direto em cada alvo. Sem token selecionado, os botões do rodapé usam os

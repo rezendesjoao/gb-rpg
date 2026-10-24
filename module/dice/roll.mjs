@@ -1,5 +1,6 @@
 import { GRANBLUE } from '../config.mjs';
 import { describeStatusEffect } from '../effects.mjs';
+import { rangeLabel } from '../area.mjs';
 
 const CARD_TEMPLATE = 'systems/granblue/templates/chat/roll-card.hbs';
 
@@ -110,7 +111,10 @@ export async function rollActionFull(actor, action, mods = {}) {
         sections.push(makeSection(game.i18n.localize('GRANBLUE.Chat.damageRoll'), dmgRoll, 'damage'));
     }
 
-    if (!sections.length) {
+    // Sem fórmula nenhuma: uma magia de efeito (buff, Charged…) ainda publica o
+    // cartão com o efeito e o botão de aplicar; sem nada para mostrar, avisa.
+    const hasText = action.statusEffect || String(action.effect ?? '').trim() || String(action.description ?? '').trim();
+    if (!sections.length && !hasText) {
         ui.notifications?.warn(game.i18n.localize('GRANBLUE.Chat.noFormula'));
         return null;
     }
@@ -205,8 +209,18 @@ async function postActionCard(actor, action, { sections, hitTotal, rolls }) {
         hitTotal,
         meta: buildActionMeta(action),
         statusEffect: describeStatusEffect(action.statusEffect),
+        damageType: damageTypeOf(action),
         rolls
     });
+}
+
+/**
+ * Tipo do dano de uma ação/magia: o escolhido na linha; sem escolha, magias
+ * (que têm esfera) causam dano mágico e as demais ações, dano físico.
+ */
+export function damageTypeOf(action) {
+    if (GRANBLUE.damageTypes[action?.damageType]) return action.damageType;
+    return GRANBLUE.normalizeSphere(action?.sphere) ? 'magico' : 'fisico';
 }
 
 /** Linhas de metadados (custo/alcance/etc.) exibidas no cartão de uma ação. */
@@ -222,7 +236,8 @@ function buildActionMeta(action) {
     if (action.arcano) meta.push({ label: game.i18n.localize('GRANBLUE.Spell.arcano'), value: action.arcano });
     if (sphere && action.level) meta.push({ label: game.i18n.localize('GRANBLUE.Spell.level'), value: action.level });
     if (action.cost) meta.push({ label: game.i18n.localize('GRANBLUE.Action.cost'), value: action.cost });
-    if (action.range) meta.push({ label: game.i18n.localize('GRANBLUE.Action.range'), value: action.range });
+    const range = rangeLabel(action);
+    if (range) meta.push({ label: game.i18n.localize('GRANBLUE.Action.range'), value: range });
     if (action.casting) meta.push({ label: game.i18n.localize('GRANBLUE.Action.casting'), value: action.casting });
     if (action.difficulty) meta.push({ label: game.i18n.localize('GRANBLUE.Action.difficulty'), value: action.difficulty });
     return meta;
@@ -244,7 +259,7 @@ function describeTargets(targets) {
 /** Renderiza e publica o cartão de rolagem no chat. */
 async function postRollCard(actor, {
     title, sections, meta = null, statusEffect = null, rolls = [],
-    description = '', effectText = '', check = null, targets = [], hitTotal = null
+    description = '', effectText = '', check = null, targets = [], hitTotal = null, damageType = 'fisico'
 }) {
     // Valor sugerido para aplicar dano/cura: o total do dano, senão o da última seção.
     const damageSection = sections.find((s) => s.kind === 'damage');
@@ -259,6 +274,9 @@ async function postRollCard(actor, {
         check,
         targets: describeTargets(targets),
         hasDamage: !!damageSection,
+        hasRolls: sections.length > 0,
+        damageType,
+        damageTypeLabel: game.i18n.localize(GRANBLUE.damageTypes[damageType] ?? GRANBLUE.damageTypes.fisico),
         meta: meta?.length ? meta : null,
         applyAmount,
         statusEffect

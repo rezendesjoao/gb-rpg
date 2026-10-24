@@ -5,8 +5,8 @@ const { ItemSheetV2 } = foundry.applications.sheets;
 
 /** Modelos de linha padrão para cada lista editável. */
 const ROW_DEFAULTS = {
-    abilities: { name: 'Habilidade', type: 'passiva', description: '' },
-    progress: { name: 'Progresso', requirement: '', description: '' }
+    abilities: { name: 'Habilidade', type: 'passiva', actionType: '', description: '' },
+    progress: { name: 'Progresso', requirement: '', actionType: '', description: '' }
 };
 
 /**
@@ -31,7 +31,9 @@ export class GranblueItemSheetBase extends HandlebarsApplicationMixin(ItemSheetV
             item: this.document,
             system: this.document.system,
             config: GRANBLUE,
-            editable: this.isEditable
+            editable: this.isEditable,
+            // Seletores de "Ação no HUD", forma da área e tipo de dano
+            ...GRANBLUE.rowSelectOptions()
         });
         return context;
     }
