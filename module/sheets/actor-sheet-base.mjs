@@ -5,6 +5,7 @@ import { sendLootDialog } from '../loot.mjs';
 import { useAction, useActionPart } from '../use-action.mjs';
 import { placeArea } from '../area.mjs';
 import { GranblueItem } from '../documents/item.mjs';
+import { movementLabel } from '../data/base-actor.mjs';
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -22,7 +23,8 @@ export const SHEET_PARTIALS = [
     'systems/granblue/templates/actor/parts/defense-row.hbs',
     'systems/granblue/templates/actor/parts/magic-tab.hbs',
     'systems/granblue/templates/actor/parts/identity-tab.hbs',
-    'systems/granblue/templates/actor/parts/class-heritage-select.hbs'
+    'systems/granblue/templates/actor/parts/class-heritage-select.hbs',
+    'systems/granblue/templates/actor/parts/header-stats.hbs'
 ];
 
 /** Monta os grupos de classe (optgroups) marcando a classe atual. */
@@ -174,6 +176,7 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             // inclui Active Effects
             rd: GranblueActorSheetBase.#rdContext(sys, src),
             movementTotal: sys.movementTotal,
+            movementLabel: movementLabel(sys),
             isGM: game.user.isGM,
             classItem,
             heritageItem,

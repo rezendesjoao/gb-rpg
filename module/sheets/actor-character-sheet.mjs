@@ -9,7 +9,7 @@ import { GRANBLUE } from '../config.mjs';
 export class GranblueCharacterSheet extends GranblueActorSheetBase {
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'actor', 'character'],
-        position: { width: 980, height: 840 }
+        position: { width: 840, height: 840 }
     };
 
     static DEFAULT_TAB = 'atributos';

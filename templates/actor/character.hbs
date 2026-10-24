@@ -6,41 +6,27 @@
         <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
     </figure>
     <div class="gb-top-main">
-        <header class="gb-header">
-            <div class="gb-identity">
-                <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
-                <div class="gb-identity-grid">
-                    {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
-                    <label class="gb-field gb-field--sm">
-                        <span>Rank</span>
-                        <select name="system.rank">
-                            {{#each rankOptions as |o|}}
-                            <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
-                    <label class="gb-field gb-field--sm">
-                        <span>Nível</span>
-                        <input type="number" name="system.level" value="{{system.level}}" min="0">
-                    </label>
-                </div>
+        {{!-- Cabeçalho encadeado: nome, escolhas (classe, herança, rank, nível) e números --}}
+        <header class="gb-header gb-hd">
+            <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
+            <div class="gb-hd-chain">
+                {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
+                <label class="gb-pick" title="Rank de Guerreiro Mágico">
+                    <span class="gb-pick-label">Rank</span>
+                    <span class="gb-pick-value">{{rankLabel}}</span>
+                    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
+                    <select name="system.rank">
+                        {{#each rankOptions as |o|}}
+                        <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+                <label class="gb-pick gb-pick--input" title="Nível">
+                    <span class="gb-pick-label">Nv</span>
+                    <input type="number" name="system.level" value="{{system.level}}" min="0">
+                </label>
             </div>
-            <div class="gb-header-stats">
-                <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus">
-                    <span class="gb-badge-label">CA</span>
-                    <span class="gb-badge-value">{{ca}}</span>
-                </div>
-                <div class="gb-badge gb-badge--rd" title="RD física (fixa + bônus + temporária): abatida do dano físico aplicado pelo chat. Detalhes na aba Atributos.">
-                    <span class="gb-badge-label">RD F</span>
-                    <span class="gb-badge-value">{{rd.physical.total}}</span>
-                </div>
-                <div class="gb-badge gb-badge--rdm" title="RD mágica (fixa + bônus + temporária): abatida do dano mágico aplicado pelo chat. Detalhes na aba Atributos.">
-                    <span class="gb-badge-label">RD M</span>
-                    <span class="gb-badge-value">{{rd.magical.total}}</span>
-                </div>
-                <label class="gb-field gb-field--sm" title="Deslocamento base em metros{{#if system.movementBonus}} — total com bônus: {{movementTotal}} m{{/if}}"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
-                <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
-            </div>
+            {{> "systems/granblue/templates/actor/parts/header-stats.hbs"}}
         </header>
 
         {{!-- Barra de vitais sempre visível --}}

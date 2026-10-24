@@ -6,46 +6,50 @@
         <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
     </figure>
     <div class="gb-top-main">
-        <header class="gb-header gb-header--adv">
-            <div class="gb-identity">
+        {{!-- Cabeçalho encadeado: nome + modelo da ficha, escolhas e números --}}
+        <header class="gb-header gb-hd">
+            <div class="gb-hd-title">
                 <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do adversário">
-                <div class="gb-identity-grid">
-                    <label class="gb-field" title="Monstro (tipagem e loot) ou personagem antagonista (também com classe e herança)">
-                        <span>Ficha de</span>
-                        <select name="system.kind">
-                            {{#each kindOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
-                        </select>
+                {{!-- Modelo da ficha: o ícone escolhido fica aceso em dourado --}}
+                <div class="gb-kind-toggle" role="radiogroup" aria-label="Modelo da ficha">
+                    {{#each kindOptions as |o|}}
+                    <label class="gb-kind-opt{{#if o.selected}} is-active{{/if}}" title="{{o.label}}">
+                        <input type="radio" name="system.kind" value="{{o.value}}" {{#if o.selected}}checked{{/if}} aria-label="{{o.label}}">
+                        <i class="fa-solid {{o.icon}}"></i>
                     </label>
-                    {{#if isAntagonist}}
-                    {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
-                    {{/if}}
-                    <label class="gb-field">
-                        <span>Dificuldade</span>
-                        <select name="system.difficulty">
-                            {{#each difficultyOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
-                        </select>
-                    </label>
-                    <label class="gb-field">
-                        <span>Tipagem</span>
-                        <select name="system.creatureType">
-                            {{#each typeOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
-                        </select>
-                    </label>
-                    <label class="gb-field gb-field--sm"><span>Rank</span><input type="text" name="system.rank" value="{{system.rank}}"></label>
-                    <label class="gb-field gb-field--sm"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="0"></label>
+                    {{/each}}
                 </div>
             </div>
-            <div class="gb-header-stats">
-                <div class="gb-badge gb-badge--ca" title="10 + Reação + bônus"><span class="gb-badge-label">CA</span><span class="gb-badge-value">{{ca}}</span></div>
-                <div class="gb-badge gb-badge--rd" title="RD física (fixa + bônus + temporária): abatida do dano físico aplicado pelo chat">
-                    <span class="gb-badge-label">RD F</span><span class="gb-badge-value">{{rd.physical.total}}</span>
-                </div>
-                <div class="gb-badge gb-badge--rdm" title="RD mágica (fixa + bônus + temporária): abatida do dano mágico aplicado pelo chat">
-                    <span class="gb-badge-label">RD M</span><span class="gb-badge-value">{{rd.magical.total}}</span>
-                </div>
-                <label class="gb-field gb-field--sm" title="Deslocamento base em metros{{#if system.movementBonus}} — total com bônus: {{movementTotal}} m{{/if}}"><span>Mov</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
-                <label class="gb-field gb-field--sm"><span>Visão</span><input type="text" name="system.vision" value="{{system.vision}}"></label>
+            <div class="gb-hd-chain">
+                {{#if isAntagonist}}
+                {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
+                {{/if}}
+                <label class="gb-pick" title="Dificuldade do encontro">
+                    <i class="gb-pick-icon fa-solid fa-skull"></i>
+                    <span class="gb-pick-value">{{difficultyLabel}}</span>
+                    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
+                    <select name="system.difficulty">
+                        {{#each difficultyOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+                    </select>
+                </label>
+                <label class="gb-pick" title="Tipagem">
+                    <i class="gb-pick-icon fa-solid fa-crown"></i>
+                    <span class="gb-pick-value">{{typeLabel}}</span>
+                    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
+                    <select name="system.creatureType">
+                        {{#each typeOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+                    </select>
+                </label>
+                <label class="gb-pick gb-pick--input" title="Rank">
+                    <span class="gb-pick-label">Rank</span>
+                    <input type="text" name="system.rank" value="{{system.rank}}" placeholder="—">
+                </label>
+                <label class="gb-pick gb-pick--input" title="Nível">
+                    <span class="gb-pick-label">Nv</span>
+                    <input type="number" name="system.level" value="{{system.level}}" min="0">
+                </label>
             </div>
+            {{> "systems/granblue/templates/actor/parts/header-stats.hbs"}}
         </header>
 
         {{!-- Barra de vitais sempre visível --}}

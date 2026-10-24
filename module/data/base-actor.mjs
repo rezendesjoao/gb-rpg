@@ -198,6 +198,33 @@ export function parseMeters(value) {
 }
 
 /**
+ * Desfaz o deslocamento duplicado por um bug antigo da ficha: o campo aparecia
+ * duas vezes no formulário e cada edição juntava os dois valores com vírgula
+ * ("4" → "4,4" → "4,4,4,4"). Quando o texto é um mesmo pedaço repetido, volta
+ * a um só ("4,5,4,5" → "4,5"); qualquer outro texto fica como está.
+ */
+export function collapseRepeated(value) {
+    const text = String(value ?? '');
+    const parts = text.split(',');
+    for (let size = 1; size <= parts.length / 2; size++) {
+        if (parts.length % size) continue;
+        const unit = parts.slice(0, size).join(',');
+        let repeated = true;
+        for (let i = size; i < parts.length && repeated; i += size) {
+            repeated = parts.slice(i, i + size).join(',') === unit;
+        }
+        if (repeated) return unit.trim();
+    }
+    return text;
+}
+
+/** Texto do deslocamento total para exibir ("4 m", "4,5 m"); o texto livre quando não há número. */
+export function movementLabel(system) {
+    if (system.movementTotal == null) return String(system.movement ?? '').trim() || '—';
+    return `${system.movementTotal.toLocaleString(game.i18n.lang)} m`;
+}
+
+/**
  * Completa uma linha de ação/magia antiga: o alcance em texto ("4") vira a
  * distância em metros do alcance simples. Só age quando o campo novo não
  * existe — um alcance apagado de propósito continua apagado.

@@ -12,10 +12,16 @@
  * Ela só ESCREVE os campos novos, sempre com o valor que a ficha já mostra —
  * nada existente é apagado ou alterado. Tokens não vinculados não são tocados:
  * herdam do ator base e recebem os padrões em memória.
+ *
+ * Versão 4: conserta o deslocamento duplicado ("4,4,4,4" → "4") pelo bug do
+ * campo repetido na ficha — nos atores e também nos tokens não vinculados,
+ * que podiam ter o próprio valor corrompido.
  */
 
+import { collapseRepeated } from './data/base-actor.mjs';
+
 /** Versão do modelo de dados. Aumente quando houver uma nova migração. */
-export const MIGRATION_VERSION = 3;
+export const MIGRATION_VERSION = 4;
 
 export function registerMigrationSettings() {
     game.settings.register('granblue', 'migrationVersion', {
@@ -44,6 +50,7 @@ function actorUpdateData(actor) {
     const src = actor._source.system;
     const update = {
         'system.defenses.rd': src.defenses.rd,
+        'system.movement': collapseRepeated(src.movement),
         'system.movementBonus': src.movementBonus
     };
     if (Array.isArray(src.actions)) update['system.actions'] = src.actions;
@@ -78,6 +85,28 @@ async function migrateActors(actors) {
     return count;
 }
 
+/**
+ * Tokens não vinculados guardam só o que difere do ator base: conserta o
+ * deslocamento duplicado quando o próprio token o sobrescreve.
+ */
+async function repairTokenMovement() {
+    let count = 0;
+    for (const scene of game.scenes) {
+        for (const token of scene.tokens) {
+            if (token.actorLink || !token.actor) continue;
+            const movement = token.delta?._source?.system?.movement;
+            if (typeof movement !== 'string' || collapseRepeated(movement) === movement) continue;
+            try {
+                await token.actor.update({ 'system.movement': collapseRepeated(movement) }, { render: false });
+                count++;
+            } catch (err) {
+                console.error(`Granblue | Falha ao consertar o deslocamento do token ${token.name} (${token.uuid}):`, err);
+            }
+        }
+    }
+    return count;
+}
+
 /** Migra os atores do mundo e os compêndios de atores do próprio mundo. */
 export async function migrateWorld() {
     ui.notifications?.info(game.i18n.localize('GRANBLUE.Migration.start'), { permanent: false });
@@ -99,6 +128,7 @@ export async function migrateWorld() {
         }
     }
 
-    console.log(`Granblue | Migração ${MIGRATION_VERSION}: ${total} ficha(s) atualizada(s).`);
+    const tokens = await repairTokenMovement();
+    console.log(`Granblue | Migração ${MIGRATION_VERSION}: ${total} ficha(s) atualizada(s), deslocamento consertado em ${tokens} token(s).`);
     ui.notifications?.info(game.i18n.format('GRANBLUE.Migration.done', { total, adversaries }), { permanent: true });
 }

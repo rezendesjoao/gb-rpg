@@ -27,8 +27,9 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
   sem rolagens.
 - Ficha de **Adversário / NPC** com a mesma **arte em painel lateral** do personagem e as abas
   Estatísticas, Ataques, **Magia** (as mesmas esferas do personagem), **Loot** e **Biografia** (os
-  mesmos campos da biografia do personagem, mais descrição e notas). O seletor **Ficha de** separa o
-  **monstro** do **personagem antagonista**, que ganha classe, herança e a aba Classe & Herança.
+  mesmos campos da biografia do personagem, mais descrição e notas). Dois ícones no cabeçalho (o escolhido
+  fica aceso em dourado) separam o **monstro** do **personagem antagonista**, que ganha classe, herança
+  e a aba Classe & Herança.
   As Estatísticas mostram os **pontos de atributo** distribuídos/restantes (igual ao personagem) e
   **três caixas de vantagem e três de desvantagem**, cada uma com botão de enviar ao chat.
 - **RD física e RD mágica**, cada uma com **fixa + bônus + temporária = total**, no personagem e no

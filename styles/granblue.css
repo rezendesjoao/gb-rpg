@@ -172,22 +172,164 @@
 .gb-field > span { color: var(--gb-gold-light); text-transform: uppercase; letter-spacing: 0.03em; }
 .gb-field select, .gb-field input { font-size: 0.85rem; }
 
-.gb-header-stats { display: flex; align-items: center; gap: 8px; }
-.gb-badge {
+/* ---- Cabeçalho encadeado das fichas de ator ----
+   Nome; depois as escolhas (classe, herança, rank, nível…) como texto corrido,
+   cada uma com o seletor invisível por cima; e os números em chips. Tudo quebra
+   linha sozinho, então o cabeçalho não exige uma ficha larga. */
+.gb-top .gb-hd {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 7px;
+    padding: 10px 12px;
+}
+.gb-hd-title { display: flex; align-items: center; gap: 8px; }
+.gb-hd-title .gb-name { flex: 1 1 auto; min-width: 0; }
+
+.gb-hd-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; }
+.gb-pick {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 2px 7px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+/* Divisor discreto entre as escolhas */
+.gb-pick + .gb-pick::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 22%;
+    bottom: 22%;
+    width: 1px;
+    background: #ffffff33;
+}
+.gb-pick:hover { background: #ffffff1a; }
+/* Contorno só na navegação por teclado (o Foundry devolve o foco ao re-renderizar) */
+.gb-pick:has(:focus-visible) { box-shadow: inset 0 0 0 1px var(--gb-gold-light); }
+.gb-pick-icon { font-size: 0.72rem; color: var(--gb-gold-light); }
+.gb-pick-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gb-gold-light);
+}
+.gb-pick-value { font-size: 0.95rem; font-weight: 700; color: #fff; white-space: nowrap; }
+.gb-pick-value--empty { font-weight: 400; font-style: italic; color: #ffffff80; }
+.gb-pick-caret { font-size: 0.6rem; color: #ffffff66; transition: color 0.12s; }
+.gb-pick:hover .gb-pick-caret { color: var(--gb-gold-light); }
+/* O seletor nativo cobre a escolha inteira, invisível: o clique abre a lista */
+.granblue .gb-pick select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.gb-pick--input { cursor: text; }
+.granblue .gb-pick--input input {
+    width: 3.2em;
+    min-width: 2ch;
+    max-width: 7em;
+    height: auto;
+    padding: 0 2px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: left;
+    color: #fff;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed #ffffff40;
+    border-radius: 0;
+    box-shadow: none;
+    appearance: textfield;
+}
+.granblue .gb-pick--input input::-webkit-inner-spin-button,
+.granblue .gb-pick--input input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.granblue .gb-pick--input input:focus { border-bottom-color: var(--gb-gold-light); box-shadow: none; }
+.gb-pick--input input::placeholder { color: #ffffff66; }
+
+/* Números do cabeçalho em chips */
+.gb-hd-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.gb-stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 2px 9px;
+    border: 1px solid #c9a44c80;
+    border-radius: 6px;
+    background: #00000038;
+    line-height: 1.25;
+}
+.gb-stat-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gb-gold-light);
+}
+.gb-stat-value { font-size: 1.05rem; font-weight: 800; color: #fff; white-space: nowrap; }
+.gb-stat--ca { border-color: var(--gb-gold); background: #c9a44c2e; }
+.gb-stat--rdm { border-color: #8f7bd0aa; }
+.gb-stat--input { cursor: text; }
+.granblue .gb-stat--input input {
+    width: 3em;
+    min-width: 2ch;
+    max-width: 9em;
+    height: auto;
+    padding: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #fff;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+.granblue .gb-stat--input input:focus { border-bottom: 1px dashed var(--gb-gold-light); border-radius: 0; box-shadow: none; }
+.gb-stat--input input::placeholder { color: #ffffff66; }
+/* Onde o navegador suporta, os campos inline crescem só o tamanho do texto */
+@supports (field-sizing: content) {
+    .granblue .gb-pick--input input,
+    .granblue .gb-stat--input input { width: auto; field-sizing: content; }
+}
+
+/* Modelo da ficha do adversário: dois ícones, o escolhido aceso em dourado */
+.gb-kind-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 1px;
+    padding: 2px;
+    border-radius: 6px;
+    background: #00000030;
+}
+.gb-kind-opt {
+    position: relative;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 54px;
-    padding: 4px 8px;
-    background: #0004;
-    border: 2px solid var(--gb-gold);
-    border-radius: 6px;
+    width: 24px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    color: #ffffff47;
+    cursor: pointer;
+    transition: color 0.15s, text-shadow 0.15s;
 }
-.gb-badge-label { font-size: 0.65rem; color: var(--gb-gold-light); letter-spacing: 0.05em; }
-.gb-badge-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
-.gb-header-stats .gb-field > span { color: var(--gb-gold-light); }
-.gb-header-stats .gb-field input { width: 64px; }
+.gb-kind-opt input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.gb-kind-opt:hover { color: #ffffffa6; }
+.gb-kind-opt.is-active,
+.gb-kind-opt:has(input:checked) { color: var(--gb-gold-light); text-shadow: 0 0 6px #e6c97699; }
+.gb-kind-opt:has(input:focus-visible) { box-shadow: inset 0 0 0 1px var(--gb-gold-light); }
 
 /* ---- Abas ---- */
 .gb-tabs {
@@ -258,8 +400,9 @@
     color: #fff;
     text-shadow: 0 1px 2px #000b;
 }
-.gb-vital-name { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.02em; }
-.gb-vital-nums { display: flex; align-items: center; gap: 4px; font-weight: 800; font-size: 1rem; }
+/* Em ficha estreita o rótulo encurta com reticências, sem quebrar a barra em duas linhas */
+.gb-vital-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.02em; }
+.gb-vital-nums { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; font-weight: 800; font-size: 1rem; }
 .gb-vital-nums input {
     width: 46px;
     background: rgba(255, 255, 255, 0.16) !important;
@@ -856,25 +999,6 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
     font-weight: 600;
 }
 
-/* =========================================================
-   RD (Redução de Dano) ao lado da CA no cabeçalho
-   ========================================================= */
-.gb-badge--rd { cursor: text; }
-.gb-badge-input {
-    width: 46px;
-    height: auto;
-    padding: 0;
-    font-size: 1.5rem;
-    font-weight: 800;
-    line-height: 1;
-    text-align: center;
-    color: #fff !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-.gb-badge-input:focus { background: rgba(255, 255, 255, 0.12) !important; border-radius: 4px; }
-
 /* Barra de botões das listas (ataque/passiva, espólio/enviar loot) */
 .gb-actions-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
 
@@ -1165,7 +1289,6 @@ input:not([type="checkbox"]), select, textarea { transition: border-color 0.12s,
 /* =========================================================
    RD física / mágica + deslocamento (aba Atributos / Estatísticas)
    ========================================================= */
-.gb-badge--rdm { border-color: #8f7bd0; }
 .gb-defense-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
 .gb-res-block--rd-physical { border-top: 3px solid #6b6350; }
 .gb-res-block--rd-magical { border-top: 3px solid var(--gb-fx); }

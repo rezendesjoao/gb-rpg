@@ -3,13 +3,14 @@ import { GRANBLUE } from '../config.mjs';
 import { qualityRangeLabel } from '../loot.mjs';
 
 /**
- * Ficha de Adversário / NPC. O seletor "Ficha de" diferencia o monstro do
- * personagem antagonista, que ganha classe, herança e a aba Classe & Herança.
+ * Ficha de Adversário / NPC. Os ícones de modelo no cabeçalho diferenciam o
+ * monstro do personagem antagonista, que ganha classe, herança e a aba
+ * Classe & Herança.
  */
 export class GranblueAdversarySheet extends GranblueActorSheetBase {
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'actor', 'adversary'],
-        position: { width: 960, height: 840 }
+        position: { width: 840, height: 840 }
     };
 
     static PARTS = {
@@ -25,13 +26,16 @@ export class GranblueAdversarySheet extends GranblueActorSheetBase {
         const sys = this.document.system;
 
         context.isAntagonist = sys.kind === 'antagonista';
-        context.kindOptions = this.constructor.buildOptions(GRANBLUE.adversaryKinds, sys.kind, { localize: true });
+        // Modelo da ficha: dois ícones no cabeçalho, o escolhido aceso
+        context.kindOptions = this.constructor.buildOptions(GRANBLUE.adversaryKinds, sys.kind, { localize: true })
+            .map((o) => ({ ...o, icon: GRANBLUE.adversaryKindIcons[o.value] }));
         context.difficultyOptions = this.constructor.buildOptions(
             GRANBLUE.adversaryDifficulties, sys.difficulty, { localize: true }
         );
         context.typeOptions = this.constructor.buildOptions(
             GRANBLUE.adversaryTypes, sys.creatureType, { localize: true }
         );
+        context.typeLabel = game.i18n.localize(GRANBLUE.adversaryTypes[sys.creatureType] ?? '');
 
         // Três caixas de vantagem e de desvantagem, cada uma com botão de chat
         const boxes = (list) => sys[list].map((text, index) => ({ index, text, list }));

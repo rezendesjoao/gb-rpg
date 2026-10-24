@@ -1,6 +1,11 @@
-{{!-- Seletores de Classe e Herança do cabeçalho (personagem e antagonista) --}}
-<label class="gb-field">
-    <span>Classe</span>
+{{!--
+    Classe e Herança no cabeçalho (personagem e antagonista). Mostra só o nome
+    escolhido; o seletor fica invisível por cima e abre ao clicar.
+--}}
+<label class="gb-pick" title="Classe">
+    <i class="gb-pick-icon fa-solid fa-hand-fist"></i>
+    <span class="gb-pick-value{{#unless classLabel}} gb-pick-value--empty{{/unless}}">{{#if classLabel}}{{classLabel}}{{else}}Classe{{/if}}</span>
+    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
     <select data-gb-chooser="class">
         <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
         {{#each classGroups as |grp|}}
@@ -12,8 +17,10 @@
         {{/each}}
     </select>
 </label>
-<label class="gb-field">
-    <span>Herança</span>
+<label class="gb-pick" title="Herança">
+    <i class="gb-pick-icon fa-solid fa-dna"></i>
+    <span class="gb-pick-value{{#unless heritageLabel}} gb-pick-value--empty{{/unless}}">{{#if heritageLabel}}{{heritageLabel}}{{else}}Herança{{/if}}</span>
+    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
     <select data-gb-chooser="heritage">
         <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
         {{#each heritageOptions as |o|}}

@@ -222,6 +222,12 @@ GRANBLUE.adversaryKinds = {
     antagonista: 'GRANBLUE.Adversary.kind.antagonista'
 };
 
+/** Ícone de cada modelo no seletor do cabeçalho (o escolhido fica aceso em dourado). */
+GRANBLUE.adversaryKindIcons = {
+    monstro: 'fa-dragon',
+    antagonista: 'fa-user-ninja'
+};
+
 /* -------------------------------------------- */
 /*  Economia de ações (HUD)                     */
 /* -------------------------------------------- */

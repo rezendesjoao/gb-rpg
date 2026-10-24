@@ -18,7 +18,7 @@
     {{/each}}
     <div class="gb-res-block gb-res-block--move">
         <h4><i class="fa-solid fa-person-running"></i> Deslocamento
-            <span class="gb-rd-total" title="Base + bônus">{{#if (eqStr movementTotal "null")}}—{{else}}{{movementTotal}} m{{/if}}</span>
+            <span class="gb-rd-total" title="Base + bônus">{{movementLabel}}</span>
         </h4>
         <div class="gb-rd-parts gb-rd-parts--2">
             <label><span>Base (m)</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
