@@ -2,7 +2,7 @@
     Cartão de rolagem no chat (testes de atributo, dado de vida, ações e magias).
     A magia leva o selo procedural e a cor da esfera; a ação, o emblema do tipo.
 --}}
-<div class="granblue gb-card gb-card--{{kind}}"{{#if sphere}} data-sphere="{{sphere}}"{{/if}} data-tooltip-class="gb-tooltip">
+<div class="granblue themed theme-light gb-card gb-card--{{kind}}"{{#if sphere}} data-sphere="{{sphere}}"{{/if}} data-tooltip-class="gb-tooltip">
     <header class="gb-card-head">
         {{#if sigil}}
         <span class="gb-sigil gb-sigil--live gb-card-sigil" data-gb-sigil="1" data-sphere="{{sphere}}" data-sigil-name="{{sigil.name}}" data-sigil-arcano="{{sigil.arcano}}" data-sigil-level="{{sigil.level}}"></span>

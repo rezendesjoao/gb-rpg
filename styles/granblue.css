@@ -1,73 +1,99 @@
 /* =========================================================
    Granblue — Códice Celeste
-   Tokens, tipografia e componentes compartilhados por fichas,
-   chat, HUD e diálogos. Cada parte tem o seu arquivo:
-   sheet.css, items.css, chat.css, hud.css e dialogs.css.
+   O céu de Granblue: azul celeste, branco de nuvem, verde de
+   relva e o dourado do sol. Tokens, tipografia e componentes
+   compartilhados por fichas, chat, HUD e diálogos; cada parte
+   tem o seu arquivo: sheet.css, items.css, chat.css, hud.css e
+   dialogs.css.
    ========================================================= */
 
 .granblue {
-    /* Céu noturno */
-    --gb-abyss: #050912;
-    --gb-night: #0a1121;
-    --gb-deep: #0f1830;
-    --gb-dusk: #17233f;
-    --gb-surface: rgba(255, 255, 255, 0.035);
-    --gb-surface-2: rgba(255, 255, 255, 0.06);
-    --gb-surface-3: rgba(255, 255, 255, 0.1);
-    --gb-well: rgba(2, 6, 15, 0.55);
+    /* Céu */
+    --gb-sky-0: #f6fbff;
+    --gb-sky-1: #e8f4ff;
+    --gb-sky-2: #d3eaff;
+    --gb-sky-3: #a8d6ff;
+    --gb-sky-4: #6cb9f8;
+
+    /* Superfícies (nuvens) */
+    --gb-card: rgba(255, 255, 255, 0.92);
+    --gb-card-solid: #ffffff;
+    --gb-surface: rgba(255, 255, 255, 0.74);
+    --gb-surface-2: rgba(236, 246, 255, 0.92);
+    --gb-surface-3: rgba(214, 236, 255, 0.95);
+    --gb-tint: rgba(47, 142, 230, 0.06);
+    --gb-tint-2: rgba(47, 142, 230, 0.12);
+    --gb-well: #ffffff;
+    --gb-void: #ffffff;
 
     /* Linhas */
-    --gb-line: rgba(226, 192, 110, 0.22);
-    --gb-line-strong: rgba(226, 192, 110, 0.5);
-    --gb-hair: rgba(255, 255, 255, 0.07);
-    --gb-hair-2: rgba(255, 255, 255, 0.13);
+    --gb-hair: rgba(31, 104, 186, 0.12);
+    --gb-hair-2: rgba(31, 104, 186, 0.22);
+    --gb-line: rgba(47, 142, 230, 0.32);
+    --gb-line-strong: rgba(47, 142, 230, 0.6);
 
     /* Texto */
-    --gb-text: #e9edf7;
-    --gb-text-2: #b8c2d9;
-    --gb-muted: #8390ac;
-    --gb-faint: #58647f;
+    --gb-text: #1d2f4f;
+    --gb-text-2: #45597b;
+    --gb-muted: #7085a6;
+    --gb-faint: #a3b2c9;
 
-    /* Ouro — o destaque do sistema */
-    --gb-gold: #e2c06e;
-    --gb-gold-2: #f7e4ac;
-    --gb-gold-3: #a8823a;
+    /* Azul do céu e ouro do sol */
+    --gb-blue: #2f8ee6;
+    --gb-blue-2: #1d6cc4;
+    --gb-blue-3: #7cc4ff;
+    --gb-gold: #f2b52c;
+    --gb-gold-2: #b97d06;
+    --gb-gold-3: #ffe29a;
+    --gb-gold-soft: #fff5d8;
 
-    /* Destaque da ficha (ouro no personagem, brasa no adversário) */
-    --gb-accent: var(--gb-gold);
-    --gb-accent-2: var(--gb-gold-2);
-    --gb-accent-line: var(--gb-line);
+    /* Destaque da ficha (céu no personagem, brasa no adversário) */
+    --gb-accent: var(--gb-blue);
+    --gb-accent-2: var(--gb-blue-2);
+    --gb-accent-soft: rgba(47, 142, 230, 0.12);
+    --gb-accent-line: rgba(47, 142, 230, 0.35);
 
-    /* Recursos e estados */
-    --gb-hp: #ff5d73;
-    --gb-hp-2: #b8233f;
-    --gb-mana: #5bb1ff;
-    --gb-mana-2: #2858c9;
-    --gb-ok: #46d39a;
-    --gb-bad: #ff6470;
-    --gb-fx: #b592ff;
-    --gb-forbidden: #ff3b5c;
+    /* Recursos e estados (vida verde, como a barra de HP de Granblue) */
+    --gb-life: #36b44a;
+    --gb-life-2: #8be06a;
+    --gb-mana: #2f8ee6;
+    --gb-mana-2: #7cc6ff;
+    --gb-dmg: #e5484d;
+    --gb-ok: #23a05a;
+    --gb-bad: #df3f4d;
+    --gb-fx: #8559ec;
+    --gb-forbidden: #e0284f;
+
+    /* Sombras azuladas, leves */
+    --gb-shadow-sm: 0 2px 6px rgba(28, 90, 170, 0.1);
+    --gb-shadow: 0 8px 22px rgba(28, 90, 170, 0.13);
+    --gb-shadow-lg: 0 18px 44px rgba(20, 70, 140, 0.22);
 
     /* Tipografia (fontes que o Foundry já traz) */
     --gb-font: 'Signika', sans-serif;
     --gb-font-display: 'Amiri', 'Signika', serif;
 
-    /* Cor da esfera — o padrão é o ouro; [data-sphere] troca */
-    --sp: var(--gb-gold);
-    --sp-2: var(--gb-gold-2);
+    /* Cor da esfera — o padrão é o azul do céu; [data-sphere] troca.
+       --sp é a cor, --sp-ink o tom escuro para texto e --sp-soft o fundo. */
+    --sp: var(--gb-blue);
+    --sp-ink: var(--gb-blue-2);
+    --sp-soft: rgba(47, 142, 230, 0.1);
 
+    /* O Foundry pinta toda barra de rolagem com estas variáveis */
+    --color-scrollbar: rgba(47, 142, 230, 0.4);
+    --color-scrollbar-track: transparent;
     scrollbar-width: thin;
-    scrollbar-color: rgba(226, 192, 110, 0.28) transparent;
+    scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
 }
 
 /* Cores das sete esferas (no próprio elemento ou num descendente) */
-.granblue[data-sphere="energia"], .granblue [data-sphere="energia"] { --sp: #5cc6ff; --sp-2: #c9edff; }
-.granblue[data-sphere="destruicao"], .granblue [data-sphere="destruicao"] { --sp: #ff7a45; --sp-2: #ffd2bd; }
-.granblue[data-sphere="criacao"], .granblue [data-sphere="criacao"] { --sp: #45d6a0; --sp-2: #c4f6e1; }
-.granblue[data-sphere="materia"], .granblue [data-sphere="materia"] { --sp: #e3ad5f; --sp-2: #f8e0b9; }
-.granblue[data-sphere="persona"], .granblue [data-sphere="persona"] { --sp: #ff7ab8; --sp-2: #ffd3e7; }
-.granblue[data-sphere="cosmo"], .granblue [data-sphere="cosmo"] { --sp: #a08cff; --sp-2: #ddd5ff; }
-.granblue[data-sphere="proibida"], .granblue [data-sphere="proibida"] { --sp: #e6e2ef; --sp-2: #ffb3c1; }
+.granblue[data-sphere="energia"], .granblue [data-sphere="energia"] { --sp: #1f8ce8; --sp-ink: #0f5fae; --sp-soft: rgba(31, 140, 232, 0.1); }
+.granblue[data-sphere="destruicao"], .granblue [data-sphere="destruicao"] { --sp: #f0652a; --sp-ink: #b5420f; --sp-soft: rgba(240, 101, 42, 0.1); }
+.granblue[data-sphere="criacao"], .granblue [data-sphere="criacao"] { --sp: #1aa978; --sp-ink: #0b7552; --sp-soft: rgba(26, 169, 120, 0.1); }
+.granblue[data-sphere="materia"], .granblue [data-sphere="materia"] { --sp: #d6931a; --sp-ink: #8e5c05; --sp-soft: rgba(214, 147, 26, 0.12); }
+.granblue[data-sphere="persona"], .granblue [data-sphere="persona"] { --sp: #e24d8e; --sp-ink: #a52562; --sp-soft: rgba(226, 77, 142, 0.1); }
+.granblue[data-sphere="cosmo"], .granblue [data-sphere="cosmo"] { --sp: #7a5af0; --sp-ink: #4c31c0; --sp-soft: rgba(122, 90, 240, 0.1); }
+.granblue[data-sphere="proibida"], .granblue [data-sphere="proibida"] { --sp: #474c6d; --sp-ink: #24283f; --sp-soft: rgba(71, 76, 109, 0.1); }
 
 /* =========================================================
    Campos
@@ -84,9 +110,9 @@
     font: 400 13px/1.3 var(--gb-font);
     background: var(--gb-well);
     border: 1px solid var(--gb-hair-2);
-    border-radius: 7px;
+    border-radius: 8px;
     outline: none;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 1px 2px rgba(28, 90, 170, 0.08);
     transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
 }
 .granblue :where(textarea) {
@@ -96,11 +122,11 @@
     line-height: 1.5;
     resize: vertical;
 }
-.granblue :where(input, select, textarea):hover { border-color: rgba(255, 255, 255, 0.22); }
+.granblue :where(input, select, textarea):hover { border-color: rgba(47, 142, 230, 0.45); }
 .granblue :where(input, select, textarea):focus {
-    background-color: rgba(2, 6, 15, 0.78);
+    background-color: #ffffff;
     border-color: var(--gb-accent);
-    box-shadow: 0 0 0 3px rgba(226, 192, 110, 0.14), inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px var(--gb-accent-soft), inset 0 1px 2px rgba(28, 90, 170, 0.08);
 }
 .granblue :where(input[type="number"]) {
     text-align: center;
@@ -111,15 +137,18 @@
 .granblue input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .granblue ::placeholder { color: var(--gb-faint); opacity: 1; }
 .granblue :where(select) { padding-right: 22px; cursor: pointer; }
-.granblue :where(option, optgroup) { color: var(--gb-text); background: var(--gb-deep); }
+.granblue :where(option, optgroup) { color: var(--gb-text); background: #ffffff; }
 .granblue code {
     padding: 1px 5px;
-    color: var(--gb-gold-2);
+    color: var(--gb-blue-2);
     font-size: 0.92em;
-    background: rgba(226, 192, 110, 0.08);
-    border: 1px solid rgba(226, 192, 110, 0.14);
+    background: var(--gb-tint);
+    border: 1px solid var(--gb-hair);
     border-radius: 5px;
 }
+
+/* Caixas de seleção nativas (diálogos): o azul do céu no lugar do laranja do Foundry */
+.granblue input[type="checkbox"] { --checkbox-checked-color: var(--gb-blue); --checkbox-checkmark-color: #ffffff; }
 
 /* Campo com rótulo em versalete */
 .gb-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; margin: 0; }
@@ -147,7 +176,7 @@
     border-radius: 0;
     box-shadow: none;
 }
-.granblue .gb-inline:hover { border-bottom-color: rgba(255, 255, 255, 0.25); }
+.granblue .gb-inline:hover { border-bottom-color: var(--gb-line); }
 .granblue .gb-inline:focus { border-bottom-color: var(--gb-accent); }
 @supports (field-sizing: content) {
     .granblue .gb-inline { field-sizing: content; min-width: 1.6ch; }
@@ -171,8 +200,8 @@
     width: 30px;
     height: 16px;
     border-radius: 99px;
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    background: #d6e3f2;
+    box-shadow: inset 0 1px 2px rgba(28, 90, 170, 0.2);
     transition: background-color 0.18s;
 }
 .gb-switch-track::after {
@@ -183,13 +212,13 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: #cfd6e6;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    transition: transform 0.18s, background-color 0.18s;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(20, 60, 120, 0.35);
+    transition: transform 0.18s;
 }
-.gb-switch input:checked + .gb-switch-track { background: rgba(226, 192, 110, 0.55); }
-.gb-switch input:checked + .gb-switch-track::after { transform: translateX(14px); background: var(--gb-gold-2); }
-.gb-switch input:focus-visible + .gb-switch-track { box-shadow: 0 0 0 2px var(--gb-accent); }
+.gb-switch input:checked + .gb-switch-track { background: var(--gb-blue); }
+.gb-switch input:checked + .gb-switch-track::after { transform: translateX(14px); }
+.gb-switch input:focus-visible + .gb-switch-track { box-shadow: 0 0 0 2px var(--gb-accent-soft), 0 0 0 1px var(--gb-accent); }
 
 /* =========================================================
    Botões
@@ -205,40 +234,42 @@
     height: 30px;
     margin: 0;
     padding: 0 13px;
-    color: var(--gb-text-2);
+    color: var(--gb-blue-2);
     font: 600 12px/1 var(--gb-font);
     letter-spacing: 0.02em;
     white-space: nowrap;
     text-decoration: none;
-    background: var(--gb-surface-2);
-    border: 1px solid var(--gb-hair-2);
-    border-radius: 8px;
-    box-shadow: none;
+    background: #ffffff;
+    border: 1px solid var(--gb-line);
+    border-radius: 99px;
+    box-shadow: var(--gb-shadow-sm);
     cursor: pointer;
     transition: color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
 .granblue .gb-btn:hover {
-    color: var(--gb-accent-2);
-    background: rgba(226, 192, 110, 0.09);
-    border-color: var(--gb-line-strong);
+    color: #ffffff;
+    background: linear-gradient(180deg, #4aa6f5, var(--gb-blue-2));
+    border-color: transparent;
+    box-shadow: 0 6px 16px rgba(47, 142, 230, 0.32);
 }
 .granblue .gb-btn:active { transform: translateY(1px); }
 .granblue .gb-btn i { font-size: 11px; }
-.granblue .gb-btn--sm { height: 26px; padding: 0 10px; font-size: 11.5px; border-radius: 7px; }
+.granblue .gb-btn--sm { height: 26px; padding: 0 11px; font-size: 11.5px; }
+/* Botão de destaque: o amarelo-sol dos botões de Granblue */
 .granblue .gb-btn--gold {
-    color: #1c1305;
-    background: linear-gradient(180deg, #f4dc9b, #c99b43);
-    border-color: rgba(255, 238, 196, 0.65);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(226, 192, 110, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    color: #4a3000;
+    background: linear-gradient(180deg, #ffe07a, #f5b425);
+    border-color: rgba(214, 150, 20, 0.65);
+    box-shadow: 0 4px 12px rgba(242, 181, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 .granblue .gb-btn--gold:hover {
-    color: #1c1305;
-    background: linear-gradient(180deg, #fbe6b0, #d6a94f);
-    border-color: rgba(255, 244, 214, 0.85);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 8px 22px rgba(226, 192, 110, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    color: #4a3000;
+    background: linear-gradient(180deg, #ffe993, #f8be38);
+    border-color: rgba(214, 150, 20, 0.8);
+    box-shadow: 0 6px 18px rgba(242, 181, 44, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
-.granblue .gb-btn--ghost { background: transparent; border-color: transparent; }
-.granblue .gb-btn--ghost:hover { background: var(--gb-surface-2); border-color: var(--gb-hair-2); }
+.granblue .gb-btn--ghost { background: transparent; border-color: transparent; box-shadow: none; }
+.granblue .gb-btn--ghost:hover { color: var(--gb-blue-2); background: var(--gb-tint); border-color: var(--gb-hair); box-shadow: none; }
 
 /* Botão só com ícone */
 .granblue .gb-icon-btn {
@@ -254,12 +285,12 @@
     font-size: 12px;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 7px;
+    border-radius: 8px;
     cursor: pointer;
     transition: color 0.15s, background-color 0.15s, border-color 0.15s;
 }
-.granblue .gb-icon-btn:hover { color: var(--gb-accent-2); background: var(--gb-surface-2); border-color: var(--gb-hair-2); }
-.granblue .gb-icon-btn--danger:hover { color: #ffb3bb; background: rgba(255, 93, 115, 0.12); border-color: rgba(255, 93, 115, 0.35); }
+.granblue .gb-icon-btn:hover { color: var(--gb-blue-2); background: var(--gb-tint-2); border-color: var(--gb-hair); }
+.granblue .gb-icon-btn--danger:hover { color: var(--gb-bad); background: rgba(223, 63, 77, 0.1); border-color: rgba(223, 63, 77, 0.3); }
 
 /* =========================================================
    Peças de texto
@@ -267,14 +298,14 @@
 
 .gb-kicker {
     color: var(--gb-accent);
-    font: 600 9.5px/1.2 var(--gb-font);
+    font: 700 9.5px/1.2 var(--gb-font);
     letter-spacing: 0.2em;
     text-transform: uppercase;
 }
 .gb-hint { margin: 0; color: var(--gb-muted); font-size: 12px; line-height: 1.45; }
 .gb-hint strong { color: var(--gb-text-2); }
 
-/* Selo pequeno de informação (tags) */
+/* Selo pequeno de informação */
 .gb-chip {
     display: inline-flex;
     align-items: center;
@@ -284,20 +315,22 @@
     color: var(--gb-text-2);
     font: 500 11.5px/1 var(--gb-font);
     white-space: nowrap;
-    background: var(--gb-surface-2);
-    border: 1px solid var(--gb-hair);
+    background: #ffffff;
+    border: 1px solid var(--gb-hair-2);
     border-radius: 99px;
 }
 .gb-chip i { color: var(--gb-muted); font-size: 10px; }
 .gb-chip b { color: var(--gb-text); font-weight: 700; }
-.gb-chip--sp { color: var(--sp-2); background: color-mix(in srgb, var(--sp) 11%, transparent); border-color: color-mix(in srgb, var(--sp) 38%, transparent); }
+.gb-chip--sp { color: var(--sp-ink); background: var(--sp-soft); border-color: color-mix(in srgb, var(--sp) 35%, transparent); }
 .gb-chip--sp i { color: var(--sp); }
-.gb-chip--gold { color: var(--gb-gold-2); background: rgba(226, 192, 110, 0.1); border-color: rgba(226, 192, 110, 0.32); }
+.gb-chip--gold { color: var(--gb-gold-2); background: var(--gb-gold-soft); border-color: rgba(242, 181, 44, 0.5); }
 .gb-chip--gold i { color: var(--gb-gold); }
-.gb-chip--mana { color: #cfe6ff; background: rgba(91, 177, 255, 0.1); border-color: rgba(91, 177, 255, 0.32); }
+.gb-chip--gold b { color: #7a5203; }
+.gb-chip--mana { color: var(--gb-blue-2); background: rgba(47, 142, 230, 0.1); border-color: rgba(47, 142, 230, 0.35); }
 .gb-chip--mana i { color: var(--gb-mana); }
-.gb-chip--ok { color: #c6f5e1; background: rgba(70, 211, 154, 0.1); border-color: rgba(70, 211, 154, 0.32); }
-.gb-chip--bad { color: #ffd0d5; background: rgba(255, 100, 112, 0.1); border-color: rgba(255, 100, 112, 0.32); }
+.gb-chip--mana b { color: #0f4f99; }
+.gb-chip--ok { color: #18774a; background: rgba(35, 160, 90, 0.1); border-color: rgba(35, 160, 90, 0.35); }
+.gb-chip--bad { color: #a8202d; background: rgba(223, 63, 77, 0.1); border-color: rgba(223, 63, 77, 0.35); }
 
 /* Etiqueta curta (Passiva, Ativa, T3…) */
 .gb-tag {
@@ -311,24 +344,24 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     white-space: nowrap;
-    background: var(--gb-surface-2);
+    background: var(--gb-sky-1);
     border: 1px solid var(--gb-hair-2);
-    border-radius: 5px;
+    border-radius: 99px;
 }
 .gb-tag--passive,
-.gb-tag--passiva { color: var(--gb-gold-2); background: rgba(226, 192, 110, 0.1); border-color: rgba(226, 192, 110, 0.35); }
-.gb-tag--ativa { color: #ffd0b8; background: rgba(255, 122, 69, 0.1); border-color: rgba(255, 122, 69, 0.35); }
+.gb-tag--passiva { color: #8a5b00; background: var(--gb-gold-soft); border-color: rgba(242, 181, 44, 0.55); }
+.gb-tag--ativa { color: #b5420f; background: rgba(240, 101, 42, 0.1); border-color: rgba(240, 101, 42, 0.4); }
 
-/* Painel de vidro */
+/* Painel de nuvem */
 .gb-panel {
     position: relative;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018));
-    border: 1px solid var(--gb-hair);
-    border-radius: 12px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 26px rgba(0, 0, 0, 0.22);
+    background: var(--gb-card);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: var(--gb-shadow), inset 0 0 0 1px var(--gb-hair);
 }
 
-/* Cantoneiras douradas (moldura de códice) */
+/* Cantoneiras (moldura de códice) */
 .gb-frame { position: relative; }
 .gb-frame::after {
     --c: var(--gb-accent-line);
@@ -338,14 +371,14 @@
     z-index: 4;
     pointer-events: none;
     background:
-        linear-gradient(var(--c), var(--c)) top left / 12px 1px,
-        linear-gradient(var(--c), var(--c)) top left / 1px 12px,
-        linear-gradient(var(--c), var(--c)) top right / 12px 1px,
-        linear-gradient(var(--c), var(--c)) top right / 1px 12px,
-        linear-gradient(var(--c), var(--c)) bottom left / 12px 1px,
-        linear-gradient(var(--c), var(--c)) bottom left / 1px 12px,
-        linear-gradient(var(--c), var(--c)) bottom right / 12px 1px,
-        linear-gradient(var(--c), var(--c)) bottom right / 1px 12px;
+        linear-gradient(var(--c), var(--c)) top left / 12px 1.5px,
+        linear-gradient(var(--c), var(--c)) top left / 1.5px 12px,
+        linear-gradient(var(--c), var(--c)) top right / 12px 1.5px,
+        linear-gradient(var(--c), var(--c)) top right / 1.5px 12px,
+        linear-gradient(var(--c), var(--c)) bottom left / 12px 1.5px,
+        linear-gradient(var(--c), var(--c)) bottom left / 1.5px 12px,
+        linear-gradient(var(--c), var(--c)) bottom right / 12px 1.5px,
+        linear-gradient(var(--c), var(--c)) bottom right / 1.5px 12px;
     background-repeat: no-repeat;
 }
 
@@ -363,42 +396,50 @@
     gap: 8px;
     margin: 0;
     padding: 0;
-    color: var(--gb-accent);
-    font: 600 10.5px/1 var(--gb-font);
+    color: var(--gb-accent-2);
+    font: 700 10.5px/1 var(--gb-font);
     letter-spacing: 0.22em;
     text-transform: uppercase;
     white-space: nowrap;
     border: 0;
 }
-.gb-section h3 i { font-size: 11px; opacity: 0.85; }
-.gb-section h3 em { color: var(--gb-faint); font-style: normal; letter-spacing: 0.05em; }
+.gb-section h3 i { color: var(--gb-gold); font-size: 11px; }
+.gb-section h3 em { color: var(--gb-muted); font-style: normal; letter-spacing: 0.05em; }
 .gb-rule {
     flex: 1 1 auto;
     min-width: 12px;
-    height: 1px;
+    height: 2px;
     background: linear-gradient(90deg, var(--gb-accent-line), transparent);
+    border-radius: 2px;
 }
 .gb-tools { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; }
 
-/* Barra de medida (pontos, progresso) */
+/* Barra de medida (pontos, progresso) — o dourado da barra de carga */
 .gb-meter {
     position: relative;
-    height: 6px;
+    height: 8px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.45);
+    background: #dde9f6;
     border-radius: 99px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 1px 2px rgba(28, 90, 170, 0.18);
 }
 .gb-meter > span {
     position: absolute;
     inset: 0 auto 0 0;
     width: var(--pct, 0%);
     max-width: 100%;
-    background: linear-gradient(90deg, var(--gb-gold-3), var(--gb-gold));
+    background: linear-gradient(90deg, #f7c548, #ffdf7e);
     border-radius: inherit;
-    box-shadow: 0 0 10px rgba(226, 192, 110, 0.5);
+    box-shadow: 0 0 8px rgba(242, 181, 44, 0.55);
 }
-.gb-meter--over > span { background: linear-gradient(90deg, #9e2338, var(--gb-hp)); box-shadow: 0 0 10px rgba(255, 93, 115, 0.5); }
+.gb-meter > span::after {
+    content: '';
+    position: absolute;
+    inset: 1px 2px 50% 2px;
+    background: linear-gradient(rgba(255, 255, 255, 0.7), transparent);
+    border-radius: inherit;
+}
+.gb-meter--over > span { background: linear-gradient(90deg, #e5484d, #ff8a8e); box-shadow: 0 0 8px rgba(229, 72, 77, 0.5); }
 
 /* Ajuda recolhível */
 .gb-help { margin: 0 0 12px; color: var(--gb-muted); font-size: 12px; line-height: 1.5; }
@@ -412,21 +453,22 @@
     cursor: pointer;
 }
 .gb-help > summary::-webkit-details-marker { display: none; }
-.gb-help > summary i { font-size: 11px; opacity: 0.7; }
+.gb-help > summary i { color: var(--gb-blue); font-size: 11px; }
 .gb-help > summary:hover { color: var(--gb-accent-2); }
-.gb-help > div { margin-top: 8px; padding: 10px 12px; background: var(--gb-surface); border: 1px solid var(--gb-hair); border-radius: 9px; }
+.gb-help > div { margin-top: 8px; padding: 10px 12px; color: var(--gb-text-2); background: var(--gb-card); border: 1px solid var(--gb-hair); border-radius: 12px; }
 .gb-help code { margin: 1px 0; display: inline-block; }
 
 /* Estado vazio */
 .gb-empty {
     margin: 0;
     padding: 18px 12px;
-    color: var(--gb-faint);
+    color: var(--gb-muted);
     font-size: 12.5px;
     font-style: italic;
     text-align: center;
-    border: 1px dashed var(--gb-hair-2);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1.5px dashed var(--gb-hair-2);
+    border-radius: 14px;
 }
 .gb-empty--sm { padding: 9px; font-size: 12px; }
 
@@ -448,7 +490,7 @@
     width: 100%;
     height: 100%;
     overflow: visible;
-    filter: drop-shadow(0 0 3px color-mix(in srgb, var(--sp) 55%, transparent));
+    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--sp) 35%, transparent));
 }
 .gb-sigil :is(circle, path, polygon, ellipse, line) {
     fill: none;
@@ -457,15 +499,15 @@
     stroke-linejoin: round;
     vector-effect: non-scaling-stroke;
 }
-.gb-sigil .l1 { stroke-width: var(--w1, 1.15px); }
-.gb-sigil .l2 { stroke-width: var(--w2, 0.8px); opacity: 0.75; }
-.gb-sigil .l3 { stroke-width: var(--w3, 0.6px); opacity: 0.45; }
+.gb-sigil .l1 { stroke-width: var(--w1, 1.25px); }
+.gb-sigil .l2 { stroke-width: var(--w2, 0.9px); opacity: 0.8; }
+.gb-sigil .l3 { stroke-width: var(--w3, 0.7px); opacity: 0.5; }
 .gb-sigil .f { fill: currentColor; stroke: none; }
-.gb-sigil .fv { fill: var(--gb-night); stroke: none; }
-.gb-sigil .acc { stroke: var(--gb-forbidden); stroke-width: var(--w1, 1.15px); }
-.gb-sigil--sm { --w1: 1px; --w2: 0.7px; --w3: 0.5px; }
-.gb-sigil--lg { --w1: 1.6px; --w2: 1.05px; --w3: 0.75px; }
-.gb-sigil--lg > svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sp) 60%, transparent)); }
+.gb-sigil .fv { fill: var(--gb-void); stroke: none; }
+.gb-sigil .acc { stroke: var(--gb-forbidden); stroke-width: var(--w1, 1.25px); }
+.gb-sigil--sm { --w1: 1.1px; --w2: 0.8px; --w3: 0.6px; }
+.gb-sigil--lg { --w1: 1.7px; --w2: 1.15px; --w3: 0.8px; }
+.gb-sigil--lg > svg { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--sp) 40%, transparent)); }
 
 /* Rotação: lenta e contínua nos selos grandes, ao passar o mouse nos demais */
 @keyframes gb-spin { to { transform: rotate(360deg); } }
@@ -479,15 +521,15 @@
    ========================================================= */
 
 .gb-die { display: inline-block; flex: 0 0 auto; width: 27px; height: 27px; }
-.gb-die > svg { width: 100%; height: 100%; overflow: visible; }
-.gb-die-body { fill: rgba(255, 255, 255, 0.06); stroke: rgba(233, 237, 247, 0.5); stroke-width: 1.3; }
-.gb-die-edge { fill: none; stroke: rgba(233, 237, 247, 0.18); stroke-width: 1; }
-.gb-die-pip { fill: var(--gb-text); }
-.gb-die-num { fill: var(--gb-text); font-family: var(--gb-font); font-weight: 700; }
-.gb-die.is-max .gb-die-body { fill: rgba(226, 192, 110, 0.16); stroke: var(--gb-gold); }
-.gb-die.is-max :is(.gb-die-pip, .gb-die-num) { fill: var(--gb-gold-2); }
-.gb-die.is-max > svg { filter: drop-shadow(0 0 4px rgba(226, 192, 110, 0.6)); }
-.gb-die.is-min { opacity: 0.55; }
+.gb-die > svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 1.5px rgba(28, 90, 170, 0.25)); }
+.gb-die-body { fill: #ffffff; stroke: #8fb3db; stroke-width: 1.3; }
+.gb-die-edge { fill: none; stroke: #c9daf0; stroke-width: 1; }
+.gb-die-pip { fill: #1d3a63; }
+.gb-die-num { fill: #1d3a63; font-family: var(--gb-font); font-weight: 700; }
+.gb-die.is-max .gb-die-body { fill: #fff3c7; stroke: var(--gb-gold); }
+.gb-die.is-max :is(.gb-die-pip, .gb-die-num) { fill: #9a6400; }
+.gb-die.is-max > svg { filter: drop-shadow(0 0 4px rgba(242, 181, 44, 0.75)); }
+.gb-die.is-min { opacity: 0.6; }
 
 @media (prefers-reduced-motion: reduce) {
     .granblue *,

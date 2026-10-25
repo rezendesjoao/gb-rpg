@@ -67,7 +67,8 @@ function buildClassGroups(current) {
  */
 export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorSheetV2) {
     static DEFAULT_OPTIONS = {
-        classes: ['granblue', 'sheet', 'actor'],
+        // O visual é claro: 'theme-light' faz o editor e os menus nativos do Foundry seguirem.
+        classes: ['granblue', 'themed', 'theme-light', 'sheet', 'actor'],
         position: { width: 820, height: 860 },
         window: { resizable: true },
         form: { submitOnChange: true },

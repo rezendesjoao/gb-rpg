@@ -18,10 +18,13 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 
 ## Visual — Códice Celeste
 
-Tudo (fichas, chat, HUD, diálogos e pop-ups) segue o mesmo visual: céu noturno com filigrana
-dourada, títulos em Amiri e textos em Signika (fontes que o Foundry já traz) e **uma cor por
-esfera** — Energia azul, Destruição brasa, Criação jade, Matéria âmbar, Persona rosa, Cosmo
-violeta e Proibida prata com carmim.
+Tudo (fichas, chat, HUD, diálogos e pop-ups) segue o mesmo visual, o céu de Granblue Fantasy:
+azul celeste clareando até o branco das nuvens, cartões brancos, vida em verde e o dourado do
+sol nos botões principais; títulos em Amiri e textos em Signika (fontes que o Foundry já traz) e
+**uma cor por esfera** — Energia azul, Destruição brasa, Criação jade, Matéria âmbar, Persona
+rosa, Cosmo violeta e Proibida grafite com carmim. Na ficha do adversário o azul vira brasa. As
+janelas do sistema usam o tema claro do Foundry, então o editor de texto e os menus nativos
+acompanham mesmo com a interface do Foundry no tema escuro.
 
 - **Selos de magia procedurais** (`module/sigil.mjs`): cada magia ganha um círculo mágico
   desenhado a partir do nome, da esfera, do arcano e do nível — o mesmo feitiço gera sempre o
@@ -44,8 +47,9 @@ violeta e Proibida prata com carmim.
   −/+, criar magia direto na esfera) e as magias em cartões com o selo e o nível em romanos.
 - **Inventário** com as cores de raridade (Boa, Rara, Primorosa, Matéria-prima) e a gema de
   equipado; **Biografia** e textos dos itens com o editor de texto rico do Foundry.
-- **Chat**: cartões escuros com o selo da magia (ou o emblema da ação), d6 com pips, demais dados
-  com a silhueta, total num medalhão, CD de conjuração, alvos e botões de aplicar.
+- **Chat**: cartões brancos com o cabeçalho na cor do que foi usado (a esfera da magia, o ouro da
+  técnica, o azul do atributo), o selo da magia (ou o emblema da ação), d6 com pips, demais dados
+  com a silhueta, total numa gema colorida, CD de conjuração, alvos e botões de aplicar.
 
 ## O que está implementado
 

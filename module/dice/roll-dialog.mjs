@@ -88,7 +88,7 @@ export async function rollDialog({ title, parts = [], mana = false, consume = nu
 
     const result = await DialogV2.wait({
         window: { title, icon: 'fa-solid fa-dice-d20' },
-        classes: ['granblue', 'gb-dialog'],
+        classes: ['granblue', 'themed', 'theme-light', 'gb-dialog'],
         position: { width: 420 },
         content,
         buttons: [

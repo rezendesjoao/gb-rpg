@@ -26,7 +26,8 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
         id: 'granblue-hud',
         tag: 'section',
-        classes: ['granblue', 'gb-hud'],
+        // O visual é claro: 'theme-light' faz o editor e os menus nativos do Foundry seguirem.
+        classes: ['granblue', 'themed', 'theme-light', 'gb-hud'],
         window: { frame: false, positioned: false },
         actions: {
             toggleType: GranblueHUD.#onToggleType,

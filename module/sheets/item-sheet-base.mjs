@@ -19,7 +19,8 @@ export class GranblueItemSheetBase extends HandlebarsApplicationMixin(ItemSheetV
     static HTML_FIELDS = [];
 
     static DEFAULT_OPTIONS = {
-        classes: ['granblue', 'sheet', 'item'],
+        // O visual é claro: 'theme-light' faz o editor e os menus nativos do Foundry seguirem.
+        classes: ['granblue', 'themed', 'theme-light', 'sheet', 'item'],
         position: { width: 580, height: 720 },
         window: { resizable: true },
         form: { submitOnChange: true },

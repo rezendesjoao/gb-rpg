@@ -95,7 +95,7 @@ export async function sendLootDialog(actor) {
 
     const result = await DialogV2.wait({
         window: { title: game.i18n.format('GRANBLUE.Loot.sendTitle', { name: actor.name }), icon: 'fa-solid fa-sack-dollar' },
-        classes: ['granblue', 'gb-dialog'],
+        classes: ['granblue', 'themed', 'theme-light', 'gb-dialog'],
         position: { width: 440 },
         content,
         buttons: [
@@ -183,7 +183,7 @@ async function postLootCard(roll, { title, subtitle = '', rollLabel = '', verdic
 
 class LootRollApp extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
-        classes: ['granblue', 'gb-loot-app'],
+        classes: ['granblue', 'themed', 'theme-light', 'gb-loot-app'],
         window: { icon: 'fa-solid fa-sack-dollar', resizable: false },
         position: { width: 400, height: 'auto' },
         actions: { rollChance: LootRollApp.#onRollChance }
@@ -272,7 +272,7 @@ function claimPosition(rollApp) {
 
 class LootClaimApp extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
-        classes: ['granblue', 'gb-loot-app', 'gb-loot-claim'],
+        classes: ['granblue', 'themed', 'theme-light', 'gb-loot-app', 'gb-loot-claim'],
         window: { icon: 'fa-solid fa-gem', resizable: false },
         position: { width: 380, height: 'auto' },
         actions: {

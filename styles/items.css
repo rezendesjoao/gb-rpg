@@ -8,8 +8,8 @@
     overflow: hidden;
     color: var(--gb-text);
     background:
-        radial-gradient(600px 360px at 100% -10%, rgba(91, 177, 255, 0.1), transparent 62%),
-        linear-gradient(180deg, #0c1428 0%, #080e1d 100%);
+        radial-gradient(420px 220px at 100% 0%, rgba(255, 233, 160, 0.42), transparent 70%),
+        linear-gradient(180deg, #c6e5ff 0%, #e2f1ff 38%, #f6fbff 72%, #ffffff 100%);
 }
 
 .gb-item-sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; font-family: var(--gb-font); }
@@ -22,13 +22,26 @@
     align-items: center;
     gap: 18px;
     padding: 18px 22px 16px;
-    background: radial-gradient(360px 160px at 12% 50%, color-mix(in srgb, var(--sp) 20%, transparent), transparent 70%);
-    border-bottom: 1px solid var(--gb-hair);
+    background:
+        radial-gradient(360px 160px at 12% 50%, color-mix(in srgb, var(--sp) 16%, transparent), transparent 70%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 0 var(--gb-hair);
 }
-.gb-item-sigil { --size: 118px; margin: -6px 0; }
+/* O selo grande pousa num halo branco, como um círculo mágico nas nuvens */
+.gb-item-sigil {
+    --size: 118px;
+    margin: -6px 0;
+    background: radial-gradient(circle, #ffffff 0 42%, color-mix(in srgb, var(--sp) 10%, #ffffff) 58%, transparent 71%);
+    border-radius: 50%;
+}
 .gb-item-titles { display: flex; flex: 1 1 auto; flex-direction: column; gap: 6px; min-width: 0; }
-.gb-item-sheet--spell .gb-item-titles .gb-kicker { color: var(--sp); }
-.granblue .gb-item-titles .gb-name { font-size: 26px; text-shadow: 0 0 18px color-mix(in srgb, var(--sp) 40%, transparent); }
+.gb-item-sheet--spell .gb-item-titles .gb-kicker { color: var(--sp-ink); }
+.granblue .gb-item-titles .gb-name,
+.granblue .gb-item-titles .gb-name:hover,
+.granblue .gb-item-titles .gb-name:focus { color: var(--gb-text); font-size: 26px; text-shadow: 0 1px 0 #ffffff; }
+.granblue .gb-item-titles .gb-name:hover { border-bottom-color: var(--gb-hair-2); }
+.granblue .gb-item-titles .gb-name:focus { border-bottom-color: var(--sp); }
 .gb-item-meta { display: grid; grid-template-columns: 1.3fr 1.3fr 0.6fr; gap: 8px; margin-top: 4px; }
 .gb-item-sheet--class .gb-item-meta,
 .gb-item-sheet--heritage .gb-item-meta { grid-template-columns: minmax(0, 220px); }
@@ -40,9 +53,12 @@
     width: 34px;
     height: 34px;
     object-fit: cover;
-    border: 1px solid var(--gb-hair-2);
+    /* Os ícones padrão do Foundry são brancos: o fundo é a cor da esfera */
+    background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--sp) 55%, #ffffff), var(--sp) 75%);
+    border: 2px solid #ffffff;
     border-radius: 9px;
-    opacity: 0.55;
+    box-shadow: 0 0 0 1px var(--gb-hair-2), var(--gb-shadow-sm);
+    opacity: 0.85;
     cursor: pointer;
     transition: opacity 0.15s;
 }
@@ -53,11 +69,12 @@
     width: 88px;
     height: 88px;
     overflow: hidden;
-    background: radial-gradient(circle at 50% 35%, #1d2b52, #0a1121 75%);
-    border: 1px solid var(--gb-line-strong);
+    background: radial-gradient(circle at 50% 30%, #ffd36b, #eaa21c 60%, #b97d06);
+    border: 3px solid #ffffff;
     border-radius: 18px;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 18px rgba(226, 192, 110, 0.12);
+    box-shadow: 0 0 0 1px rgba(31, 104, 186, 0.22), 0 10px 22px rgba(20, 70, 140, 0.22);
 }
+.gb-item-sheet--heritage .gb-item-portrait { background: radial-gradient(circle at 50% 30%, #ff9ab3, #e0567a 60%, #a8294f); }
 .gb-item-portrait img { width: 100%; height: 100%; object-fit: cover; border: 0; cursor: pointer; }
 
 /* ---- Corpo ---- */
@@ -70,24 +87,27 @@
     flex-direction: column;
     gap: 10px;
     padding: 12px 14px 14px;
-    background: var(--gb-surface);
-    border: 1px solid var(--gb-hair);
-    border-radius: 13px;
+    background: var(--gb-card);
+    border: 1px solid #ffffff;
+    border-radius: 14px;
+    box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
-.gb-item-panel--passive { border-left: 2px solid var(--gb-gold); }
-.gb-item-panel--weak { border-color: rgba(255, 100, 112, 0.25); }
+.gb-item-panel--passive { border-left: 3px solid var(--gb-gold); }
+.gb-item-panel--weak { background: #fffafa; box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px rgba(223, 63, 77, 0.22); }
 .granblue .gb-item-panel-title {
     margin: 0;
     padding: 0;
-    color: var(--gb-accent);
-    font: 600 9.5px/1 var(--gb-font);
+    color: var(--gb-accent-2);
+    font: 700 9.5px/1 var(--gb-font);
     letter-spacing: 0.2em;
     text-transform: uppercase;
     border: 0;
 }
-.gb-item-sheet--spell .gb-item-panel-title { color: var(--sp); }
-.gb-item-panel-title i { margin-right: 4px; }
-.gb-item-panel--weak .gb-item-panel-title { color: var(--gb-bad); }
+.gb-item-panel-title i { margin-right: 4px; color: var(--gb-gold); }
+.granblue .gb-item-sheet--spell .gb-item-panel-title { color: var(--sp-ink); }
+.gb-item-sheet--spell .gb-item-panel-title i { color: var(--sp); }
+.granblue .gb-item-panel--weak .gb-item-panel-title { color: #b82f37; }
+.gb-item-panel--weak .gb-item-panel-title i { color: var(--gb-bad); }
 
 .gb-item-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .gb-item-stats label {
@@ -97,11 +117,12 @@
     gap: 7px;
     margin: 0;
     padding: 12px 8px 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--gb-hair);
-    border-radius: 12px;
+    background: var(--gb-card);
+    border: 1px solid #ffffff;
+    border-radius: 14px;
+    box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
-.gb-item-stats label > span { color: var(--gb-muted); font: 600 9px/1 var(--gb-font); letter-spacing: 0.15em; text-transform: uppercase; }
+.gb-item-stats label > span { color: var(--gb-muted); font: 700 9px/1 var(--gb-font); letter-spacing: 0.15em; text-transform: uppercase; }
 .granblue .gb-item-stats input {
     height: 36px;
     color: var(--gb-text);
@@ -120,9 +141,10 @@
     flex-direction: column;
     gap: 8px;
     padding: 10px 12px 12px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
-    border: 1px solid var(--gb-hair);
-    border-radius: 12px;
+    background: var(--gb-card);
+    border: 1px solid #ffffff;
+    border-radius: 14px;
+    box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
 .gb-item-row-head { display: flex; align-items: center; gap: 8px; }
 .granblue .gb-item-row-select { width: auto; max-width: 160px; height: 28px; font-size: 12px; }
@@ -132,7 +154,7 @@
 /* Bônus de atributo da herança */
 .gb-hbonus { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .gb-hbonus-item {
-    --a: var(--gb-gold);
+    --a: #eaa21c;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -140,11 +162,12 @@
     padding: 6px 6px 6px 10px;
     color: var(--gb-text-2);
     font-size: 12.5px;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid var(--gb-hair);
-    border-radius: 10px;
+    background: var(--gb-card);
+    border: 1px solid #ffffff;
+    border-radius: 12px;
+    box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
-.gb-hbonus-item--mente { --a: #6fbaff; }
+.gb-hbonus-item--mente { --a: var(--gb-blue); }
 .gb-hbonus-item > i { color: var(--a); font-size: 11px; }
 .gb-hbonus-item > span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .granblue .gb-hbonus-item input { width: 48px; height: 28px; font-weight: 700; }
@@ -154,33 +177,34 @@
    ========================================================= */
 
 .granblue prose-mirror {
-    --menu-background: rgba(255, 255, 255, 0.05);
-    --dropdown-background: #131d38;
-    --dropdown-border: rgba(226, 192, 110, 0.3);
-    --dialog-background: #0f1830;
-    --dialog-border: rgba(226, 192, 110, 0.3);
-    --color-control-hover: rgba(226, 192, 110, 0.16);
-    --color-form-label-hover: var(--gb-gold-2);
+    --menu-background: rgba(47, 142, 230, 0.06);
+    --dropdown-background: #ffffff;
+    --dropdown-border: var(--gb-hair-2);
+    --dialog-background: #ffffff;
+    --dialog-border: var(--gb-hair-2);
+    --color-control-hover: rgba(47, 142, 230, 0.12);
+    --color-form-label-hover: var(--gb-blue-2);
     --min-height: 90px;
     position: relative;
     min-height: 90px;
     padding: 10px 12px;
-    color: #d9dfec;
+    color: var(--gb-text);
     font-size: 13px;
     line-height: 1.6;
-    background: rgba(2, 6, 15, 0.38);
+    background: #ffffff;
     border: 1px solid var(--gb-hair-2);
     border-radius: 10px;
-    transition: border-color 0.15s;
+    box-shadow: inset 0 1px 2px rgba(28, 90, 170, 0.06);
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
-.granblue prose-mirror:hover { border-color: rgba(255, 255, 255, 0.2); }
-.granblue prose-mirror.active { min-height: 220px; border-color: var(--gb-accent); }
+.granblue prose-mirror:hover { border-color: rgba(47, 142, 230, 0.45); }
+.granblue prose-mirror.active { min-height: 220px; border-color: var(--gb-accent); box-shadow: 0 0 0 3px var(--gb-accent-soft); }
 .granblue prose-mirror.inactive .editor-content { position: relative; inset: auto; padding-right: 30px; }
 .granblue prose-mirror .editor-content p { margin: 0 0 8px; }
 .granblue prose-mirror .editor-content p:last-child { margin-bottom: 0; }
 .granblue prose-mirror .editor-content :is(h1, h2, h3, h4) { color: var(--gb-accent-2); font-family: var(--gb-font-display); border: 0; }
-.granblue prose-mirror .editor-content strong { color: var(--gb-accent-2); }
-.granblue prose-mirror .editor-content a { color: var(--gb-gold-2); }
+.granblue prose-mirror .editor-content strong { color: var(--gb-text); }
+.granblue prose-mirror .editor-content a { color: var(--gb-blue-2); }
 .granblue prose-mirror.inactive .editor-content:empty::before {
     content: 'Clique no lápis para escrever…';
     color: var(--gb-faint);
@@ -195,10 +219,11 @@
     color: var(--gb-muted);
     font-size: 11px;
     line-height: 26px;
-    background: rgba(255, 255, 255, 0.06);
+    background: #ffffff;
     border: 1px solid var(--gb-hair-2);
-    border-radius: 7px;
+    border-radius: 8px;
+    box-shadow: var(--gb-shadow-sm);
 }
-.granblue prose-mirror button.toggle:hover { color: var(--gb-gold-2); border-color: var(--gb-line-strong); }
-.granblue prose-mirror menu { border: 1px solid var(--gb-hair); }
+.granblue prose-mirror button.toggle:hover { color: var(--gb-blue-2); border-color: var(--gb-line); background: var(--gb-sky-0); }
+.granblue prose-mirror menu { border: 1px solid var(--gb-hair); border-radius: 8px; }
 .granblue prose-mirror menu button { color: var(--gb-text-2); }

@@ -144,7 +144,7 @@ export async function promptArea(actor, action) {
     const esc = foundry.utils.escapeHTML;
     const choice = await DialogV2.wait({
         window: { title: `${action.name} — ${game.i18n.localize('GRANBLUE.Area.title')}`, icon: 'fa-solid fa-draw-polygon' },
-        classes: ['granblue', 'gb-dialog'],
+        classes: ['granblue', 'themed', 'theme-light', 'gb-dialog'],
         position: { width: 460 },
         content: `<div class="granblue gb-roll-dialog">
             <p class="gb-area-prompt"><i class="fa-solid fa-draw-polygon"></i> <strong>${esc(areaLabel(action))}</strong></p>
