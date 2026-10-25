@@ -1,16 +1,26 @@
 /* =========================================================
-   Granblue — HUD de ações (só em combate, acima da barra de macros)
+   Granblue — HUD de ações (só em combate, encaixado ao lado do chat)
    Um painel de nuvem fosca: retrato com anéis de vida e mana, a
    linha do tempo do turno em cristais dourados, o ataque básico e
-   os números compactos.
+   os números compactos. Mora em #ui-right, fora do fluxo, preso
+   pela direita na borda do chat (--gb-hud-right) e com a largura
+   que cabe até a lista de jogadores (--gb-hud-room); os dois vêm de
+   dockHud, em hud.mjs.
    ========================================================= */
+
+/* A barra de macros nativa sai de cena: o HUD faz o papel dela
+   (configuração do mundo "Esconder a barra de macros do Foundry") */
+body.gb-no-hotbar #hotbar { display: none; }
 
 #granblue-hud {
     --hud-glass: linear-gradient(180deg, rgba(240, 245, 251, 0.95), rgba(219, 233, 248, 0.94));
     --hud-line: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    right: var(--gb-hud-right, 380px);
+    /* Rente ao rodapé do campo de mensagem do chat */
+    bottom: 14px;
+    width: min(860px, var(--gb-hud-room, 860px));
     pointer-events: auto;
-    width: min(860px, 96%);
-    margin-bottom: 8px;
     color: var(--gb-text);
     font: 400 13px/1.3 var(--gb-font);
 }

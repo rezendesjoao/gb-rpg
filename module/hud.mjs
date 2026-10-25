@@ -8,8 +8,9 @@ import { sigilSVG } from './sigil.mjs';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
- * HUD de ações do Granblue, exibido só durante um combate: um painel fixo
- * acima da barra de macros com o token controlado. O destaque é a linha do
+ * HUD de ações do Granblue, exibido só durante um combate: um painel fixo no
+ * rodapé, encaixado ao lado do chat, com o token controlado (a barra de macros
+ * nativa do Foundry fica escondida — configuração do mundo). O destaque é a linha do
  * tempo do turno (movimentação → rápida → normal → bônus → reação, com a
  * conjunta e a total à parte, como exceções) e os atalhos de habilidades por
  * tipo de ação; abaixo, compactos, vida (com a vida temporária ajustável),
@@ -125,14 +126,12 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
     /*  Posição no DOM                    */
     /* ---------------------------------- */
 
-    /** Fica dentro de #ui-bottom, logo acima da barra de macros. */
+    /** Fica em #ui-right, encaixado no rodapé ao lado do chat (ver dockHud). */
     _insertElement(element) {
         const existing = document.getElementById(element.id);
-        if (existing) return existing.replaceWith(element);
-        const bottom = document.getElementById('ui-bottom');
-        const hotbar = document.getElementById('hotbar');
-        if (bottom && hotbar?.parentElement === bottom) bottom.insertBefore(element, hotbar);
-        else (bottom ?? document.body).append(element);
+        if (existing) existing.replaceWith(element);
+        else (document.getElementById('ui-right') ?? document.body).prepend(element);
+        dockHud();
     }
 
     /* ---------------------------------- */
@@ -514,7 +513,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
 /** Instância única do HUD. */
 let hud = null;
 
-/** Configuração do cliente para ligar/desligar o HUD. */
+/** Configurações: ligar/desligar o HUD (cliente) e esconder a barra de macros (mundo). */
 export function registerHudSettings() {
     game.settings.register('granblue', 'showHud', {
         name: 'GRANBLUE.Settings.showHud.name',
@@ -525,6 +524,52 @@ export function registerHudSettings() {
         default: true,
         onChange: () => hud?.refresh()
     });
+    game.settings.register('granblue', 'hideHotbar', {
+        name: 'GRANBLUE.Settings.hideHotbar.name',
+        hint: 'GRANBLUE.Settings.hideHotbar.hint',
+        scope: 'world',
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: applyHotbarVisibility
+    });
+}
+
+/** Esconde a barra de macros nativa do Foundry: o HUD faz o papel dela. */
+export function applyHotbarVisibility() {
+    document.body.classList.toggle('gb-no-hotbar', game.settings.get('granblue', 'hideHotbar'));
+}
+
+/**
+ * Encaixa o HUD no rodapé, colado ao chat. Ele mora em #ui-right (a linha da
+ * coluna do campo de mensagem e da barra lateral), mas fora do fluxo: fica
+ * preso pela direita na borda esquerda do chat — a coluna do campo de
+ * mensagem ou, quando o chat está aberto na barra lateral (ou destacado), a
+ * própria barra lateral, já que a coluna de notificações fica vazia.
+ *
+ * A largura é o espaço até a lista de jogadores (canto inferior esquerdo),
+ * menos os vãos; abaixo de 860 px o HUD encolhe e as regras @container de
+ * hud.css reorganizam o painel.
+ */
+function dockHud() {
+    const element = document.getElementById('granblue-hud');
+    const row = document.getElementById('ui-right');
+    if (!element || (element.parentElement !== row)) return;
+    const column = document.getElementById('ui-right-column-1');
+    const chat = column?.contains(document.getElementById('chat-message')) ? column : document.getElementById('sidebar');
+    if (!chat) return;
+    const scale = Number(getComputedStyle(document.documentElement).getPropertyValue('--ui-scale')) || 1;
+    const chatLeft = chat.getBoundingClientRect().left;
+    const players = document.getElementById('players');
+    const left = Math.max(
+        document.getElementById('ui-left-column-1')?.getBoundingClientRect().right ?? 0,
+        // A lista de jogadores transborda a própria caixa (nomes, latência)
+        players ? players.getBoundingClientRect().left + players.scrollWidth * scale : 0
+    );
+    const right = Math.round((row.getBoundingClientRect().right - chatLeft) / scale) + 16;
+    const room = Math.floor((chatLeft - left) / scale) - 32;
+    element.style.setProperty('--gb-hud-right', `${right}px`);
+    element.style.setProperty('--gb-hud-room', `${Math.max(320, room)}px`);
 }
 
 /** Cria o HUD e liga os hooks que o mantêm em dia. */
@@ -549,5 +594,16 @@ export function initHud() {
     });
     // Só aparece durante o combate
     for (const hook of ['createCombat', 'updateCombat', 'deleteCombat', 'combatStart']) Hooks.on(hook, refresh);
+
+    // Encaixado ao lado do chat: reencaixa quando o campo de mensagem muda de
+    // lugar (chat aberto na barra lateral, destacado) e refaz a largura quando
+    // a janela, a barra lateral ou a lista de jogadores mudam de tamanho.
+    Hooks.on('renderChatInput', () => dockHud());
+    window.addEventListener('resize', () => dockHud());
+    const observer = new ResizeObserver(() => dockHud());
+    for (const id of ['sidebar', 'players']) {
+        const element = document.getElementById(id);
+        if (element) observer.observe(element);
+    }
     refresh();
 }

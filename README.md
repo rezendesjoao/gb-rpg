@@ -83,7 +83,8 @@ acompanham mesmo com a interface do Foundry no tema escuro.
   mouse gira, clique confirma); os tokens dentro dela viram alvos e o acerto é conferido contra a CA
   de cada um. Há também um botão na linha da ação para só posicionar a área. As 57 magias do
   compêndio que descrevem uma área ("3x3", "linha de 1x6", "cone de 5 m") já vêm com ela preenchida.
-- **HUD de ações**, só durante o combate, acima da barra de macros, para o token controlado (o
+- **HUD de ações**, só durante o combate, encaixado no rodapé ao lado do chat (colado na coluna do
+  campo de mensagem ou, com o chat aberto na barra lateral, na própria barra), para o token controlado (o
   mestre troca clicando nos tokens; o jogador só vê os seus, ou o próprio personagem). O retrato
   leva os **anéis de vida (fora) e mana (dentro)**. O destaque é a **linha do tempo do turno**, em
   cristais — movimentação → ação rápida → ação normal → ação bônus → reação —
@@ -94,7 +95,9 @@ acompanham mesmo com a interface do Foundry no tema escuro.
   vida e **vida temporária** ajustável, mana (**+1** para a condição de Mana da classe), CA, RD
   física e mágica e deslocamento com bônus ajustável, e visão. A **estrela** na linha de uma ação marca o
   **ataque básico**, rolado pelo HUD ao custo de uma ação normal. As ações voltam no começo do
-  turno do combatente (ou pelo botão de reiniciar). Pode ser desligado em *Configurações*.
+  turno do combatente (ou pelo botão de reiniciar). Pode ser desligado em *Configurações*. A barra
+  de macros nativa do Foundry fica escondida (o HUD faz o papel dela); a configuração do mundo
+  *Esconder a barra de macros do Foundry* a traz de volta.
 - **Efeitos aplicados por todos:** um jogador aplica um status effect até num monstro do mestre —
   o pedido vai pelo socket e o mestre conectado aplica.
 - **Alvos x CA:** com um token marcado como alvo (tecla **T**), o cartão de ataque/magia confere o
@@ -127,7 +130,8 @@ acompanham mesmo com a interface do Foundry no tema escuro.
 - **Efeito aplicado** por ação/magia: cada ataque, manobra ou magia escolhe um dos ~35 status
   effects do sistema num seletor e ganha um botão de varinha que o aplica nos tokens
   selecionados — na caixa da ação e também no cartão de chat da rolagem.
-- **Ações colapsáveis**, com dado rápido (rola acerto+dano) e arrastáveis para a barra de macros.
+- **Ações colapsáveis**, com dado rápido (rola acerto+dano) e arrastáveis para a barra de macros
+  (quando ela está visível).
 - Botão para rolar o **dado de vida** da classe.
 - Iniciativa `3d6 + Reação`. Status effects Granblue no HUD do token.
 

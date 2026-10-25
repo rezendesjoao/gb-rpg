@@ -43,7 +43,7 @@
             </span>
             {{#if row.passive}}
             <a class="gb-cast gb-cast--chat" data-action="postActionText" data-list="{{list}}" data-index="{{index}}" data-part="passive" data-drag-action="{{index}}" draggable="true"
-               data-tooltip="Enviar a passiva ao chat · arraste para a barra de macros"><i class="fa-solid fa-comment"></i></a>
+               data-tooltip="Enviar a passiva ao chat{{#if @root.hotbarOn}} · arraste para a barra de macros{{/if}}"><i class="fa-solid fa-comment"></i></a>
             {{else}}
             {{#if (eqStr row.rangeType "complex")}}
             <a class="gb-icon-btn gb-icon-btn--area" data-action="placeArea" data-list="{{list}}" data-index="{{index}}" data-tooltip="Posicionar a área no mapa — os tokens dentro dela viram alvos"><i class="fa-solid fa-draw-polygon"></i></a>
@@ -55,7 +55,7 @@
             <a class="gb-icon-btn" data-action="postActionText" data-list="{{list}}" data-index="{{index}}" data-part="attached" data-tooltip="Enviar a passiva desta habilidade ao chat"><i class="fa-solid fa-feather"></i></a>
             {{/if}}
             <a class="gb-cast" data-action="rollActionFull" data-list="{{list}}" data-index="{{index}}" data-drag-action="{{index}}" draggable="true"
-               data-tooltip="{{#if spell}}Conjurar{{else}}Usar{{/if}} (bônus, área, acerto e dano) · arraste para a barra de macros"><i class="fa-solid {{#if spell}}fa-wand-sparkles{{else}}fa-dice-d20{{/if}}"></i></a>
+               data-tooltip="{{#if spell}}Conjurar{{else}}Usar{{/if}} (bônus, área, acerto e dano){{#if @root.hotbarOn}} · arraste para a barra de macros{{/if}}"><i class="fa-solid {{#if spell}}fa-wand-sparkles{{else}}fa-dice-d20{{/if}}"></i></a>
             {{/if}}
         </div>
     </div>

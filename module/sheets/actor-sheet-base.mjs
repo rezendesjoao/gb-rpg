@@ -184,6 +184,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             config: GRANBLUE,
             editable: this.isEditable,
             tab: this._tab,
+            // A barra de macros nativa pode estar escondida (o HUD faz o papel dela)
+            hotbarOn: !game.settings.get('granblue', 'hideHotbar'),
             isCharacter: actor.type === 'character',
             isAdversary: actor.type === 'adversary',
             attributes,

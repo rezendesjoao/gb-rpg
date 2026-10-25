@@ -287,5 +287,7 @@
     "GRANBLUE.HUD.unavailable": "Granblue: {type} was already used this turn.",
     "GRANBLUE.HUD.manaFull": "Granblue: Mana is already full.",
     "GRANBLUE.Settings.showHud.name": "Show the action HUD",
-    "GRANBLUE.Settings.showHud.hint": "Panel above the macro bar with HP, mana, AC, DR, movement and the turn actions of the controlled token."
+    "GRANBLUE.Settings.showHud.hint": "Panel docked next to the chat, at the bottom, with HP, mana, AC, DR, movement and the turn actions of the controlled token. Shown only during combat.",
+    "GRANBLUE.Settings.hideHotbar.name": "Hide Foundry's macro bar",
+    "GRANBLUE.Settings.hideHotbar.hint": "The Granblue action HUD takes the place of the native macro bar. Uncheck to bring it back (and drag actions onto it)."
 }

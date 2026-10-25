@@ -19,7 +19,7 @@ import { GranblueSpellSheet } from './sheets/item-spell-sheet.mjs';
 import { onRenderChatMessage } from './chat.mjs';
 import { SOCKET, onSocketMessage, sendLootDialog } from './loot.mjs';
 import { onEffectSocket } from './effects.mjs';
-import { GranblueHUD, registerHudSettings, initHud } from './hud.mjs';
+import { GranblueHUD, registerHudSettings, initHud, applyHotbarVisibility } from './hud.mjs';
 import { onUpdateCombat, resetCombatants } from './economy.mjs';
 import { registerMigrationSettings, migrateIfNeeded, migrateWorld } from './migration.mjs';
 import { sigilSVG, sphereEmblemSVG, dieFaceHTML } from './sigil.mjs';
@@ -137,6 +137,13 @@ Hooks.once('i18nInit', () => {
     // Condição especial padrão de "morto" continua disponível
     CONFIG.specialStatusEffects ??= {};
 });
+
+/* -------------------------------------------- */
+/*  Setup — antes de o Foundry desenhar a UI     */
+/* -------------------------------------------- */
+
+// A barra de macros nativa some antes de aparecer (o HUD faz o papel dela)
+Hooks.once('setup', applyHotbarVisibility);
 
 /* -------------------------------------------- */
 /*  Ready                                        */

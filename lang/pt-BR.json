@@ -287,5 +287,7 @@
     "GRANBLUE.HUD.unavailable": "Granblue: {type} já foi usada neste turno.",
     "GRANBLUE.HUD.manaFull": "Granblue: a Mana já está no máximo.",
     "GRANBLUE.Settings.showHud.name": "Mostrar o HUD de ações",
-    "GRANBLUE.Settings.showHud.hint": "Painel acima da barra de macros com vida, mana, CA, RD, deslocamento e as ações do turno do token controlado."
+    "GRANBLUE.Settings.showHud.hint": "Painel encaixado ao lado do chat, no rodapé, com vida, mana, CA, RD, deslocamento e as ações do turno do token controlado. Aparece só durante o combate.",
+    "GRANBLUE.Settings.hideHotbar.name": "Esconder a barra de macros do Foundry",
+    "GRANBLUE.Settings.hideHotbar.hint": "O HUD de ações do Granblue faz o papel da barra de macros nativa. Desmarque para trazê-la de volta (e poder arrastar ações para ela)."
 }
