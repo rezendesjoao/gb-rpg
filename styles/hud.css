@@ -1,0 +1,397 @@
+/* =========================================================
+   Granblue — HUD de ações (só em combate, acima da barra de macros)
+   Um painel de vidro: retrato com anéis de vida e mana, a linha do
+   tempo do turno em cristais, o ataque básico e os números compactos.
+   ========================================================= */
+
+#granblue-hud {
+    --hud-glass: linear-gradient(180deg, rgba(22, 33, 62, 0.93), rgba(8, 13, 27, 0.96));
+    --hud-line: rgba(226, 192, 110, 0.34);
+    pointer-events: auto;
+    width: min(860px, 96%);
+    margin-bottom: 8px;
+    color: var(--gb-text);
+    font: 400 13px/1.3 var(--gb-font);
+}
+#granblue-hud a { cursor: pointer; text-decoration: none; }
+/* Enquanto uma área é posicionada no mapa, o HUD não atrapalha o clique. */
+body.gb-placing-area #granblue-hud { opacity: 0.2; pointer-events: none; }
+body.gb-placing-area #granblue-hud * { pointer-events: none; }
+
+.gb-hud-inner { display: flex; flex-direction: column; gap: 8px; }
+.gb-hud-bar,
+.gb-hud-list {
+    position: relative;
+    background: var(--hud-glass);
+    border: 1px solid var(--hud-line);
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 14px 38px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+}
+.gb-hud-bar { padding: 10px 14px 9px 10px; }
+/* Filete dourado no topo do painel */
+.gb-hud-bar::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: 18%;
+    left: 18%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gb-gold-2), transparent);
+    opacity: 0.8;
+}
+.gb-hud-main { display: flex; align-items: center; gap: 14px; }
+
+/* ---- Retrato, nome e vitais ---- */
+.gb-hud-id { display: flex; flex: 0 1 238px; align-items: center; gap: 10px; min-width: 0; }
+.gb-hud-avatar { position: relative; flex: 0 0 auto; width: 60px; height: 60px; }
+.gb-hud-rings { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gb-ring-track { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 3; }
+.gb-ring { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.gb-ring--hp { stroke: var(--gb-hp); filter: drop-shadow(0 0 3px rgba(255, 93, 115, 0.8)); }
+.gb-ring--mana { stroke: var(--gb-mana); filter: drop-shadow(0 0 3px rgba(91, 177, 255, 0.8)); }
+.gb-hud-avatar img {
+    position: absolute;
+    inset: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    object-fit: cover;
+    object-position: center top;
+    background: #0a1121;
+    border: 0;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+.gb-hud-avatar:hover img { transform: scale(1.06); }
+.gb-hud-avatar.is-low .gb-ring--hp { animation: gb-hud-low 1.2s ease-in-out infinite; }
+@keyframes gb-hud-low { 50% { filter: drop-shadow(0 0 7px #ff5d73); } }
+
+.gb-hud-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gb-hud-name > strong {
+    overflow: hidden;
+    color: #fff;
+    font: 700 17px/1.1 var(--gb-font-display);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 0 14px rgba(226, 192, 110, 0.25);
+}
+.gb-hud-name > small { overflow: hidden; color: var(--gb-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.gb-hud-vitals { display: flex; align-items: center; gap: 9px; margin-top: 2px; color: var(--gb-muted); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gb-hud-vitals i { margin-right: 4px; font-size: 10px; }
+.gb-hud-vitals b { color: var(--gb-text); font-size: 13px; }
+.gb-hud-hp i { color: var(--gb-hp); }
+.gb-hud-mana i { color: var(--gb-mana); }
+.gb-hud-mana-plus {
+    padding: 1px 6px;
+    color: #cfe6ff;
+    font: 700 10px/1.4 var(--gb-font);
+    background: rgba(91, 177, 255, 0.16);
+    border: 1px solid rgba(91, 177, 255, 0.45);
+    border-radius: 99px;
+    transition: background-color 0.15s;
+}
+.gb-hud-mana-plus:hover { background: rgba(91, 177, 255, 0.32); }
+
+/* ---- Linha do tempo do turno (cristais) ---- */
+.gb-hud-turn { display: flex; flex: 1 1 auto; align-items: center; gap: 12px; min-width: 0; }
+.gb-hud-timeline { display: flex; flex: 1 1 auto; margin: 0; padding: 0; list-style: none; }
+.gb-tl-step { position: relative; display: flex; flex: 1 1 0; justify-content: center; min-width: 0; }
+/* O trilho entre os cristais: dourado onde o turno ainda está livre */
+.gb-tl-step::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.09);
+}
+.gb-tl-step:first-child::before { display: none; }
+.gb-tl-step.is-on::before { background: linear-gradient(90deg, rgba(226, 192, 110, 0.35), var(--gb-gold)); box-shadow: 0 0 8px rgba(226, 192, 110, 0.45); }
+.gb-tl-step > a { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
+.gb-tl-node { position: relative; display: grid; place-items: center; width: 36px; height: 36px; font-size: 13px; }
+.gb-tl-node::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 6px;
+    transform: rotate(45deg);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.gb-tl-node > i:first-child { position: relative; }
+.gb-tl-step.is-on .gb-tl-node { color: #1c1305; }
+.gb-tl-step.is-on .gb-tl-node::before {
+    background: radial-gradient(circle at 35% 30%, #fff6d8, var(--gb-gold-2) 35%, var(--gb-gold) 70%, var(--gb-gold-3));
+    border: 1px solid rgba(255, 244, 214, 0.85);
+    box-shadow: 0 0 14px rgba(226, 192, 110, 0.65);
+}
+.gb-tl-step.is-on > a:hover .gb-tl-node::before { transform: rotate(45deg) scale(1.12); box-shadow: 0 0 22px rgba(247, 228, 172, 0.9); }
+.gb-tl-step.is-used .gb-tl-node { color: #5b6784; }
+.gb-tl-step.is-used .gb-tl-node::before { background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.18); }
+.gb-tl-step.is-open .gb-tl-node::before { box-shadow: 0 0 0 2px #fff, 0 0 22px var(--gb-gold-2); }
+.gb-tl-done {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    padding: 3px;
+    color: #fff;
+    font-size: 7px;
+    background: #2d9d6c;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #0a1121;
+}
+.gb-tl-count {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    min-width: 17px;
+    padding: 0 4px;
+    color: #fff;
+    font: 700 9.5px/16px var(--gb-font);
+    font-style: normal;
+    text-align: center;
+    background: #2a5fd1;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 9px;
+}
+.gb-tl-label {
+    max-width: 100%;
+    overflow: hidden;
+    font: 600 9px/1 var(--gb-font);
+    letter-spacing: 0.08em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.gb-tl-step.is-on .gb-tl-label { color: var(--gb-gold-2); }
+.gb-tl-step.is-used .gb-tl-label { color: #5b6784; text-decoration: line-through; }
+
+/* Exceções (conjunta e total): à parte, com menos destaque */
+.gb-hud-specials { display: flex; flex: 0 0 auto; flex-direction: column; gap: 5px; padding-left: 12px; border-left: 1px dashed rgba(255, 255, 255, 0.14); }
+.gb-sp {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    color: var(--gb-gold-2);
+    font: 600 10px/1.2 var(--gb-font);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    background: rgba(226, 192, 110, 0.07);
+    border: 1px solid rgba(226, 192, 110, 0.32);
+    border-radius: 99px;
+    transition: background-color 0.15s;
+}
+.gb-sp i { font-size: 9px; }
+.gb-sp em { padding: 0 4px; color: #fff; font-style: normal; background: #2a5fd1; border-radius: 6px; }
+.gb-sp:hover { background: rgba(226, 192, 110, 0.18); }
+.gb-sp.is-used { color: #5b6784; text-decoration: line-through; background: none; border-color: rgba(255, 255, 255, 0.08); }
+.gb-sp.is-open { box-shadow: 0 0 0 2px #fff; }
+
+/* ---- Ataque básico e botões ---- */
+.gb-hud-tools { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 6px; }
+.gb-hud-basic {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 150px;
+    padding: 5px 12px;
+    color: #fff;
+    font: 600 11.5px/1.2 var(--gb-font);
+    background: linear-gradient(180deg, #e8475f, #9c1d35);
+    border: 1px solid rgba(255, 190, 200, 0.45);
+    border-radius: 99px;
+    box-shadow: 0 4px 14px rgba(232, 71, 95, 0.35);
+    transition: filter 0.15s, transform 0.15s;
+}
+.gb-hud-basic i { color: var(--gb-gold-2); }
+.gb-hud-basic span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-hud-basic:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.gb-hud-basic.is-off { opacity: 0.4; filter: grayscale(0.6); }
+.gb-hud-tool-btns { display: flex; gap: 4px; }
+.gb-hud-tool-btns a {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    color: var(--gb-muted);
+    font-size: 11px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+}
+.gb-hud-tool-btns a:hover { color: var(--gb-gold-2); background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.12); }
+
+/* ---- Números compactos ---- */
+.gb-hud-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 9px;
+    padding-top: 9px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.gb-hud-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 4px 0 10px;
+    color: var(--gb-text-2);
+    font-size: 12px;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 99px;
+    transition: border-color 0.15s;
+}
+.gb-hud-stat:last-child { padding-right: 11px; }
+.gb-hud-stat:hover { border-color: rgba(226, 192, 110, 0.35); }
+.gb-hud-stat > i { color: var(--gb-gold); font-size: 11px; }
+.gb-hud-stat > span { color: var(--gb-muted); font: 600 9.5px/1 var(--gb-font); letter-spacing: 0.1em; text-transform: uppercase; }
+.gb-hud-stat > b { color: var(--gb-text); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.gb-hud-stat--temp > i { color: var(--gb-hp); }
+.gb-hud-stat--rdm > i { color: #b9a6ff; }
+.gb-hud-stat--move > i { color: var(--gb-ok); }
+.gb-hud-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    padding: 2px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 99px;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+.gb-hud-stat:hover .gb-hud-stepper,
+.gb-hud-stepper:focus-within { opacity: 1; }
+.gb-hud-stepper > a { display: grid; place-items: center; width: 16px; height: 18px; color: var(--gb-muted); font-size: 8px; border-radius: 50%; }
+.gb-hud-stepper > a:hover { color: var(--gb-gold-2); background: rgba(255, 255, 255, 0.08); }
+#granblue-hud .gb-hud-stepper input {
+    width: 26px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    color: var(--gb-text);
+    font: 700 11px/1 var(--gb-font);
+    text-align: center;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+#granblue-hud .gb-hud-stepper input:focus { color: var(--gb-gold-2); }
+
+/* ---- Lista de habilidades do tipo aberto ---- */
+.gb-hud-list { display: flex; flex-direction: column; max-height: 46vh; overflow: hidden; }
+.gb-hud-list-head {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px 9px;
+    background: radial-gradient(260px 60px at 0% 50%, rgba(226, 192, 110, 0.14), transparent 70%);
+    border-bottom: 1px solid rgba(226, 192, 110, 0.22);
+}
+.gb-hud-list-icon { position: relative; display: grid; place-items: center; width: 28px; height: 28px; color: #1c1305; font-size: 11px; }
+.gb-hud-list-icon::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: linear-gradient(135deg, var(--gb-gold-2), var(--gb-gold));
+    border-radius: 5px;
+    box-shadow: 0 0 12px rgba(226, 192, 110, 0.6);
+    transform: rotate(45deg);
+}
+.gb-hud-list-icon > i { position: relative; }
+.gb-hud-list-head strong { color: #fff; font: 700 17px/1 var(--gb-font-display); }
+.gb-hud-spend { margin-left: auto; color: var(--gb-muted); font-size: 11.5px; }
+.gb-hud-spend:hover,
+.gb-hud-close:hover { color: var(--gb-gold-2); }
+.gb-hud-close { color: var(--gb-muted); }
+.gb-hud-list-body { padding: 4px 10px 10px; overflow-y: auto; }
+.gb-hud-seg h5 {
+    margin: 10px 4px 6px;
+    padding: 0;
+    color: var(--gb-gold);
+    font: 600 9.5px/1 var(--gb-font);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 0;
+}
+.gb-hud-entry {
+    --sp: var(--gb-gold);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    padding: 7px 8px 7px 7px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 11px;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+.gb-hud-entry:hover { background: rgba(255, 255, 255, 0.06); border-color: color-mix(in srgb, var(--sp) 40%, transparent); }
+.gb-hud-entry-sigil { --size: 36px; }
+.gb-hud-entry-icon { position: relative; display: grid; flex: 0 0 auto; place-items: center; width: 36px; height: 36px; color: var(--gb-gold); font-size: 12px; }
+.gb-hud-entry-icon::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    background: rgba(226, 192, 110, 0.08);
+    border: 1px solid rgba(226, 192, 110, 0.4);
+    border-radius: 5px;
+    transform: rotate(45deg);
+}
+.gb-hud-entry-icon > i { position: relative; }
+.gb-hud-entry-main { flex: 1 1 auto; min-width: 0; }
+.gb-hud-entry-name { display: flex; align-items: center; gap: 6px; }
+.gb-hud-entry-name strong { overflow: hidden; color: var(--gb-text); font: 700 14.5px/1.2 var(--gb-font-display); text-overflow: ellipsis; white-space: nowrap; }
+.gb-hud-star { color: var(--gb-gold); font-size: 10px; }
+.gb-hud-via { padding: 1px 6px; color: #1c1305; font: 700 9px/1.4 var(--gb-font); background: var(--gb-gold-2); border-radius: 99px; }
+.gb-hud-chips { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 3px; }
+.gb-hud-chip { color: var(--gb-text-2); font-size: 11px; white-space: nowrap; }
+.gb-hud-chip i { color: var(--gb-faint); font-size: 9px; }
+.gb-hud-chip.is-mana i { color: var(--sp); }
+.gb-hud-chip.is-dmg { color: #ffc9c1; }
+.gb-hud-chip.is-dmg i { color: #ff8b7c; }
+.gb-hud-chip.is-fx { color: #ddd0ff; }
+.gb-hud-chip.is-fx i { color: var(--gb-fx); }
+.gb-hud-summary { display: -webkit-box; margin: 3px 0 0; overflow: hidden; color: var(--gb-muted); font-size: 11px; line-height: 1.35; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.gb-hud-use {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    color: #1c1305;
+    font-size: 13px;
+    background: radial-gradient(circle at 35% 28%, #fff4cf, #e9c56c 52%, #b58937);
+    border: 1px solid rgba(255, 240, 200, 0.7);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(226, 192, 110, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.gb-hud-use:hover { transform: scale(1.08); box-shadow: 0 6px 18px rgba(226, 192, 110, 0.5); }
+.gb-hud-entry[data-sphere] .gb-hud-use {
+    color: var(--gb-night);
+    background: radial-gradient(circle at 35% 28%, #fff, var(--sp-2) 30%, var(--sp) 70%, color-mix(in srgb, var(--sp) 60%, #000));
+    border-color: color-mix(in srgb, var(--sp-2) 80%, transparent);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--sp) 40%, transparent);
+}
+.gb-hud-empty { margin: 10px 4px 4px; color: var(--gb-muted); font-size: 12px; font-style: italic; }
+
+/* HUD estreito (telas pequenas ou barra lateral aberta) */
+#granblue-hud { container: gbhud / inline-size; }
+@container gbhud (max-width: 780px) {
+    .gb-hud-main { gap: 10px; }
+    .gb-hud-id { flex-basis: 188px; }
+    .gb-tl-label { font-size: 8.5px; letter-spacing: 0.04em; }
+    .gb-hud-specials { padding-left: 8px; }
+    .gb-sp { padding: 3px 7px; }
+    .gb-hud-basic { max-width: 118px; padding: 5px 10px; }
+}
+@container gbhud (max-width: 560px) {
+    .gb-hud-main { flex-wrap: wrap; }
+    .gb-hud-turn { flex-basis: 100%; order: 3; }
+    .gb-hud-id { flex: 1 1 auto; }
+}

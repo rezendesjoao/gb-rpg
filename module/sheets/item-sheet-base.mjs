@@ -10,12 +10,17 @@ const ROW_DEFAULTS = {
 };
 
 /**
- * Ficha base dos itens do Granblue (Classe e Herança).
+ * Ficha base dos itens do Granblue (Classe, Herança e Magia). Os campos HTML
+ * listados em `HTML_FIELDS` viram editores de texto rico (`<prose-mirror>`)
+ * que mostram o texto formatado e abrem o editor no lápis.
  */
 export class GranblueItemSheetBase extends HandlebarsApplicationMixin(ItemSheetV2) {
+    /** Campos HTML do `system` editados com o editor de texto rico. */
+    static HTML_FIELDS = [];
+
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'item'],
-        position: { width: 560, height: 660 },
+        position: { width: 580, height: 720 },
         window: { resizable: true },
         form: { submitOnChange: true },
         actions: {
@@ -35,6 +40,15 @@ export class GranblueItemSheetBase extends HandlebarsApplicationMixin(ItemSheetV
             // Seletores de "Ação no HUD", forma da área e tipo de dano
             ...GRANBLUE.rowSelectOptions()
         });
+        // Texto formatado dos campos HTML (o que o editor mostra fechado)
+        const { TextEditor } = foundry.applications.ux;
+        context.enriched = {};
+        for (const field of this.constructor.HTML_FIELDS) {
+            context.enriched[field] = await TextEditor.implementation.enrichHTML(
+                foundry.utils.getProperty(this.document.system, field) ?? '',
+                { relativeTo: this.document, secrets: this.document.isOwner }
+            );
+        }
         return context;
     }
 

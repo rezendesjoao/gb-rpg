@@ -1,0 +1,83 @@
+{{!--
+    Vitalidade & defesa (personagem e adversário): cada número derivado
+    aparece como a conta que o gera, com os campos editáveis dentro dela.
+    A vida e a mana atuais/máximas ficam só na coluna do herói.
+--}}
+<header class="gb-section">
+    <h3><i class="fa-solid fa-scale-balanced"></i> Vitalidade &amp; defesa</h3>
+    <span class="gb-rule"></span>
+    <div class="gb-tools">
+        <button type="button" class="gb-btn gb-btn--sm" data-action="recalcMax"
+                data-tooltip="Aplica as fórmulas aos máximos: vida = base + Res×3 + dado + temp; mana = Sab×2">
+            <i class="fa-solid fa-arrows-rotate"></i> Recalcular máximos
+        </button>
+    </div>
+</header>
+
+<div class="gb-formulas">
+    <div class="gb-eq gb-eq--hp gb-eq--wide">
+        <div class="gb-eq-head"><span><i class="fa-solid fa-heart"></i> Energia Vital máxima</span><b>{{hp.maxFormula}}</b></div>
+        <div class="gb-eq-row">
+            {{#if hasClass}}
+            <span class="gb-eq-term" data-tooltip="Vida base da classe {{classItem.name}}"><span>Base</span><b>{{hp.base}}</b></span>
+            {{else}}
+            <label class="gb-eq-term"><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hpSource.base}}" min="0"></label>
+            {{/if}}
+            <i class="gb-eq-op">+</i>
+            <span class="gb-eq-term" data-tooltip="Resiliência × 3"><span>Res × 3</span><b>{{hp.mod}}</b></span>
+            <i class="gb-eq-op">+</i>
+            <label class="gb-eq-term gb-eq-term--die"><span>Dado</span>
+                <span class="gb-eq-input"><input type="number" name="system.resources.hitPoints.die" value="{{hpSource.die}}" min="0">{{#if isCharacter}}<a class="gb-icon-btn" data-action="rollHitDie" data-tooltip="Rolar o dado de vida da classe"><i class="fa-solid fa-dice"></i></a>{{/if}}</span>
+            </label>
+            <i class="gb-eq-op">+</i>
+            <label class="gb-eq-term"><span>Temp</span><input type="number" name="system.resources.hitPoints.temp" value="{{hpSource.temp}}"></label>
+        </div>
+        {{#if hpMaxDiffers}}<p class="gb-eq-note"><i class="fa-solid fa-circle-exclamation"></i> O máximo da ficha está em {{hp.max}}.</p>{{/if}}
+    </div>
+
+    <div class="gb-eq gb-eq--mana">
+        <div class="gb-eq-head"><span><i class="fa-solid fa-droplet"></i> Mana máxima</span><b>{{mana.maxFormula}}</b></div>
+        <div class="gb-eq-row">
+            <span class="gb-eq-term"><span>Sabedoria</span><b>{{sabedoriaTotal}}</b></span>
+            <i class="gb-eq-op">×</i>
+            <span class="gb-eq-term"><span>Fator</span><b>2</b></span>
+        </div>
+        {{#if manaMaxDiffers}}<p class="gb-eq-note"><i class="fa-solid fa-circle-exclamation"></i> O máximo da ficha está em {{mana.max}}.</p>{{/if}}
+    </div>
+
+    <div class="gb-eq gb-eq--ca">
+        <div class="gb-eq-head"><span><i class="fa-solid fa-shield-halved"></i> Classe de Armadura</span><b>{{ca}}</b></div>
+        <div class="gb-eq-row">
+            <span class="gb-eq-term"><span>Base</span><b>10</b></span>
+            <i class="gb-eq-op">+</i>
+            <span class="gb-eq-term"><span>Reação</span><b>{{reacaoTotal}}</b></span>
+            <i class="gb-eq-op">+</i>
+            <label class="gb-eq-term"><span>Bônus</span><input type="number" name="system.defenses.caBonus" value="{{caBonus}}"></label>
+        </div>
+    </div>
+
+    {{#each rd as |r|}}
+    <div class="gb-eq gb-eq--rd gb-eq--rd-{{r.key}}">
+        <div class="gb-eq-head">
+            <span><i class="fa-solid {{#if (eqStr r.key "magical")}}fa-hat-wizard{{else}}fa-shield{{/if}}"></i> {{r.label}}</span>
+            <b{{#if r.fromEffects}} class="is-fx" data-tooltip="Com efeitos ativos"{{/if}}>{{r.total}}</b>
+        </div>
+        <div class="gb-eq-row">
+            <label class="gb-eq-term"><span>Fixa</span><input type="number" name="system.defenses.rd.{{r.key}}.fixed" value="{{r.fixed}}" min="0"></label>
+            <i class="gb-eq-op">+</i>
+            <label class="gb-eq-term"><span>Bônus</span><input type="number" name="system.defenses.rd.{{r.key}}.bonus" value="{{r.bonus}}"></label>
+            <i class="gb-eq-op">+</i>
+            <label class="gb-eq-term"><span>Temp.</span><input type="number" name="system.defenses.rd.{{r.key}}.temp" value="{{r.temp}}"></label>
+        </div>
+    </div>
+    {{/each}}
+
+    <div class="gb-eq gb-eq--move">
+        <div class="gb-eq-head"><span><i class="fa-solid fa-person-running"></i> Deslocamento</span><b>{{movementLabel}}</b></div>
+        <div class="gb-eq-row">
+            <label class="gb-eq-term gb-eq-term--text"><span>Base (m)</span><input type="text" name="system.movement" value="{{system.movement}}"></label>
+            <i class="gb-eq-op">+</i>
+            <label class="gb-eq-term"><span>Bônus</span><input type="number" name="system.movementBonus" value="{{system.movementBonus}}"></label>
+        </div>
+    </div>
+</div>

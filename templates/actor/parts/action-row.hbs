@@ -1,93 +1,122 @@
 {{!--
     Linha de ação ou magia (fichas de personagem e adversário).
-    Parâmetros: row (dados da linha), index (posição real na lista),
-                list ("actions" | "spells"), spell (true nas magias).
-    Tipo "Passiva": a linha vira só a descrição, num texto maior, com botão de
-    chat. "Possui passiva": uma habilidade ativa ganha um texto de passiva a mais.
-    A estrela marca o ataque básico (rolado pelo HUD ao custo de uma ação normal).
-    Os campos escondidos continuam guardados (ver _processFormData da ficha).
+    Parâmetros: row (dados da linha, com `row.ui` montado pela ficha),
+                index (posição real na lista), list ("actions" | "spells"),
+                spell (true nas magias).
+    Fechada, a linha é um cartão: o selo da magia (ou o emblema do tipo de
+    ação), o nome e um resumo; aberta, mostra o formulário completo. Tipo
+    "Passiva": a linha vira só a descrição, com botão de chat. A estrela marca
+    o ataque básico (rolado pelo HUD ao custo de uma ação normal). Os campos
+    escondidos continuam guardados (ver _processFormData da ficha).
 --}}
-<div class="gb-action{{#if spell}} gb-action--spell{{/if}}{{#if row.passive}} gb-action--passive{{/if}} gb-action--collapsed" data-list="{{list}}" data-action-index="{{index}}">
+<article class="gb-action{{#if spell}} gb-action--spell gb-spin-hover{{else}} gb-action--tech{{/if}}{{#if row.passive}} gb-action--passive{{/if}}{{#if row.basicAttack}} is-basic{{/if}} gb-action--collapsed"
+         data-list="{{list}}" data-action-index="{{index}}"{{#if spell}} data-sphere="{{row.ui.sphereKey}}"{{/if}}>
     <div class="gb-action-head">
-        <a class="gb-collapse-toggle" data-action="toggleAction" data-list="{{list}}" data-index="{{index}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
-        {{#unless row.passive}}
-        <a class="gb-basic-toggle{{#if row.basicAttack}} gb-basic-toggle--on{{/if}}" data-action="toggleBasicAttack" data-list="{{list}}" data-index="{{index}}" title="{{#if row.basicAttack}}Ataque básico (aparece no HUD ao custo de uma ação normal) — clique para desmarcar{{else}}Marcar como ataque básico{{/if}}"><i class="fa-{{#if row.basicAttack}}solid{{else}}regular{{/if}} fa-star"></i></a>
-        {{/unless}}
-        <input type="text" class="gb-action-name" name="system.{{list}}.{{index}}.name" value="{{row.name}}">
-        {{#if row.passive}}<span class="gb-chip gb-chip--passive" title="Habilidade passiva">Passiva</span>{{/if}}
-        {{#if row.arcano}}<span class="gb-chip gb-chip--arcano" title="Arcano">{{row.arcano}}</span>{{/if}}
-        <span class="gb-action-btns">
-            <a class="gb-icn" data-action="moveAction" data-list="{{list}}" data-index="{{index}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
-            <a class="gb-icn" data-action="moveAction" data-list="{{list}}" data-index="{{index}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
-            {{#if row.passive}}
-            <a class="gb-btn gb-btn--chat" data-action="postActionText" data-list="{{list}}" data-index="{{index}}" data-part="passive" data-drag-action="{{index}}" draggable="true" title="Enviar a passiva ao chat (clique) · arraste para a barra de macros"><i class="fa-solid fa-comment"></i></a>
-            {{else}}
-            <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-list="{{list}}" data-index="{{index}}" data-drag-action="{{index}}" draggable="true" title="{{#if spell}}Conjurar{{else}}Rolar ação{{/if}} (clique) · arraste para a barra de macros"><i class="fa-solid fa-dice-d20"></i></a>
-            <a class="gb-btn gb-btn--hit gb-only-expanded" data-action="rollAction" data-list="{{list}}" data-index="{{index}}" data-part="hit" title="Rolar acerto"><i class="fa-solid fa-crosshairs"></i></a>
-            <a class="gb-btn gb-btn--dmg gb-only-expanded" data-action="rollAction" data-list="{{list}}" data-index="{{index}}" data-part="damage" title="{{#if spell}}Rolar dano / cura{{else}}Rolar dano{{/if}}"><i class="fa-solid fa-burst"></i></a>
-            {{#if (eqStr row.rangeType "complex")}}
-            <a class="gb-btn gb-btn--area" data-action="placeArea" data-list="{{list}}" data-index="{{index}}" title="Posicionar a área no mapa — os tokens dentro dela viram alvos"><i class="fa-solid fa-draw-polygon"></i></a>
+        <a class="gb-collapse-toggle" data-action="toggleAction" data-list="{{list}}" data-index="{{index}}" data-tooltip="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
+        {{#if spell}}
+        <span class="gb-sigil gb-sigil--sm gb-action-sigil">{{{row.ui.sigil}}}<em class="gb-lvl" data-tooltip="Nível {{row.level}}">{{row.ui.roman}}</em></span>
+        {{else}}
+        <span class="gb-action-emblem" data-tooltip="{{row.ui.typeLabel}}"><i class="{{row.ui.typeIcon}}"></i></span>
+        {{/if}}
+
+        <div class="gb-action-title">
+            <div class="gb-action-name-row">
+                <input type="text" class="gb-action-name" name="system.{{list}}.{{index}}.name" value="{{row.name}}" spellcheck="false">
+                {{#unless row.passive}}
+                <a class="gb-basic-toggle{{#if row.basicAttack}} is-on{{/if}}" data-action="toggleBasicAttack" data-list="{{list}}" data-index="{{index}}"
+                   data-tooltip="{{#if row.basicAttack}}Ataque básico (aparece no HUD ao custo de uma ação normal) — clique para desmarcar{{else}}Marcar como ataque básico{{/if}}"><i class="fa-{{#if row.basicAttack}}solid{{else}}regular{{/if}} fa-star"></i></a>
+                {{/unless}}
+                {{#if row.passive}}<span class="gb-tag gb-tag--passive">Passiva</span>{{/if}}
+            </div>
+            {{#if row.ui.chips.length}}
+            <div class="gb-action-meta">
+                {{#each row.ui.chips as |c|}}<span class="gb-meta{{#if c.cls}} {{c.cls}}{{/if}}" data-tooltip="{{c.label}}"><i class="{{c.icon}}"></i>{{c.value}}</span>{{/each}}
+            </div>
             {{/if}}
-            {{#if row.statusEffect}}
-            <a class="gb-btn gb-btn--fx" data-action="applyStatusEffect" data-list="{{list}}" data-index="{{index}}" title="Aplicar o efeito ao(s) token(s) selecionado(s) — sem seleção, aos alvos"><i class="fa-solid fa-wand-sparkles"></i></a>
+        </div>
+
+        <div class="gb-action-btns">
+            <span class="gb-action-more">
+                <a class="gb-icon-btn" data-action="moveAction" data-list="{{list}}" data-index="{{index}}" data-dir="up" data-tooltip="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
+                <a class="gb-icon-btn" data-action="moveAction" data-list="{{list}}" data-index="{{index}}" data-dir="down" data-tooltip="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
+                <a class="gb-icon-btn gb-icon-btn--danger" data-action="deleteAction" data-list="{{list}}" data-index="{{index}}" data-tooltip="Remover"><i class="fa-solid fa-trash"></i></a>
+            </span>
+            {{#if row.passive}}
+            <a class="gb-cast gb-cast--chat" data-action="postActionText" data-list="{{list}}" data-index="{{index}}" data-part="passive" data-drag-action="{{index}}" draggable="true"
+               data-tooltip="Enviar a passiva ao chat · arraste para a barra de macros"><i class="fa-solid fa-comment"></i></a>
+            {{else}}
+            {{#if (eqStr row.rangeType "complex")}}
+            <a class="gb-icon-btn gb-icon-btn--area" data-action="placeArea" data-list="{{list}}" data-index="{{index}}" data-tooltip="Posicionar a área no mapa — os tokens dentro dela viram alvos"><i class="fa-solid fa-draw-polygon"></i></a>
+            {{/if}}
+            {{#if row.ui.status}}
+            <a class="gb-icon-btn gb-icon-btn--fx" data-action="applyStatusEffect" data-list="{{list}}" data-index="{{index}}" data-tooltip="Aplicar {{row.ui.status.label}} nos tokens selecionados — sem seleção, nos alvos"><img src="{{row.ui.status.img}}" alt=""></a>
             {{/if}}
             {{#if row.hasPassive}}
-            <a class="gb-btn gb-btn--chat" data-action="postActionText" data-list="{{list}}" data-index="{{index}}" data-part="attached" title="Enviar a passiva desta habilidade ao chat"><i class="fa-solid fa-feather"></i></a>
+            <a class="gb-icon-btn" data-action="postActionText" data-list="{{list}}" data-index="{{index}}" data-part="attached" data-tooltip="Enviar a passiva desta habilidade ao chat"><i class="fa-solid fa-feather"></i></a>
             {{/if}}
+            <a class="gb-cast" data-action="rollActionFull" data-list="{{list}}" data-index="{{index}}" data-drag-action="{{index}}" draggable="true"
+               data-tooltip="{{#if spell}}Conjurar{{else}}Usar{{/if}} (bônus, área, acerto e dano) · arraste para a barra de macros"><i class="fa-solid {{#if spell}}fa-wand-sparkles{{else}}fa-dice-d20{{/if}}"></i></a>
             {{/if}}
-            <a class="gb-btn gb-btn--del" data-action="deleteAction" data-list="{{list}}" data-index="{{index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-        </span>
+        </div>
     </div>
+
     <div class="gb-action-details">
-        <div class="gb-action-kind">
-            <label class="gb-kind-select">
-                <span>Tipo</span>
+        <div class="gb-form-row">
+            <label class="gb-field gb-field--row"><span>Tipo</span>
                 <select name="system.{{list}}.{{index}}.passive" data-dtype="Boolean">
                     <option value="false" {{#unless row.passive}}selected{{/unless}}>Ativa</option>
                     <option value="true" {{#if row.passive}}selected{{/if}}>Passiva</option>
                 </select>
             </label>
             {{#unless row.passive}}
-            <label class="gb-kind-check" title="Acrescenta uma passiva a esta habilidade: um texto a mais, com botão de enviar ao chat">
+            <label class="gb-switch" data-tooltip="Acrescenta uma passiva a esta habilidade: um texto a mais, com botão de enviar ao chat">
                 <input type="checkbox" name="system.{{list}}.{{index}}.hasPassive" {{#if row.hasPassive}}checked{{/if}}>
-                <span>Possui passiva</span>
+                <span class="gb-switch-track"></span> Possui passiva
             </label>
             {{/unless}}
         </div>
 
         {{#if spell}}
-        <div class="gb-spell-meta">
-            <label><span>Esfera</span>
-                <select name="system.{{list}}.{{index}}.sphere" title="Mover a magia para outra esfera">
+        <div class="gb-form-grid gb-form-grid--spell">
+            <label class="gb-field"><span>Esfera</span>
+                <select name="system.{{list}}.{{index}}.sphere" data-tooltip="Mover a magia para outra esfera">
                     {{#each @root.sphereOptions as |o|}}
-                    <option value="{{o.value}}" {{#if (eqStr o.value ../row.sphereKey)}}selected{{/if}}>{{o.label}}</option>
+                    <option value="{{o.value}}" {{#if (eqStr o.value ../row.ui.sphereKey)}}selected{{/if}}>{{o.label}}</option>
                     {{/each}}
                 </select>
             </label>
-            <label><span>Arcano</span><input type="text" name="system.{{list}}.{{index}}.arcano" value="{{row.arcano}}" placeholder="Cura, Espírito…"></label>
-            <label><span>Nível</span><input type="number" name="system.{{list}}.{{index}}.level" value="{{row.level}}" min="1" max="9"></label>
+            <label class="gb-field"><span>Arcano</span><input type="text" name="system.{{list}}.{{index}}.arcano" value="{{row.arcano}}" placeholder="Cura, Espírito…"></label>
+            <label class="gb-field"><span>Nível</span><input type="number" name="system.{{list}}.{{index}}.level" value="{{row.level}}" min="1" max="9"></label>
         </div>
         {{/if}}
 
         {{#if row.passive}}
-        <label class="gb-passive-field">
-            <span><i class="fa-solid fa-feather"></i> Descrição da passiva</span>
+        <label class="gb-field gb-field--passive"><span><i class="fa-solid fa-feather"></i> Descrição da passiva</span>
             <textarea class="gb-passive-text" name="system.{{list}}.{{index}}.description" placeholder="O que esta passiva faz…">{{row.description}}</textarea>
         </label>
         {{else}}
-        <div class="gb-action-formulas">
-            <label><span>Acerto</span><input type="text" name="system.{{list}}.{{index}}.hit" value="{{row.hit}}" placeholder="{{#if spell}}3d6 + @disciplina{{else}}3d6 + @precisao{{/if}}"></label>
-            <label><span>{{#if spell}}Dano / Cura{{else}}Dano{{/if}}</span><input type="text" name="system.{{list}}.{{index}}.damage" value="{{row.damage}}" placeholder="{{#if spell}}2d8 + @potencia{{else}}2d8 + @forca{{/if}}"></label>
+        <div class="gb-form-grid gb-form-grid--2">
+            <div class="gb-field"><span>Acerto</span>
+                <div class="gb-input-action">
+                    <input type="text" name="system.{{list}}.{{index}}.hit" value="{{row.hit}}" placeholder="{{#if spell}}3d6 + @disciplina{{else}}3d6 + @precisao{{/if}}">
+                    <a class="gb-icon-btn" data-action="rollAction" data-list="{{list}}" data-index="{{index}}" data-part="hit" data-tooltip="Rolar só o acerto"><i class="fa-solid fa-crosshairs"></i></a>
+                </div>
+            </div>
+            <div class="gb-field"><span>{{#if spell}}Dano / cura{{else}}Dano{{/if}}</span>
+                <div class="gb-input-action">
+                    <input type="text" name="system.{{list}}.{{index}}.damage" value="{{row.damage}}" placeholder="{{#if spell}}2d8 + @potencia{{else}}2d8 + @forca{{/if}}">
+                    <a class="gb-icon-btn" data-action="rollAction" data-list="{{list}}" data-index="{{index}}" data-part="damage" data-tooltip="{{#if spell}}Rolar só o dano / cura{{else}}Rolar só o dano{{/if}}"><i class="fa-solid fa-burst"></i></a>
+                </div>
+            </div>
         </div>
-        <div class="gb-action-meta gb-action-meta--3">
-            <label><span>Custo</span><input type="text" name="system.{{list}}.{{index}}.cost" value="{{row.cost}}"{{#if spell}} placeholder="mana"{{/if}}></label>
-            <label><span>Conjuração</span><input type="text" name="system.{{list}}.{{index}}.casting" value="{{row.casting}}"></label>
-            <label><span>Dificuldade</span><input type="text" name="system.{{list}}.{{index}}.difficulty" value="{{row.difficulty}}"></label>
+        <div class="gb-form-grid gb-form-grid--3">
+            <label class="gb-field"><span>Custo</span><input type="text" name="system.{{list}}.{{index}}.cost" value="{{row.cost}}"{{#if spell}} placeholder="mana"{{/if}}></label>
+            <label class="gb-field"><span>Conjuração</span><input type="text" name="system.{{list}}.{{index}}.casting" value="{{row.casting}}"></label>
+            <label class="gb-field"><span>Dificuldade</span><input type="text" name="system.{{list}}.{{index}}.difficulty" value="{{row.difficulty}}"></label>
         </div>
         {{> "systems/granblue/templates/actor/parts/range-fields.hbs" prefix=(concat "system." list "." index ".") row=row spell=spell}}
-        <div class="gb-action-status">
-            <label class="gb-action-fx">
-                <span>Efeito aplicado</span>
+        <div class="gb-form-grid gb-form-grid--status">
+            <label class="gb-field"><span>Efeito aplicado</span>
                 <select name="system.{{list}}.{{index}}.statusEffect">
                     <option value="">— nenhum —</option>
                     {{#each @root.statusEffectOptions as |o|}}
@@ -95,15 +124,14 @@
                     {{/each}}
                 </select>
             </label>
-            <label class="gb-action-effect"><span>Efeito</span><input type="text" name="system.{{list}}.{{index}}.effect" value="{{row.effect}}"></label>
+            <label class="gb-field"><span>Efeito</span><input type="text" name="system.{{list}}.{{index}}.effect" value="{{row.effect}}" placeholder="O que acontece ao acertar…"></label>
         </div>
-        <label class="gb-action-desc"><span>Descrição</span><textarea name="system.{{list}}.{{index}}.description" rows="2">{{row.description}}</textarea></label>
+        <label class="gb-field"><span>Descrição</span><textarea name="system.{{list}}.{{index}}.description" rows="2" placeholder="{{#if spell}}A frase de conjuração, a aparência da magia…{{else}}Como o golpe acontece…{{/if}}">{{row.description}}</textarea></label>
         {{#if row.hasPassive}}
-        <label class="gb-passive-field gb-passive-field--attached">
-            <span><i class="fa-solid fa-feather"></i> Passiva desta habilidade</span>
+        <label class="gb-field gb-field--passive"><span><i class="fa-solid fa-feather"></i> Passiva desta habilidade</span>
             <textarea class="gb-passive-text" name="system.{{list}}.{{index}}.passiveText" placeholder="O que a passiva desta habilidade faz…">{{row.passiveText}}</textarea>
         </label>
         {{/if}}
         {{/if}}
     </div>
-</div>
+</article>

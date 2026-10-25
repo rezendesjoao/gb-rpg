@@ -1,6 +1,7 @@
 import { GRANBLUE } from './config.mjs';
 import { rollDialog } from './dice/roll-dialog.mjs';
 import { promptArea } from './area.mjs';
+import { roman } from './sigil.mjs';
 
 /**
  * Fluxo de uso de uma ação/magia, compartilhado pela ficha e pelo HUD:
@@ -33,6 +34,24 @@ export function rowActionType(row) {
 }
 
 /**
+ * Cabeçalho do diálogo de bônus: a magia leva o selo e a esfera, com esfera,
+ * arcano e nível no sobretítulo; a técnica, o ícone e o nome do tipo de ação.
+ */
+export function rollHeader(action) {
+    const sphere = GRANBLUE.normalizeSphere(action?.sphere);
+    if (sphere) {
+        return {
+            sphere,
+            sigil: { name: action.name, arcano: action.arcano ?? '', level: action.level ?? 1 },
+            kicker: [game.i18n.localize(GRANBLUE.spheres[sphere].label), action.arcano, `${game.i18n.localize('GRANBLUE.Spell.level')} ${roman(action.level)}`]
+                .filter(Boolean).join(' · ')
+        };
+    }
+    const type = GRANBLUE.actionTypes[rowActionType(action)];
+    return { icon: type?.icon ?? 'fa-solid fa-hand-fist', kicker: type ? game.i18n.localize(type.label) : '' };
+}
+
+/**
  * Rola a ação/magia inteira (acerto + dano). Passivas vão para o chat.
  * Devolve true quando a ação foi de fato usada (false = cancelada).
  */
@@ -46,7 +65,7 @@ export async function useAction(actor, list, index) {
     const parts = [];
     if ((action.hit ?? '').trim()) parts.push({ key: 'hit', label: 'Acerto', base: action.hit.trim() });
     if ((action.damage ?? '').trim()) parts.push({ key: 'damage', label: 'Dano', base: action.damage.trim() });
-    const mods = await rollDialog({ title: action.name, parts, consume: parseCost(action.cost) });
+    const mods = await rollDialog({ title: action.name, parts, consume: parseCost(action.cost), header: rollHeader(action) });
     if (!mods) return false;
     if (!(await promptArea(actor, action))) return false;
     // Sem nada para rolar nem mostrar, a ação não conta como usada.
@@ -64,13 +83,14 @@ export async function useActionPart(actor, list, index, part) {
     const label = part === 'hit' ? 'Acerto' : 'Dano';
     const mods = await rollDialog({
         title: `${action.name} — ${label}`,
-        parts: base ? [{ key: 'main', label, base }] : [],
-        consume: parseCost(action.cost)
+        parts: base ? [{ key: part === 'hit' ? 'hit' : 'damage', label, base }] : [],
+        consume: parseCost(action.cost),
+        header: rollHeader(action)
     });
     if (!mods) return false;
     // A área só importa para o acerto: é ele que confere a CA dos alvos.
     if (part === 'hit' && !(await promptArea(actor, action))) return false;
-    const result = await actor.rollAction(index, part, mods.main ?? {}, list);
+    const result = await actor.rollAction(index, part, mods[part === 'hit' ? 'hit' : 'damage'] ?? {}, list);
     if (!result) return false;
     await applyConsume(actor, mods.consume);
     return true;

@@ -1,0 +1,37 @@
+{{!--
+    Biografia (personagem e adversário): páginas de crônica com o editor de
+    texto rico — fechado, mostra o texto formatado; o lápis abre o editor.
+    O adversário ganha também a Descrição (`isAdversary`).
+--}}
+<div class="gb-chronicle">
+    <div class="gb-page">
+        <span class="gb-page-title"><i class="fa-solid fa-user"></i> Atribuições Aparentes</span>
+        <prose-mirror name="system.biography.appearance" value="{{biography.appearance}}" toggled>{{{enriched.appearance}}}</prose-mirror>
+    </div>
+    <div class="gb-page">
+        <span class="gb-page-title"><i class="fa-solid fa-mask"></i> “Inner Demons” e Conflitos</span>
+        <prose-mirror name="system.biography.demons" value="{{biography.demons}}" toggled>{{{enriched.demons}}}</prose-mirror>
+    </div>
+    <div class="gb-page">
+        <span class="gb-page-title"><i class="fa-solid fa-flag-swallowtail"></i> Metas e Motivações</span>
+        <prose-mirror name="system.biography.motivations" value="{{biography.motivations}}" toggled>{{{enriched.motivations}}}</prose-mirror>
+    </div>
+    <div class="gb-page">
+        <span class="gb-page-title"><i class="fa-solid fa-globe"></i> Worldview</span>
+        <prose-mirror name="system.biography.worldview" value="{{biography.worldview}}" toggled>{{{enriched.worldview}}}</prose-mirror>
+    </div>
+    <div class="gb-page gb-page--wide">
+        <span class="gb-page-title"><i class="fa-solid fa-scroll"></i> Backstory</span>
+        <prose-mirror name="system.biography.backstory" value="{{biography.backstory}}" toggled>{{{enriched.backstory}}}</prose-mirror>
+    </div>
+    {{#if isAdversary}}
+    <div class="gb-page gb-page--wide">
+        <span class="gb-page-title"><i class="fa-solid fa-book-open"></i> Descrição</span>
+        <prose-mirror name="system.description" value="{{description}}" toggled>{{{enriched.description}}}</prose-mirror>
+    </div>
+    {{/if}}
+    <div class="gb-page gb-page--wide">
+        <span class="gb-page-title"><i class="fa-solid fa-pen-nib"></i> Notas</span>
+        <prose-mirror name="system.notes" value="{{notes}}" toggled>{{{enriched.notes}}}</prose-mirror>
+    </div>
+</div>

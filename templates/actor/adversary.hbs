@@ -1,238 +1,189 @@
-{{!-- Ficha de Adversário / NPC (monstro ou personagem antagonista) --}}
-<div class="gb-root">
-<div class="gb-top">
-    <figure class="gb-portrait-panel">
-        <img class="gb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" title="Clique para trocar a imagem">
-        <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
-    </figure>
-    <div class="gb-top-main">
-        {{!-- Cabeçalho encadeado: nome + modelo da ficha, escolhas e números --}}
-        <header class="gb-header gb-hd">
-            <div class="gb-hd-title">
-                <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do adversário">
-                {{!-- Modelo da ficha: o ícone escolhido fica aceso em dourado --}}
-                <div class="gb-kind-toggle" role="radiogroup" aria-label="Modelo da ficha">
-                    {{#each kindOptions as |o|}}
-                    <label class="gb-kind-opt{{#if o.selected}} is-active{{/if}}" title="{{o.label}}">
-                        <input type="radio" name="system.kind" value="{{o.value}}" {{#if o.selected}}checked{{/if}} aria-label="{{o.label}}">
-                        <i class="fa-solid {{o.icon}}"></i>
-                    </label>
-                    {{/each}}
-                </div>
-            </div>
-            <div class="gb-hd-chain">
-                {{#if isAntagonist}}
-                {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
-                {{/if}}
-                <label class="gb-pick" title="Dificuldade do encontro">
-                    <i class="gb-pick-icon fa-solid fa-skull"></i>
-                    <span class="gb-pick-value">{{difficultyLabel}}</span>
-                    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
-                    <select name="system.difficulty">
-                        {{#each difficultyOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
-                    </select>
-                </label>
-                <label class="gb-pick" title="Tipagem">
-                    <i class="gb-pick-icon fa-solid fa-crown"></i>
-                    <span class="gb-pick-value">{{typeLabel}}</span>
-                    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
-                    <select name="system.creatureType">
-                        {{#each typeOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
-                    </select>
-                </label>
-                <label class="gb-pick gb-pick--input" title="Rank">
-                    <span class="gb-pick-label">Rank</span>
-                    <input type="text" name="system.rank" value="{{system.rank}}" placeholder="—">
-                </label>
-                <label class="gb-pick gb-pick--input" title="Nível">
-                    <span class="gb-pick-label">Nv</span>
-                    <input type="number" name="system.level" value="{{system.level}}" min="0">
-                </label>
-            </div>
-            {{> "systems/granblue/templates/actor/parts/header-stats.hbs"}}
-        </header>
-
-        {{!-- Barra de vitais sempre visível --}}
-        <div class="gb-vitals">
-            <div class="gb-vital gb-vital--hp">
-                <div class="gb-vital-fill" style="width:{{hpPct}}%"></div>
-                <div class="gb-vital-content">
-                    <span class="gb-vital-name"><i class="fa-solid fa-heart"></i> Energia Vital</span>
-                    <span class="gb-vital-nums">
-                        <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" title="Vida atual">
-                        <span class="gb-vital-sep">/</span>
-                        <input type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima">
-                    </span>
-                </div>
-            </div>
-            <div class="gb-vital gb-vital--mana">
-                <div class="gb-vital-fill" style="width:{{manaPct}}%"></div>
-                <div class="gb-vital-content">
-                    <span class="gb-vital-name"><i class="fa-solid fa-droplet"></i> Mana</span>
-                    <span class="gb-vital-nums">
-                        <input type="number" name="system.resources.mana.value" value="{{mana.value}}" title="Mana atual">
-                        <span class="gb-vital-sep">/</span>
-                        <input type="number" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima">
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<nav class="gb-tabs">
-    <a data-tab-nav="principal"><i class="fa-solid fa-dragon"></i> Estatísticas</a>
-    <a data-tab-nav="acoes"><i class="fa-solid fa-khanda"></i> Ataques</a>
-    <a data-tab-nav="magia"><i class="fa-solid fa-wand-sparkles"></i> Magia</a>
-    {{#if isAntagonist}}<a data-tab-nav="identidade"><i class="fa-solid fa-id-badge"></i> Classe & Herança</a>{{/if}}
-    <a data-tab-nav="loot"><i class="fa-solid fa-sack-dollar"></i> Loot</a>
-    <a data-tab-nav="bio"><i class="fa-solid fa-book"></i> Biografia</a>
-</nav>
-
-{{!-- ===================== ESTATÍSTICAS ===================== --}}
-<section class="gb-tab" data-tab-content="principal">
-    <div class="gb-res-details">
-        <div class="gb-res-block gb-res-block--hp">
-            <h4><i class="fa-solid fa-heart"></i> Energia Vital</h4>
-            <div class="gb-res-grid">
-                {{#if hasClass}}
-                <label><span>Base</span><span class="gb-derived" title="Classe: {{classItem.name}}">{{hp.base}}</span></label>
-                {{else}}
-                <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hpSource.base}}"></label>
-                {{/if}}
-                <label><span>Dado</span><input type="number" name="system.resources.hitPoints.die" value="{{hp.die}}"></label>
-                <label><span>Res×3</span><span class="gb-derived">{{hp.mod}}</span></label>
-                <label><span>Temp</span><input type="number" name="system.resources.hitPoints.temp" value="{{hp.temp}}"></label>
-            </div>
-            <a class="gb-recalc" data-action="recalcMax" title="base + Res×3 + dado + temp"><i class="fa-solid fa-arrows-rotate"></i> Recalcular máx ({{hp.maxFormula}})</a>
-        </div>
-        <div class="gb-res-block gb-res-block--ca">
-            <h4><i class="fa-solid fa-shield-halved"></i> CA</h4>
-            <div class="gb-res-ca">{{ca}}</div>
-            <label class="gb-cabonus"><span>Bônus</span><input type="number" name="system.defenses.caBonus" value="{{caBonus}}"></label>
-        </div>
-        <div class="gb-res-block gb-res-block--mana">
-            <h4><i class="fa-solid fa-droplet"></i> Mana</h4>
-            <div class="gb-hint">Máx sugerido: <strong>{{mana.maxFormula}}</strong> (Sab×2)</div>
-        </div>
-    </div>
-    {{> "systems/granblue/templates/actor/parts/defense-row.hbs"}}
-
-    <h3 class="gb-section-title"><i class="fa-solid fa-scale-unbalanced"></i> Vantagens &amp; Desvantagens</h3>
-    <div class="gb-adv-grid">
-        <div class="gb-adv gb-adv--pro">
-            <span><i class="fa-solid fa-circle-plus"></i> Vantagens</span>
-            {{#each advantages as |a|}}
-            <div class="gb-adv-box">
-                <textarea name="system.advantages.{{a.index}}" placeholder="O que favorece esta criatura: resistências, imunidades, terreno…">{{a.text}}</textarea>
-                <a class="gb-mini-chat" data-action="postFeature" data-feature="advantages" data-index="{{a.index}}" title="Mostrar esta vantagem no chat"><i class="fa-solid fa-comment"></i></a>
-            </div>
-            {{/each}}
-        </div>
-        <div class="gb-adv gb-adv--con">
-            <span><i class="fa-solid fa-circle-minus"></i> Desvantagens</span>
-            {{#each disadvantages as |d|}}
-            <div class="gb-adv-box">
-                <textarea name="system.disadvantages.{{d.index}}" placeholder="A fraqueza revelada ao analisar o poder de combate…">{{d.text}}</textarea>
-                <a class="gb-mini-chat" data-action="postFeature" data-feature="disadvantages" data-index="{{d.index}}" title="Mostrar esta desvantagem no chat"><i class="fa-solid fa-comment"></i></a>
-            </div>
-            {{/each}}
-        </div>
-    </div>
-
-    <h3 class="gb-section-title">Atributos <span class="gb-hint">clique para testar (3d6 + atributo)</span></h3>
-    <div class="gb-attributes">
-        {{#each attributes as |attr|}}
-        <div class="gb-attribute">
-            <a class="gb-attr-roll" data-action="rollAttribute" data-attribute="{{attr.key}}" title="{{attr.func}}">
-                <span class="gb-attr-name">{{attr.label}}</span>
-                <span class="gb-attr-total">{{attr.total}}</span>
-                <span class="gb-attr-dice">3d6{{#if attr.effect}} <span class="gb-attr-effect" title="Bônus de herança/efeitos">({{granblueSigned attr.effect}})</span>{{/if}}</span>
-            </a>
-            <div class="gb-attr-inputs">
-                <label><span>Valor</span><input type="number" name="system.attributes.{{attr.key}}.value" value="{{attr.value}}"></label>
-                <label><span>Bônus</span><input type="number" name="system.attributes.{{attr.key}}.bonus" value="{{attr.bonus}}"></label>
-            </div>
-        </div>
-        {{/each}}
-    </div>
-    <div class="gb-pointbuy">
-        Pontos de atributo: <strong>{{pointBuy.spent}}</strong> / {{pointBuy.total}}
-        <span class="{{#if pointBuy.remaining}}gb-remaining{{/if}}">(restam {{pointBuy.remaining}})</span>
-    </div>
-</section>
-
-{{!-- ===================== ATAQUES ===================== --}}
-<section class="gb-tab" data-tab-content="acoes">
-    <div class="gb-actions-toolbar">
-        <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ataque</button>
-        <button type="button" data-action="addAction" data-passive="true"><i class="fa-solid fa-feather"></i> Adicionar passiva</button>
-    </div>
-    <p class="gb-hint">Ataques e manobras não-mágicas. Magias ficam na aba <strong>Magia</strong>, dentro da esfera delas.
-        A estrela marca o ataque básico, rolado pelo HUD ao custo de uma ação normal.</p>
-    {{#each actions as |action idx|}}
-    {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=action index=idx list="actions"}}
-    {{else}}
-    <p class="gb-empty">Nenhum ataque cadastrado.</p>
-    {{/each}}
-</section>
-
-{{!-- ===================== MAGIA ===================== --}}
-<section class="gb-tab" data-tab-content="magia">
-    {{> "systems/granblue/templates/actor/parts/magic-tab.hbs"}}
-</section>
-
-{{#if isAntagonist}}
-{{!-- ===================== CLASSE & HERANÇA (antagonista) ===================== --}}
-<section class="gb-tab" data-tab-content="identidade">
-    {{> "systems/granblue/templates/actor/parts/identity-tab.hbs"}}
-</section>
-{{/if}}
-
-{{!-- ===================== LOOT ===================== --}}
-<section class="gb-tab" data-tab-content="loot">
-    <div class="gb-actions-toolbar">
-        <button type="button" data-action="addLoot"><i class="fa-solid fa-plus"></i> Adicionar espólio</button>
-        {{#if isGM}}
-        <button type="button" class="gb-loot-send-btn" data-action="sendLoot" title="Abre para os jogadores um pop-up com a chance de cada espólio (sem o nome) e o d100 de cada um">
-            <i class="fa-solid fa-paper-plane"></i> Enviar rolagem de loot aos jogadores
-        </button>
-        {{/if}}
-    </div>
-    <p class="gb-hint">
-        <strong>Chance</strong>: tirar no d100 igual ou menos consegue o item{{#if dropBonus}} — a dificuldade {{difficultyLabel}} soma <strong>+{{dropBonus}}%</strong> no envio{{/if}}.
-        <strong>Quantidade</strong>: número ou fórmula (<code>1d3</code>, <code>2</code>).
-        <strong>Qualidades</strong>: até onde o item pode chegar — o d100 de qualidade dá Boa ≤50, Rara ≤25, Primorosa ≤12, Matéria-prima ≤5.
-    </p>
-    <div class="gb-loot">
-        {{#each loot as |l idx|}}
-        <div class="gb-loot-row{{#if l.invalid}} gb-loot-row--invalid{{/if}}">
-            <label class="gb-loot-chance"><span>Chance</span><input type="text" name="system.loot.{{idx}}.chance" value="{{l.chance}}" placeholder="35%"{{#if l.invalid}} title="Chance sem número: este espólio não vai para a rolagem"{{/if}}></label>
-            <label class="gb-loot-item"><span>Item</span><input type="text" name="system.loot.{{idx}}.item" value="{{l.item}}" placeholder="Couro de Lobo"></label>
-            <label class="gb-loot-qty"><span>Quantidade</span><input type="text" name="system.loot.{{idx}}.quantity" value="{{l.quantity}}" placeholder="1d3"></label>
-            <label class="gb-loot-quality"><span>Qualidades</span>
-                <select name="system.loot.{{idx}}.quality">
-                    {{#each @root.lootQualityOptions as |o|}}
-                    <option value="{{o.value}}" {{#if (eqStr o.value l.quality)}}selected{{/if}}>{{o.label}}</option>
-                    {{/each}}
+{{!-- Ficha de Adversário / NPC (monstro ou personagem antagonista) — Códice Celeste --}}
+<div class="gb-sheet gb-sheet--adversary" data-tooltip-class="gb-tooltip">
+    {{!-- ============ Coluna da criatura: arte, nome, vitais e defesas ============ --}}
+    <aside class="gb-side">
+        <figure class="gb-portrait gb-frame">
+            <img src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" data-tooltip="Clique para trocar a arte">
+            <div class="gb-portrait-shade"></div>
+            <label class="gb-crest gb-crest--type" data-type="{{system.creatureType}}" data-tooltip="Tipagem: {{typeLabel}} — clique para trocar">
+                <i class="fa-solid {{typeIcon}}"></i>
+                <span class="gb-crest-num">{{typeLabel}}</span>
+                <select name="system.creatureType">
+                    {{#each typeOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
                 </select>
             </label>
-            <a class="gb-btn gb-btn--del" data-action="deleteLoot" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-        </div>
-        {{else}}
-        <p class="gb-empty">Nenhum espólio cadastrado.</p>
-        {{/each}}
-    </div>
-</section>
+            {{!-- Modelo da ficha: o ícone escolhido fica aceso --}}
+            <div class="gb-kind-toggle" role="radiogroup" aria-label="Modelo da ficha">
+                {{#each kindOptions as |o|}}
+                <label class="gb-kind-opt{{#if o.selected}} is-active{{/if}}" data-tooltip="{{o.label}}">
+                    <input type="radio" name="system.kind" value="{{o.value}}" {{#if o.selected}}checked{{/if}} aria-label="{{o.label}}">
+                    <i class="fa-solid {{o.icon}}"></i>
+                </label>
+                {{/each}}
+            </div>
+            <a class="gb-portrait-zoom" data-action="showArtwork" data-tooltip="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
+            <figcaption class="gb-nameplate">
+                <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do adversário">
+                <div class="gb-picks">
+                    {{#if isAntagonist}}
+                    {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
+                    {{/if}}
+                    <label class="gb-pick" data-tooltip="Dificuldade do encontro{{#if dropBonus}} (+{{dropBonus}}% no loot){{/if}}">
+                        <i class="fa-solid fa-skull"></i>
+                        <span class="gb-pick-value">{{difficultyLabel}}</span>
+                        <select name="system.difficulty">
+                            {{#each difficultyOptions as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-pick gb-pick--level" data-tooltip="Rank">
+                        <span class="gb-pick-key">Rank</span>
+                        <input class="gb-inline" type="text" name="system.rank" value="{{system.rank}}" placeholder="—">
+                    </label>
+                    <label class="gb-pick gb-pick--level" data-tooltip="Nível">
+                        <span class="gb-pick-key">Nv</span>
+                        <input class="gb-inline" type="number" name="system.level" value="{{system.level}}" min="0">
+                    </label>
+                </div>
+            </figcaption>
+        </figure>
 
-{{!-- ===================== BIOGRAFIA ===================== --}}
-<section class="gb-tab" data-tab-content="bio">
-    <label class="gb-bio"><span>Atribuições Aparentes</span><textarea name="system.biography.appearance">{{biography.appearance}}</textarea></label>
-    <label class="gb-bio"><span>"Inner Demons" e Conflitos</span><textarea name="system.biography.demons">{{biography.demons}}</textarea></label>
-    <label class="gb-bio"><span>Metas e Motivações</span><textarea name="system.biography.motivations">{{biography.motivations}}</textarea></label>
-    <label class="gb-bio"><span>Worldview</span><textarea name="system.biography.worldview">{{biography.worldview}}</textarea></label>
-    <label class="gb-bio"><span>Backstory</span><textarea name="system.biography.backstory">{{biography.backstory}}</textarea></label>
-    <label class="gb-bio"><span>Descrição</span><textarea name="system.description">{{description}}</textarea></label>
-    <label class="gb-bio"><span>Notas</span><textarea name="system.notes">{{notes}}</textarea></label>
-</section>
+        {{> "systems/granblue/templates/actor/parts/vitals.hbs"}}
+    </aside>
+
+    {{!-- ============ Códice: abas ============ --}}
+    <div class="gb-main">
+        <nav class="gb-tabs">
+            <a data-tab-nav="principal"><i class="fa-solid fa-dragon"></i><span>Estatísticas</span></a>
+            <a data-tab-nav="acoes"><i class="fa-solid fa-swords"></i><span>Ataques</span></a>
+            <a data-tab-nav="magia"><i class="fa-solid fa-book-sparkles"></i><span>Grimório</span></a>
+            {{#if isAntagonist}}<a data-tab-nav="identidade"><i class="fa-solid fa-dna"></i><span>Classe &amp; Herança</span></a>{{/if}}
+            <a data-tab-nav="loot"><i class="fa-solid fa-sack-dollar"></i><span>Loot</span></a>
+            <a data-tab-nav="bio"><i class="fa-solid fa-feather-pointed"></i><span>Biografia</span></a>
+        </nav>
+
+        <div class="gb-body">
+            {{!-- ===================== ESTATÍSTICAS ===================== --}}
+            <section class="gb-tab" data-tab-content="principal">
+                {{> "systems/granblue/templates/actor/parts/attributes.hbs"}}
+
+                <header class="gb-section">
+                    <h3><i class="fa-solid fa-scale-unbalanced"></i> Vantagens &amp; desvantagens</h3>
+                    <span class="gb-rule"></span>
+                </header>
+                <div class="gb-traits">
+                    <div class="gb-traits-col gb-traits-col--pro">
+                        <span class="gb-traits-title"><i class="fa-solid fa-circle-plus"></i> Vantagens</span>
+                        {{#each advantages as |a|}}
+                        <div class="gb-trait">
+                            <textarea name="system.advantages.{{a.index}}" placeholder="O que favorece esta criatura: resistências, imunidades, terreno…">{{a.text}}</textarea>
+                            <a class="gb-icon-btn" data-action="postFeature" data-feature="advantages" data-index="{{a.index}}" data-tooltip="Mostrar esta vantagem no chat"><i class="fa-solid fa-comment"></i></a>
+                        </div>
+                        {{/each}}
+                    </div>
+                    <div class="gb-traits-col gb-traits-col--con">
+                        <span class="gb-traits-title"><i class="fa-solid fa-circle-minus"></i> Desvantagens</span>
+                        {{#each disadvantages as |d|}}
+                        <div class="gb-trait">
+                            <textarea name="system.disadvantages.{{d.index}}" placeholder="A fraqueza revelada ao analisar o poder de combate…">{{d.text}}</textarea>
+                            <a class="gb-icon-btn" data-action="postFeature" data-feature="disadvantages" data-index="{{d.index}}" data-tooltip="Mostrar esta desvantagem no chat"><i class="fa-solid fa-comment"></i></a>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                {{> "systems/granblue/templates/actor/parts/formulas.hbs"}}
+            </section>
+
+            {{!-- ===================== ATAQUES ===================== --}}
+            <section class="gb-tab" data-tab-content="acoes">
+                <header class="gb-section">
+                    <h3><i class="fa-solid fa-swords"></i> Ataques &amp; habilidades <em>{{actions.length}}</em></h3>
+                    <span class="gb-rule"></span>
+                    <div class="gb-tools">
+                        <button type="button" class="gb-btn gb-btn--sm" data-action="addAction"><i class="fa-solid fa-plus"></i> Ataque</button>
+                        <button type="button" class="gb-btn gb-btn--sm" data-action="addAction" data-passive="true"><i class="fa-solid fa-feather"></i> Passiva</button>
+                    </div>
+                </header>
+                <details class="gb-help">
+                    <summary><i class="fa-solid fa-circle-info"></i> Como os ataques funcionam</summary>
+                    <div>
+                        Ataques e manobras não-mágicas; as magias ficam no <strong>Grimório</strong>, dentro da esfera delas.
+                        A estrela marca o <strong>ataque básico</strong>, rolado pelo HUD ao custo de uma ação normal.
+                    </div>
+                </details>
+                <div class="gb-list">
+                    {{#each actions as |action|}}
+                    {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=action index=action.index list="actions"}}
+                    {{else}}
+                    <p class="gb-empty">Nenhum ataque cadastrado.</p>
+                    {{/each}}
+                </div>
+            </section>
+
+            {{!-- ===================== GRIMÓRIO ===================== --}}
+            <section class="gb-tab" data-tab-content="magia">
+                {{> "systems/granblue/templates/actor/parts/magic-tab.hbs"}}
+            </section>
+
+            {{#if isAntagonist}}
+            {{!-- ===================== CLASSE & HERANÇA (antagonista) ===================== --}}
+            <section class="gb-tab" data-tab-content="identidade">
+                {{> "systems/granblue/templates/actor/parts/identity-tab.hbs"}}
+            </section>
+            {{/if}}
+
+            {{!-- ===================== LOOT ===================== --}}
+            <section class="gb-tab" data-tab-content="loot">
+                <header class="gb-section">
+                    <h3><i class="fa-solid fa-sack-dollar"></i> Espólios <em>{{loot.length}}</em></h3>
+                    <span class="gb-rule"></span>
+                    <div class="gb-tools">
+                        <button type="button" class="gb-btn gb-btn--sm" data-action="addLoot"><i class="fa-solid fa-plus"></i> Espólio</button>
+                        {{#if isGM}}
+                        <button type="button" class="gb-btn gb-btn--sm gb-btn--gold" data-action="sendLoot" data-tooltip="Abre para os jogadores um pop-up com a chance de cada espólio (sem o nome) e o d100 de cada um">
+                            <i class="fa-solid fa-paper-plane"></i> Enviar aos jogadores
+                        </button>
+                        {{/if}}
+                    </div>
+                </header>
+                <details class="gb-help">
+                    <summary><i class="fa-solid fa-circle-info"></i> Como o loot funciona</summary>
+                    <div>
+                        <strong>Chance</strong>: tirar no d100 igual ou menos consegue o item{{#if dropBonus}} — a dificuldade {{difficultyLabel}} soma <strong>+{{dropBonus}}%</strong> no envio{{/if}}.
+                        <strong>Quantidade</strong>: número ou fórmula (<code>1d3</code>, <code>2</code>).
+                        <strong>Qualidades</strong>: até onde o item pode chegar — o d100 de qualidade dá Boa ≤50, Rara ≤25, Primorosa ≤12, Matéria-prima ≤5.
+                    </div>
+                </details>
+                <div class="gb-loot">
+                    {{#if loot.length}}
+                    <div class="gb-loot-head">
+                        <span>Chance</span><span>Item</span><span>Quantidade</span><span>Qualidades</span><span></span>
+                    </div>
+                    {{/if}}
+                    {{#each loot as |l idx|}}
+                    <div class="gb-loot-row{{#if l.invalid}} is-invalid{{/if}}">
+                        <label class="gb-loot-chance"{{#if l.invalid}} data-tooltip="Chance sem número: este espólio não vai para a rolagem"{{/if}}>
+                            <input type="text" name="system.loot.{{idx}}.chance" value="{{l.chance}}" placeholder="35%">
+                        </label>
+                        <input type="text" name="system.loot.{{idx}}.item" value="{{l.item}}" placeholder="Couro de Lobo">
+                        <input type="text" name="system.loot.{{idx}}.quantity" value="{{l.quantity}}" placeholder="1d3">
+                        <select name="system.loot.{{idx}}.quality">
+                            {{#each @root.lootQualityOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value l.quality)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                        <a class="gb-icon-btn gb-icon-btn--danger" data-action="deleteLoot" data-index="{{idx}}" data-tooltip="Remover"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                    {{else}}
+                    <p class="gb-empty">Nenhum espólio cadastrado.</p>
+                    {{/each}}
+                </div>
+            </section>
+
+            {{!-- ===================== BIOGRAFIA ===================== --}}
+            <section class="gb-tab" data-tab-content="bio">
+                {{> "systems/granblue/templates/actor/parts/biography.hbs"}}
+            </section>
+        </div>
+    </div>
 </div>

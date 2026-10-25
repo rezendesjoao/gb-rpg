@@ -1,0 +1,104 @@
+{{!--
+    Inventário do personagem: a bolsa (rupias, contagem e peso) e os itens por
+    categoria. O nome do item ganha a cor da qualidade (Boa, Rara, Primorosa,
+    Matéria-prima); a gema à esquerda marca o que está equipado.
+--}}
+<div class="gb-purse gb-panel">
+    <label class="gb-purse-coins" data-tooltip="Rupias">
+        <span class="gb-purse-gem"><i class="fa-solid fa-gem"></i></span>
+        <span class="gb-purse-text">
+            <span class="gb-kicker">Rupias</span>
+            <input type="number" name="system.currency" value="{{currency}}" min="0">
+        </span>
+    </label>
+    <div class="gb-purse-stats">
+        <div><b>{{inventoryCount}}</b><span>{{#if (eqStr inventoryCount 1)}}item{{else}}itens{{/if}}</span></div>
+        <div><b>{{equippedCount}}</b><span>equipados</span></div>
+        <div><b>{{#if inventoryWeight}}{{inventoryWeight}}{{else}}—{{/if}}</b><span>peso total</span></div>
+    </div>
+</div>
+
+{{#each inventoryGroups as |grp|}}
+<section class="gb-inv-group{{#unless grp.items.length}} is-empty{{/unless}}" data-category="{{grp.key}}">
+    <header class="gb-section">
+        <h3><i class="{{grp.icon}}"></i> {{grp.label}}{{#if grp.items.length}} <em>{{grp.items.length}}</em>{{/if}}</h3>
+        <span class="gb-rule"></span>
+        <div class="gb-tools">
+            <a class="gb-icon-btn" data-action="addInventory" data-category="{{grp.key}}" data-tooltip="Adicionar item em {{grp.label}}"><i class="fa-solid fa-plus"></i></a>
+        </div>
+    </header>
+    {{#if grp.items.length}}
+    <div class="gb-list">
+        {{#each grp.items as |it|}}
+        <article class="gb-action gb-item gb-action--collapsed{{#if it.equipped}} is-equipped{{/if}}" data-quality="{{it.qualityKey}}" data-list="inventory" data-action-index="{{it.index}}">
+            <div class="gb-action-head">
+                <a class="gb-collapse-toggle" data-action="toggleInventory" data-index="{{it.index}}" data-tooltip="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
+                <label class="gb-equip" data-tooltip="{{#if it.equipped}}Equipado / em uso{{else}}Marcar como equipado / em uso{{/if}}">
+                    <input type="checkbox" name="system.inventory.{{it.index}}.equipped" {{#if it.equipped}}checked{{/if}}>
+                    <span class="gb-equip-gem"></span>
+                </label>
+                <div class="gb-action-title">
+                    <div class="gb-action-name-row">
+                        <input type="text" class="gb-action-name gb-item-name" name="system.inventory.{{it.index}}.name" value="{{it.name}}" spellcheck="false">
+                    </div>
+                    {{#if it.chips.length}}
+                    <div class="gb-action-meta">
+                        {{#each it.chips as |c|}}<span class="gb-meta{{#if c.cls}} {{c.cls}}{{/if}}" data-tooltip="{{c.label}}"><i class="{{c.icon}}"></i>{{c.value}}</span>{{/each}}
+                    </div>
+                    {{/if}}
+                </div>
+                <label class="gb-qty" data-tooltip="Quantidade">
+                    <span>×</span><input type="number" name="system.inventory.{{it.index}}.quantity" value="{{it.quantity}}" min="0">
+                </label>
+                <div class="gb-action-btns">
+                    <span class="gb-action-more">
+                        <a class="gb-icon-btn" data-action="moveInventory" data-index="{{it.index}}" data-dir="up" data-tooltip="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
+                        <a class="gb-icon-btn" data-action="moveInventory" data-index="{{it.index}}" data-dir="down" data-tooltip="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
+                        <a class="gb-icon-btn gb-icon-btn--danger" data-action="deleteInventory" data-index="{{it.index}}" data-tooltip="Remover"><i class="fa-solid fa-trash"></i></a>
+                    </span>
+                </div>
+            </div>
+            <div class="gb-action-details">
+                <div class="gb-form-grid gb-form-grid--3">
+                    <label class="gb-field"><span>Categoria</span>
+                        <select name="system.inventory.{{it.index}}.category">
+                            {{#each @root.categoryOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.categoryKey)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field"><span>Tier</span>
+                        <select name="system.inventory.{{it.index}}.tier">
+                            <option value="" {{#unless it.tier}}selected{{/unless}}>—</option>
+                            {{#each @root.tierOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.tier)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field"><span>Qualidade</span>
+                        <select name="system.inventory.{{it.index}}.quality">
+                            <option value="" {{#unless it.quality}}selected{{/unless}}>—</option>
+                            {{#each @root.qualityOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.quality)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                    <label class="gb-field"><span>Peso</span><input type="text" name="system.inventory.{{it.index}}.weight" value="{{it.weight}}" placeholder="0"></label>
+                    <label class="gb-field"><span>Valor</span><input type="text" name="system.inventory.{{it.index}}.value" value="{{it.value}}" placeholder="rupias"></label>
+                    <label class="gb-field" data-tooltip="Ação gasta ao usar o item pelo HUD — sem ação, o item não aparece lá"><span>Ação no HUD</span>
+                        <select name="system.inventory.{{it.index}}.actionType">
+                            <option value="" {{#unless it.actionType}}selected{{/unless}}>—</option>
+                            {{#each @root.actionTypeOptions as |o|}}
+                            <option value="{{o.value}}" {{#if (eqStr o.value it.actionType)}}selected{{/if}}>{{o.label}}</option>
+                            {{/each}}
+                        </select>
+                    </label>
+                </div>
+                <label class="gb-field"><span>Descrição</span><input type="text" name="system.inventory.{{it.index}}.description" value="{{it.description}}" placeholder="Efeito, origem, observações…"></label>
+            </div>
+        </article>
+        {{/each}}
+    </div>
+    {{/if}}
+</section>
+{{/each}}

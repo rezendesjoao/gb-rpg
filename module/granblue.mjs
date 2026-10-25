@@ -22,6 +22,7 @@ import { onEffectSocket } from './effects.mjs';
 import { GranblueHUD, registerHudSettings, initHud } from './hud.mjs';
 import { onUpdateCombat, resetCombatants } from './economy.mjs';
 import { registerMigrationSettings, migrateIfNeeded, migrateWorld } from './migration.mjs';
+import { sigilSVG, sphereEmblemSVG, dieFaceHTML } from './sigil.mjs';
 
 /* -------------------------------------------- */
 /*  Init                                        */
@@ -37,7 +38,10 @@ Hooks.once('init', () => {
         documents: { GranblueActor },
         applications: { GranblueCharacterSheet, GranblueAdversarySheet, GranblueHUD },
         sendLootDialog,
-        migrateWorld
+        migrateWorld,
+        // Selos procedurais (para macros e módulos): game.granblue.sigil({ name, sphere, arcano, level })
+        sigil: sigilSVG,
+        sphereEmblem: sphereEmblemSVG
     };
 
     // Document classes
@@ -200,4 +204,6 @@ function registerHandlebarsHelpers() {
     Handlebars.registerHelper('eqStr', (a, b) => String(a) === String(b));
     // Natureza do dano efetiva de uma linha (ver GRANBLUE.damageNature)
     Handlebars.registerHelper('gbDamageNature', (row, spell) => GRANBLUE.damageNature(row, { spell: spell === true }));
+    // Face de um dado rolado nos cartões de chat (pips no d6)
+    Handlebars.registerHelper('gbDie', (faces, value) => new Handlebars.SafeString(dieFaceHTML(faces, value)));
 }

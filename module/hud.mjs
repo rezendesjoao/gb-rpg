@@ -3,6 +3,7 @@ import { useAction, rowActionType } from './use-action.mjs';
 import { isActionAvailable, spendAction, resetActions } from './economy.mjs';
 import { describeStatusEffect } from './effects.mjs';
 import { rangeLabel } from './area.mjs';
+import { sigilSVG } from './sigil.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -17,6 +18,9 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
  * Mostra o token que o usuário controla e do qual é dono: o mestre troca de
  * HUD clicando nos tokens; o jogador só vê os seus. Sem token controlado, o
  * jogador vê o personagem atribuído a ele.
+ *
+ * O retrato leva dois anéis — vida por fora, mana por dentro — e as magias da
+ * lista aparecem com o selo procedural (module/sigil.mjs).
  */
 export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
@@ -147,6 +151,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         const economy = Object.entries(GRANBLUE.actionTypes).map(([key, cfg]) => ({
             key,
             label: game.i18n.localize(cfg.label),
+            short: game.i18n.localize(cfg.short ?? cfg.label),
             icon: cfg.icon,
             available: isActionAvailable(actor, key),
             count: GranblueHUD.#segmentsFor(groups, key).reduce((n, seg) => n + seg.entries.length, 0),
@@ -163,6 +168,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             open = {
                 key: this.openType,
                 label: game.i18n.localize(GRANBLUE.actionTypes[this.openType].label),
+                icon: GRANBLUE.actionTypes[this.openType].icon,
                 segments: GranblueHUD.#segmentsFor(groups, this.openType)
             };
         }
@@ -179,11 +185,13 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
                 value: hp.value,
                 max: hp.max,
                 temp: src.resources.hitPoints.temp ?? 0,
-                pct: hp.max > 0 ? Math.max(0, Math.min(100, Math.round((hp.value / hp.max) * 100))) : 0
+                pct: GranblueHUD.#percent(hp.value, hp.max),
+                low: hp.max > 0 && hp.value <= hp.max * 0.25
             },
             mana: {
                 value: mana.value,
                 max: mana.max,
+                pct: GranblueHUD.#percent(mana.value, mana.max),
                 condition: classItem?.system.manaCondition ?? ''
             },
             ca: { total: sys.defenses.ca, bonus: src.defenses.caBonus },
@@ -227,6 +235,12 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         }
         const order = ['actions', 'spells', 'class', 'heritage', 'inventory'];
         return merged.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+    }
+
+    /** Percentual de 0 a 100 dos anéis de vida e mana. */
+    static #percent(value, max) {
+        if (!(max > 0)) return 0;
+        return Math.max(0, Math.min(100, Math.round((value / max) * 100)));
     }
 
     /** Linha de baixo do nome: classe/herança ou o tipo de adversário. */
@@ -291,6 +305,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
                 || (ab.type === 'ativa' ? GRANBLUE.inferActionType(ab.description) || 'normal' : '');
             push(type, 'class', {
                 source: 'class', index, name: ab.name, chips: [],
+                icon: 'fa-solid fa-swords', useIcon: 'fa-comment',
                 summary: GranblueHUD.#excerpt(ab.description)
             });
         });
@@ -303,6 +318,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
                 push(traitType, 'heritage', {
                     source: 'heritage', feature: 'trait', index: 0,
                     name: game.i18n.localize('GRANBLUE.HUD.sharedTrait'), chips: [],
+                    icon: 'fa-solid fa-dna', useIcon: 'fa-comment',
                     summary: GranblueHUD.#excerpt(traitText)
                 });
             }
@@ -311,6 +327,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
                 push(type, 'heritage', {
                     source: 'heritage', feature: 'progress', index, name: p.name,
                     chips: p.requirement ? [{ icon: 'fa-solid fa-lock-open', label: 'Requisito', value: p.requirement }] : [],
+                    icon: 'fa-solid fa-dna', useIcon: 'fa-comment',
                     summary: GranblueHUD.#excerpt(p.description)
                 });
             });
@@ -321,6 +338,7 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             push(item.actionType, 'inventory', {
                 source: 'inventory', index, name: item.name,
                 chips: [{ icon: 'fa-solid fa-hashtag', label: 'Quantidade', value: `×${item.quantity}` }],
+                icon: GRANBLUE.itemCategoryIcons[item.category] ?? 'fa-solid fa-box-open', useIcon: 'fa-hand-sparkles',
                 summary: GranblueHUD.#excerpt(item.description)
             });
         });
@@ -331,25 +349,36 @@ export class GranblueHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         return out;
     }
 
-    /** Entrada do HUD para uma ação/magia: custo, alcance, efeito, CD, acerto e dano. */
+    /**
+     * Entrada do HUD para uma ação/magia: custo, alcance, efeito, CD, acerto e
+     * dano. A magia leva o selo procedural e a cor da esfera; a técnica, o
+     * ícone do tipo de ação.
+     */
     static #rowEntry(row, list, index) {
+        const spell = list === 'spells';
         const chips = [];
-        const add = (icon, label, value) => {
-            if (String(value ?? '').trim()) chips.push({ icon, label, value: String(value).trim() });
+        const add = (icon, label, value, cls = '') => {
+            if (String(value ?? '').trim()) chips.push({ icon, label, value: String(value).trim(), cls });
         };
-        add('fa-solid fa-flask', 'Custo', row.cost);
+        add(spell ? 'fa-solid fa-droplet' : 'fa-solid fa-flask', 'Custo', row.cost, spell ? 'is-mana' : '');
         add('fa-solid fa-ruler', 'Alcance', rangeLabel(row));
         const status = describeStatusEffect(row.statusEffect);
-        if (status) chips.push({ icon: 'fa-solid fa-wand-sparkles', label: 'Efeito aplicado', value: status.label });
-        add('fa-solid fa-bullseye', 'Dificuldade', row.difficulty);
-        add('fa-solid fa-crosshairs', 'Acerto', row.hit);
-        add('fa-solid fa-burst', list === 'spells' ? 'Dano / Cura' : 'Dano', row.damage);
+        if (status) chips.push({ icon: 'fa-solid fa-wand-sparkles', label: 'Efeito aplicado', value: status.label, cls: 'is-fx' });
+        const diff = String(row.difficulty ?? '').trim();
+        add('fa-solid fa-bullseye', 'Dificuldade', /^\d+$/.test(diff) ? `CD ${diff}` : diff);
+        add('fa-solid fa-crosshairs', 'Acerto', GRANBLUE.prettyFormula(row.hit));
+        add('fa-solid fa-burst', spell ? 'Dano / Cura' : 'Dano', GRANBLUE.prettyFormula(row.damage), 'is-dmg');
+        const sphere = spell ? GRANBLUE.normalizeSphere(row.sphere) : '';
         return {
             source: list,
             index,
             name: row.name,
             basic: !!row.basicAttack,
             passive: !!row.passive,
+            sphere,
+            sigil: sphere ? sigilSVG({ name: row.name, sphere, arcano: row.arcano, level: row.level, detail: 0 }) : '',
+            icon: row.passive ? 'fa-solid fa-feather' : GRANBLUE.actionTypes[rowActionType(row)]?.icon ?? 'fa-solid fa-hand-fist',
+            useIcon: row.passive ? 'fa-comment' : spell ? 'fa-wand-sparkles' : 'fa-dice-d20',
             chips,
             summary: GranblueHUD.#excerpt(row.effect || row.description)
         };

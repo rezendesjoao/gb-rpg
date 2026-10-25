@@ -10,14 +10,14 @@ import { qualityRangeLabel } from '../loot.mjs';
 export class GranblueAdversarySheet extends GranblueActorSheetBase {
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'actor', 'adversary'],
-        position: { width: 840, height: 840 }
+        position: { width: 920, height: 860 }
     };
 
     static PARTS = {
         main: {
             template: 'systems/granblue/templates/actor/adversary.hbs',
             templates: SHEET_PARTIALS,
-            scrollable: ['']
+            scrollable: ['.gb-body', '.gb-side']
         }
     };
 
@@ -36,6 +36,7 @@ export class GranblueAdversarySheet extends GranblueActorSheetBase {
             GRANBLUE.adversaryTypes, sys.creatureType, { localize: true }
         );
         context.typeLabel = game.i18n.localize(GRANBLUE.adversaryTypes[sys.creatureType] ?? '');
+        context.typeIcon = GRANBLUE.adversaryTypeIcons[sys.creatureType] ?? 'fa-skull';
 
         // Três caixas de vantagem e de desvantagem, cada uma com botão de chat
         const boxes = (list) => sys[list].map((text, index) => ({ index, text, list }));

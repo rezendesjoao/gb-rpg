@@ -1,147 +1,167 @@
 {{!--
-    HUD de ações (module/hud.mjs), só durante o combate. O destaque é a linha
-    do tempo do turno (movimentação → rápida → normal → bônus → reação), com a
-    conjunta e a total à parte, como exceções. Acima dela, a lista de
-    habilidades do tipo aberto; abaixo, as estatísticas compactas.
+    HUD de ações (module/hud.mjs), só durante o combate. À esquerda o retrato
+    com os anéis de vida (fora) e mana (dentro); no centro a linha do tempo do
+    turno em cristais (movimentação → rápida → normal → bônus → reação), com a
+    conjunta e a total à parte, como exceções; à direita o ataque básico.
+    Acima, a lista de habilidades do tipo aberto; embaixo, os números
+    compactos com os ajustes de bônus.
 --}}
-<div class="gb-hud-inner{{#if collapsed}} gb-hud-inner--collapsed{{/if}}">
+<div class="gb-hud-inner{{#if collapsed}} is-collapsed{{/if}}" data-tooltip-class="gb-tooltip">
     {{#if open}}
     <div class="gb-hud-list">
         <header class="gb-hud-list-head">
+            <span class="gb-hud-list-icon"><i class="{{open.icon}}"></i></span>
             <strong>{{open.label}}</strong>
-            <a class="gb-hud-spend" data-action="spendOnly" title="Gastar esta ação sem usar uma habilidade (mover, esquivar…)"><i class="fa-solid fa-check"></i> Gastar sem habilidade</a>
-            <a class="gb-hud-close" data-action="toggleType" data-type="{{open.key}}" title="Fechar"><i class="fa-solid fa-xmark"></i></a>
+            <a class="gb-hud-spend" data-action="spendOnly" data-tooltip="Gastar esta ação sem usar uma habilidade (mover, esquivar…)"><i class="fa-solid fa-check"></i> Gastar sem habilidade</a>
+            <a class="gb-hud-close" data-action="toggleType" data-type="{{open.key}}" data-tooltip="Fechar"><i class="fa-solid fa-xmark"></i></a>
         </header>
-        {{#each open.segments as |seg|}}
-        <section class="gb-hud-seg">
-            <h5>{{seg.label}}</h5>
-            {{#each seg.entries as |en|}}
-            <div class="gb-hud-entry">
-                <div class="gb-hud-entry-main">
-                    <div class="gb-hud-entry-name">
-                        {{#if en.basic}}<i class="fa-solid fa-star gb-hud-star" title="Ataque básico"></i>{{/if}}
-                        <strong>{{en.name}}</strong>
-                        {{#if en.via}}<span class="gb-hud-via" title="Habilidade de {{en.via}}, feita com a ação normal">{{en.via}}</span>{{/if}}
-                        {{#if en.passive}}<span class="gb-chip gb-chip--passive">Passiva</span>{{/if}}
-                    </div>
-                    {{#if en.chips.length}}
-                    <div class="gb-hud-chips">
-                        {{#each en.chips as |c|}}<span class="gb-hud-chip" title="{{c.label}}"><i class="{{c.icon}}"></i> {{c.value}}</span>{{/each}}
-                    </div>
+        <div class="gb-hud-list-body">
+            {{#each open.segments as |seg|}}
+            <section class="gb-hud-seg">
+                <h5>{{seg.label}}</h5>
+                {{#each seg.entries as |en|}}
+                <div class="gb-hud-entry{{#if en.sphere}} gb-spin-hover{{/if}}"{{#if en.sphere}} data-sphere="{{en.sphere}}"{{/if}}>
+                    {{#if en.sigil}}
+                    <span class="gb-sigil gb-sigil--sm gb-hud-entry-sigil">{{{en.sigil}}}</span>
+                    {{else}}
+                    <span class="gb-hud-entry-icon"><i class="{{en.icon}}"></i></span>
                     {{/if}}
-                    {{#if en.summary}}<p class="gb-hud-summary">{{en.summary}}</p>{{/if}}
+                    <div class="gb-hud-entry-main">
+                        <div class="gb-hud-entry-name">
+                            {{#if en.basic}}<i class="fa-solid fa-star gb-hud-star" data-tooltip="Ataque básico"></i>{{/if}}
+                            <strong>{{en.name}}</strong>
+                            {{#if en.via}}<span class="gb-hud-via" data-tooltip="Feita com a ação normal no lugar de uma {{en.via}}">{{en.via}}</span>{{/if}}
+                            {{#if en.passive}}<span class="gb-tag gb-tag--passive">Passiva</span>{{/if}}
+                        </div>
+                        {{#if en.chips.length}}
+                        <div class="gb-hud-chips">
+                            {{#each en.chips as |c|}}<span class="gb-hud-chip{{#if c.cls}} {{c.cls}}{{/if}}" data-tooltip="{{c.label}}"><i class="{{c.icon}}"></i> {{c.value}}</span>{{/each}}
+                        </div>
+                        {{/if}}
+                        {{#if en.summary}}<p class="gb-hud-summary">{{en.summary}}</p>{{/if}}
+                    </div>
+                    <a class="gb-hud-use" data-action="useEntry" data-source="{{en.source}}" data-index="{{en.index}}" data-feature="{{en.feature}}" data-tooltip="Usar (gasta a ação)">
+                        <i class="fa-solid {{en.useIcon}}"></i>
+                    </a>
                 </div>
-                <a class="gb-hud-roll" data-action="useEntry" data-source="{{en.source}}" data-index="{{en.index}}" data-feature="{{en.feature}}" title="Usar (gasta a ação)">
-                    <i class="fa-solid {{#if (eqStr en.source "actions")}}fa-dice-d20{{else if (eqStr en.source "spells")}}fa-dice-d20{{else}}fa-comment{{/if}}"></i>
-                </a>
-            </div>
+                {{/each}}
+            </section>
+            {{else}}
+            <p class="gb-hud-empty">Nenhuma habilidade deste tipo. Use “Gastar sem habilidade” para marcar a ação como usada.</p>
             {{/each}}
-        </section>
-        {{else}}
-        <p class="gb-hud-empty">Nenhuma habilidade deste tipo. Use "Gastar sem habilidade" para marcar a ação como usada.</p>
-        {{/each}}
+        </div>
     </div>
     {{/if}}
 
     <div class="gb-hud-bar">
-        <header class="gb-hud-head">
-            <img class="gb-hud-portrait" src="{{img}}" alt="" data-action="openSheet" title="Abrir a ficha">
-            <div class="gb-hud-name">
-                <strong>{{name}}</strong>
-                {{#if subtitle}}<small>{{subtitle}}</small>{{/if}}
-            </div>
-            {{#if basic}}
-            <a class="gb-hud-basic{{#unless basic.available}} gb-hud-basic--off{{/unless}}" data-action="basicAttack" title="Ataque básico: {{basic.name}} ({{basic.typeLabel}})">
-                <i class="fa-solid fa-star"></i> {{basic.name}}
-            </a>
-            {{/if}}
-            <div class="gb-hud-head-btns">
-                <a data-action="resetTurn" title="Reiniciar as ações do turno"><i class="fa-solid fa-rotate-left"></i></a>
-                <a data-action="collapse" title="{{#if collapsed}}Mostrar{{else}}Esconder{{/if}} vida, CA, RD e deslocamento"><i class="fa-solid fa-chevron-{{#if collapsed}}up{{else}}down{{/if}}"></i></a>
-            </div>
-        </header>
-
-        {{!-- Linha do tempo do turno: o ponto de atenção do HUD --}}
-        <div class="gb-hud-turn">
-            <ol class="gb-hud-timeline">
-                {{#each timeline as |e|}}
-                <li class="gb-tl-step{{#if e.available}} gb-tl-step--on{{else}} gb-tl-step--used{{/if}}{{#if e.open}} gb-tl-step--open{{/if}}">
-                    <a data-action="toggleType" data-type="{{e.key}}"
-                       title="{{e.step}}. {{e.label}}: {{#if e.available}}disponível — clique para ver o que dá para fazer{{else}}já usada neste turno{{/if}}">
-                        <span class="gb-tl-node">
-                            <i class="{{e.icon}}"></i>
-                            {{#unless e.available}}<i class="fa-solid fa-check gb-tl-done"></i>{{/unless}}
-                            {{#if e.count}}<em class="gb-tl-count">{{e.count}}</em>{{/if}}
-                        </span>
-                        <span class="gb-tl-label">{{e.label}}</span>
-                    </a>
-                </li>
-                {{/each}}
-            </ol>
-            <div class="gb-hud-specials" title="Exceções: usam várias ações do turno de uma vez">
-                {{#each specials as |e|}}
-                <a class="gb-sp{{#if e.available}} gb-sp--on{{else}} gb-sp--used{{/if}}{{#if e.open}} gb-sp--open{{/if}}" data-action="toggleType" data-type="{{e.key}}"
-                   title="{{e.label}}: {{#if (eqStr e.key "conjunta")}}une a ação rápida e a normal{{else}}usa todas as ações do turno de uma vez{{/if}}{{#unless e.available}} — indisponível{{/unless}}">
-                    <i class="{{e.icon}}"></i> {{e.label}}{{#if e.count}} <em>{{e.count}}</em>{{/if}}
+        <div class="gb-hud-main">
+            <div class="gb-hud-id">
+                <a class="gb-hud-avatar{{#if hp.low}} is-low{{/if}}" data-action="openSheet" data-tooltip="Abrir a ficha">
+                    <svg class="gb-hud-rings" viewBox="0 0 64 64" aria-hidden="true">
+                        <circle class="gb-ring-track" cx="32" cy="32" r="30"/>
+                        <circle class="gb-ring gb-ring--hp" cx="32" cy="32" r="30" pathLength="100" stroke-dasharray="{{hp.pct}} 100" transform="rotate(-90 32 32)"/>
+                        <circle class="gb-ring-track" cx="32" cy="32" r="26.4"/>
+                        <circle class="gb-ring gb-ring--mana" cx="32" cy="32" r="26.4" pathLength="100" stroke-dasharray="{{mana.pct}} 100" transform="rotate(-90 32 32)"/>
+                    </svg>
+                    <img src="{{img}}" alt="">
                 </a>
-                {{/each}}
+                <div class="gb-hud-name">
+                    <strong>{{name}}</strong>
+                    {{#if subtitle}}<small>{{subtitle}}</small>{{/if}}
+                    <div class="gb-hud-vitals">
+                        <span class="gb-hud-hp" data-tooltip="Vida (muda pelo dano e pela cura das habilidades)"><i class="fa-solid fa-heart"></i><b>{{hp.value}}</b>/{{hp.max}}</span>
+                        <span class="gb-hud-mana" data-tooltip="Mana"><i class="fa-solid fa-droplet"></i><b>{{mana.value}}</b>/{{mana.max}}</span>
+                        <a class="gb-hud-mana-plus" data-action="manaPlus" data-tooltip="+1 de Mana{{#if mana.condition}} — {{mana.condition}}{{/if}}">+1</a>
+                    </div>
+                </div>
+            </div>
+
+            {{!-- Linha do tempo do turno: o ponto de atenção do HUD --}}
+            <div class="gb-hud-turn">
+                <ol class="gb-hud-timeline">
+                    {{#each timeline as |e|}}
+                    <li class="gb-tl-step{{#if e.available}} is-on{{else}} is-used{{/if}}{{#if e.open}} is-open{{/if}}">
+                        <a data-action="toggleType" data-type="{{e.key}}"
+                           data-tooltip="{{e.step}}. {{e.label}}: {{#if e.available}}disponível — clique para ver o que dá para fazer{{else}}já usada neste turno{{/if}}">
+                            <span class="gb-tl-node">
+                                <i class="{{e.icon}}"></i>
+                                {{#unless e.available}}<i class="fa-solid fa-check gb-tl-done"></i>{{/unless}}
+                                {{#if e.count}}<em class="gb-tl-count">{{e.count}}</em>{{/if}}
+                            </span>
+                            <span class="gb-tl-label">{{e.short}}</span>
+                        </a>
+                    </li>
+                    {{/each}}
+                </ol>
+                <div class="gb-hud-specials">
+                    {{#each specials as |e|}}
+                    <a class="gb-sp{{#if e.available}} is-on{{else}} is-used{{/if}}{{#if e.open}} is-open{{/if}}" data-action="toggleType" data-type="{{e.key}}"
+                       data-tooltip="{{e.label}}: {{#if (eqStr e.key "conjunta")}}une a ação rápida e a normal{{else}}usa todas as ações do turno de uma vez{{/if}}{{#unless e.available}} — indisponível{{/unless}}">
+                        <i class="{{e.icon}}"></i> {{e.short}}{{#if e.count}} <em>{{e.count}}</em>{{/if}}
+                    </a>
+                    {{/each}}
+                </div>
+            </div>
+
+            <div class="gb-hud-tools">
+                {{#if basic}}
+                <a class="gb-hud-basic{{#unless basic.available}} is-off{{/unless}}" data-action="basicAttack" data-tooltip="Ataque básico: {{basic.name}} ({{basic.typeLabel}})">
+                    <i class="fa-solid fa-star"></i><span>{{basic.name}}</span>
+                </a>
+                {{/if}}
+                <div class="gb-hud-tool-btns">
+                    <a data-action="resetTurn" data-tooltip="Reiniciar as ações do turno"><i class="fa-solid fa-rotate-left"></i></a>
+                    <a data-action="collapse" data-tooltip="{{#if collapsed}}Mostrar{{else}}Esconder{{/if}} CA, RD, deslocamento e visão"><i class="fa-solid fa-chevron-{{#if collapsed}}up{{else}}down{{/if}}"></i></a>
+                </div>
             </div>
         </div>
 
         {{#unless collapsed}}
-        {{!-- Estatísticas compactas --}}
+        {{!-- Números compactos: o total e, ao lado, o ajuste do bônus --}}
         <div class="gb-hud-stats">
-            <span class="gb-st gb-st--hp" title="Vida (muda pelo dano e pela cura das habilidades)">
-                <i class="fa-solid fa-heart"></i> <b>{{hp.value}}</b>/{{hp.max}}
-                <span class="gb-st-meter"><span style="width:{{hp.pct}}%"></span></span>
-            </span>
-            <span class="gb-st" title="Vida temporária">
-                <span class="gb-st-tag">Temp</span>
+            <div class="gb-hud-stat gb-hud-stat--temp" data-tooltip="Vida temporária">
+                <i class="fa-solid fa-heart-circle-plus"></i><span>Temp</span>
                 <span class="gb-hud-stepper">
                     <a data-action="step" data-field="system.resources.hitPoints.temp" data-delta="-1"><i class="fa-solid fa-minus"></i></a>
-                    <input type="number" value="{{hp.temp}}" data-hud-field="system.resources.hitPoints.temp" title="Vida temporária">
+                    <input type="number" value="{{hp.temp}}" data-hud-field="system.resources.hitPoints.temp" aria-label="Vida temporária">
                     <a data-action="step" data-field="system.resources.hitPoints.temp" data-delta="1"><i class="fa-solid fa-plus"></i></a>
                 </span>
-            </span>
-            <span class="gb-st gb-st--mana" title="Mana">
-                <i class="fa-solid fa-droplet"></i> <b>{{mana.value}}</b>/{{mana.max}}
-                <a class="gb-hud-mana-plus" data-action="manaPlus" title="+1 de Mana{{#if mana.condition}} — {{mana.condition}}{{/if}}">+1</a>
-            </span>
-            <span class="gb-st" title="CA (o campo é o bônus de CA)">
-                <i class="fa-solid fa-shield-halved"></i> <b>{{ca.total}}</b>
+            </div>
+            <div class="gb-hud-stat gb-hud-stat--ca" data-tooltip="CA {{ca.total}} — o campo ajusta o bônus de CA">
+                <i class="fa-solid fa-shield-halved"></i><span>CA</span><b>{{ca.total}}</b>
                 <span class="gb-hud-stepper">
                     <a data-action="step" data-field="system.defenses.caBonus" data-delta="-1"><i class="fa-solid fa-minus"></i></a>
-                    <input type="number" value="{{ca.bonus}}" data-hud-field="system.defenses.caBonus" title="Bônus de CA">
+                    <input type="number" value="{{ca.bonus}}" data-hud-field="system.defenses.caBonus" aria-label="Bônus de CA">
                     <a data-action="step" data-field="system.defenses.caBonus" data-delta="1"><i class="fa-solid fa-plus"></i></a>
                 </span>
-            </span>
-            <span class="gb-st" title="RD física (o campo é o bônus)">
-                <span class="gb-st-tag">RD F</span> <b>{{rd.physical.total}}</b>
+            </div>
+            <div class="gb-hud-stat" data-tooltip="RD física {{rd.physical.total}} — o campo ajusta o bônus">
+                <i class="fa-solid fa-shield"></i><span>RD F</span><b>{{rd.physical.total}}</b>
                 <span class="gb-hud-stepper">
                     <a data-action="step" data-field="system.defenses.rd.physical.bonus" data-delta="-1"><i class="fa-solid fa-minus"></i></a>
-                    <input type="number" value="{{rd.physical.bonus}}" data-hud-field="system.defenses.rd.physical.bonus" title="Bônus de RD física">
+                    <input type="number" value="{{rd.physical.bonus}}" data-hud-field="system.defenses.rd.physical.bonus" aria-label="Bônus de RD física">
                     <a data-action="step" data-field="system.defenses.rd.physical.bonus" data-delta="1"><i class="fa-solid fa-plus"></i></a>
                 </span>
-            </span>
-            <span class="gb-st" title="RD mágica (o campo é o bônus)">
-                <span class="gb-st-tag">RD M</span> <b>{{rd.magical.total}}</b>
+            </div>
+            <div class="gb-hud-stat gb-hud-stat--rdm" data-tooltip="RD mágica {{rd.magical.total}} — o campo ajusta o bônus">
+                <i class="fa-solid fa-hat-wizard"></i><span>RD M</span><b>{{rd.magical.total}}</b>
                 <span class="gb-hud-stepper">
                     <a data-action="step" data-field="system.defenses.rd.magical.bonus" data-delta="-1"><i class="fa-solid fa-minus"></i></a>
-                    <input type="number" value="{{rd.magical.bonus}}" data-hud-field="system.defenses.rd.magical.bonus" title="Bônus de RD mágica">
+                    <input type="number" value="{{rd.magical.bonus}}" data-hud-field="system.defenses.rd.magical.bonus" aria-label="Bônus de RD mágica">
                     <a data-action="step" data-field="system.defenses.rd.magical.bonus" data-delta="1"><i class="fa-solid fa-plus"></i></a>
                 </span>
-            </span>
-            <span class="gb-st" title="Deslocamento (o campo é o bônus, em metros)">
-                <i class="fa-solid fa-person-running"></i> <b>{{movement.total}}</b>{{#if movement.numeric}} m{{/if}}
+            </div>
+            <div class="gb-hud-stat gb-hud-stat--move" data-tooltip="Deslocamento — o campo ajusta o bônus, em metros">
+                <i class="fa-solid fa-person-running"></i><b>{{movement.total}}{{#if movement.numeric}} m{{/if}}</b>
                 <span class="gb-hud-stepper">
                     <a data-action="step" data-field="system.movementBonus" data-delta="-1"><i class="fa-solid fa-minus"></i></a>
-                    <input type="number" value="{{movement.bonus}}" data-hud-field="system.movementBonus" title="Bônus de deslocamento (m)">
+                    <input type="number" value="{{movement.bonus}}" data-hud-field="system.movementBonus" aria-label="Bônus de deslocamento (m)">
                     <a data-action="step" data-field="system.movementBonus" data-delta="1"><i class="fa-solid fa-plus"></i></a>
                 </span>
-            </span>
-            <span class="gb-st" title="Visão">
-                <i class="fa-solid fa-eye"></i> <b>{{vision}}</b>
-            </span>
+            </div>
+            <div class="gb-hud-stat" data-tooltip="Visão">
+                <i class="fa-solid fa-eye"></i><b>{{vision}}</b>
+            </div>
         </div>
         {{/unless}}
     </div>

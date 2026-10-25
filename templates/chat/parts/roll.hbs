@@ -1,12 +1,15 @@
-{{!-- Rolagem no chat: cada dado, o modificador e o total (cartões de ação e de loot) --}}
-<div class="gb-roll">
-    <div class="gb-roll-dice">
-        {{#each dice as |d|}}
-            {{#each d.values as |v|}}
-            <span class="gb-die-face gb-die-d{{d.faces}}" title="d{{d.faces}}">{{v}}</span>
-            {{/each}}
-        {{/each}}
-        {{#if modifier}}<span class="gb-roll-mod">{{granblueSigned modifier}}</span>{{/if}}
+{{!--
+    Uma rolagem no cartão de chat: o rótulo, cada dado com a face dele (pips no
+    d6), o modificador e o total num medalhão. `kind` (hit, damage, attribute,
+    die, loot) pinta o medalhão.
+--}}
+<div class="gb-roll gb-roll--{{kind}}">
+    <div class="gb-roll-main">
+        {{#if subtitle}}<span class="gb-roll-label">{{subtitle}}</span>{{/if}}
+        <div class="gb-roll-dice">
+            {{#each dice as |d|}}{{#each d.values as |v|}}{{{gbDie d.faces v}}}{{/each}}{{/each}}
+            {{#if modifier}}<span class="gb-roll-mod">{{granblueSigned modifier}}</span>{{/if}}
+        </div>
     </div>
-    <div class="gb-roll-total">{{total}}</div>
+    <div class="gb-roll-total"><span>{{total}}</span></div>
 </div>

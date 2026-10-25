@@ -16,20 +16,51 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 - **7 Esferas de magia** com contagem de pontos (começa com 5).
 - **~35 status effects** clicáveis no token.
 
+## Visual — Códice Celeste
+
+Tudo (fichas, chat, HUD, diálogos e pop-ups) segue o mesmo visual: céu noturno com filigrana
+dourada, títulos em Amiri e textos em Signika (fontes que o Foundry já traz) e **uma cor por
+esfera** — Energia azul, Destruição brasa, Criação jade, Matéria âmbar, Persona rosa, Cosmo
+violeta e Proibida prata com carmim.
+
+- **Selos de magia procedurais** (`module/sigil.mjs`): cada magia ganha um círculo mágico
+  desenhado a partir do nome, da esfera, do arcano e do nível — o mesmo feitiço gera sempre o
+  mesmo selo. A esfera define a geometria (o hexagrama da Energia, a estrela pontiaguda da
+  Destruição, as pétalas da Criação, a treliça da Matéria, o olho da Persona, as órbitas do
+  Cosmo, o heptagrama torto da Proibida); os 21 arcanos têm glifo próprio no centro (chama,
+  floco de neve, raio, lua, ampulheta…; um arcano novo ganha um glifo procedural); o nível
+  acrescenta anéis, marcas, satélites e uma faixa de runas. Os selos aparecem na ficha, no
+  chat, no HUD, no diálogo de rolagem e na ficha do item Magia (grande e girando). Para usar em
+  macros: `game.granblue.sigil({ name, sphere, arcano, level })` devolve o SVG.
+- **Ficha em duas colunas**: à esquerda a **carta do herói** — arte com a placa do nome (classe,
+  herança e nível escolhidos ali mesmo), o **brasão do rank** (bronze D, prata C, jade B, azul A
+  e prisma S), barras de Energia Vital e Mana, CA e RDs, deslocamento, visão e o **progresso de
+  rank**; à direita o códice com as abas. Em janelas estreitas a carta vira uma faixa no topo.
+- **Atributos**: a **constelação** dos nove atributos (a forma da build), o orçamento de pontos
+  separado em **Corpo** (físicos) e **Mente** (mágicos), um cartão por atributo (clique para
+  testar) mostrando o que ele alimenta (CA, vida, mana) e a seção **Vitalidade & defesa**, onde
+  cada número derivado aparece como a conta que o gera, com os campos dentro dela.
+- **Grimório**: a **Roda das Esferas** (emblemas acesos nas esferas desbloqueadas, pontos com
+  −/+, criar magia direto na esfera) e as magias em cartões com o selo e o nível em romanos.
+- **Inventário** com as cores de raridade (Boa, Rara, Primorosa, Matéria-prima) e a gema de
+  equipado; **Biografia** e textos dos itens com o editor de texto rico do Foundry.
+- **Chat**: cartões escuros com o selo da magia (ou o emblema da ação), d6 com pips, demais dados
+  com a silhueta, total num medalhão, CD de conjuração, alvos e botões de aplicar.
+
 ## O que está implementado
 
 - Ficha de **Personagem** completa (atributos, recursos, esferas, progressos, biografia, ações),
-  com a **arte do personagem em painel lateral** (clique para trocar, lupa para ver em tamanho real).
-- Aba **Magia**: cada esfera é um grupo com seus pontos e as **suas próprias magias**, criadas e
-  roladas ali mesmo (a aba *Ações* fica só com ataques e manobras não-mágicas).
+  com a **arte do personagem na carta do herói** (clique para trocar, lupa para ver em tamanho real).
+- Aba **Grimório** (magia): cada esfera é um grupo com seus pontos e as **suas próprias magias**,
+  criadas e roladas ali mesmo (a aba *Ações* fica só com ataques e manobras não-mágicas).
 - Aba **Inventário**: itens por categoria (armas, equipamento defensivo, consumíveis, materiais,
   tesouros), com quantidade, Tier, Qualidade, peso, valor e marcação de *equipado* — lista pura,
   sem rolagens.
-- Ficha de **Adversário / NPC** com a mesma **arte em painel lateral** do personagem e as abas
-  Estatísticas, Ataques, **Magia** (as mesmas esferas do personagem), **Loot** e **Biografia** (os
-  mesmos campos da biografia do personagem, mais descrição e notas). Dois ícones no cabeçalho (o escolhido
-  fica aceso em dourado) separam o **monstro** do **personagem antagonista**, que ganha classe, herança
-  e a aba Classe & Herança.
+- Ficha de **Adversário / NPC** com a mesma **carta do herói** do personagem (em brasa, com o brasão
+  da tipagem: comum, tank, boss, elite boss) e as abas Estatísticas, Ataques, **Grimório** (as mesmas
+  esferas do personagem), **Loot** e **Biografia** (os mesmos campos da biografia do personagem, mais
+  descrição e notas). Dois ícones sobre a arte (o escolhido fica aceso) separam o **monstro** do
+  **personagem antagonista**, que ganha classe, herança e a aba Classe & Herança.
   As Estatísticas mostram os **pontos de atributo** distribuídos/restantes (igual ao personagem) e
   **três caixas de vantagem e três de desvantagem**, cada uma com botão de enviar ao chat.
 - **RD física e RD mágica**, cada uma com **fixa + bônus + temporária = total**, no personagem e no
@@ -42,8 +73,9 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
   de cada um. Há também um botão na linha da ação para só posicionar a área. As 57 magias do
   compêndio que descrevem uma área ("3x3", "linha de 1x6", "cone de 5 m") já vêm com ela preenchida.
 - **HUD de ações**, só durante o combate, acima da barra de macros, para o token controlado (o
-  mestre troca clicando nos tokens; o jogador só vê os seus, ou o próprio personagem). O destaque é
-  a **linha do tempo do turno** — movimentação → ação rápida → ação normal → ação bônus → reação —
+  mestre troca clicando nos tokens; o jogador só vê os seus, ou o próprio personagem). O retrato
+  leva os **anéis de vida (fora) e mana (dentro)**. O destaque é a **linha do tempo do turno**, em
+  cristais — movimentação → ação rápida → ação normal → ação bônus → reação —
   com as exceções à parte: **conjunta** (une a rápida e a normal) e **total** (usa todas as ações do
   turno). Clicar numa ação disponível lista as habilidades daquele tipo (ações, magias, habilidades
   de classe e de herança, itens do inventário) com custo, alcance, efeito, CD e dano; a ação normal
@@ -108,7 +140,7 @@ Os itens já vêm prontos nos compêndios **Granblue** — arraste para a ficha 
   Cada magia já vem com **custo, alcance, conjuração, dificuldade, acerto `3d6 + @disciplina`,
   fórmula de dano/cura, efeito resumido e a citação de conjuração** — e, nas 78 que aplicam um
   status effect, com o **efeito já selecionado** (Burn, Frost, Curse, Charged…). Ao arrastar para
-  a ficha, a magia entra na aba **Magia**, dentro da esfera dela, pronta para rolar e aplicar.
+  a ficha, a magia entra no **Grimório**, dentro da esfera dela, pronta para rolar e aplicar.
 
 As ações (ataques/magias/manobras) são linhas livres na ficha: você digita a fórmula de
 acerto e dano usando atalhos como `@forca`, `@precisao`, `@sabedoria`, `@nivel`, `@ca`.

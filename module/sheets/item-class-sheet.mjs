@@ -3,13 +3,15 @@ import { GRANBLUE } from '../config.mjs';
 
 /** Ficha do item Classe. */
 export class GranblueClassSheet extends GranblueItemSheetBase {
+    static HTML_FIELDS = ['description'];
+
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'item', 'class'],
-        position: { width: 580, height: 700 }
+        position: { width: 600, height: 740 }
     };
 
     static PARTS = {
-        main: { template: 'systems/granblue/templates/item/class.hbs', scrollable: [''] }
+        main: { template: 'systems/granblue/templates/item/class.hbs', scrollable: ['.gb-item-body'] }
     };
 
     async _prepareContext(options) {

@@ -1,0 +1,62 @@
+{{!--
+    Coluna do herói (personagem e adversário): Energia Vital e Mana em barras,
+    as três defesas, o deslocamento e a visão. Os números das barras são os
+    únicos campos de vida/mana atual e máxima da ficha; CA, RD e deslocamento
+    aparecem só como texto (os campos ficam nas fórmulas da aba Atributos).
+--}}
+<div class="gb-vitals">
+    <div class="gb-vital gb-vital--hp{{#if hpLow}} is-low{{/if}}" style="--pct: {{hpPct}}%">
+        <div class="gb-vital-row">
+            <span class="gb-vital-label"><i class="fa-solid fa-heart"></i> Energia Vital</span>
+            {{#if hp.temp}}<span class="gb-vital-temp" data-tooltip="Vida temporária (já entra no máximo)">+{{hp.temp}}</span>{{/if}}
+            <span class="gb-vital-nums">
+                <input class="gb-inline" type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" data-tooltip="Vida atual">
+                <span class="gb-vital-sep">/</span>
+                <input class="gb-inline gb-vital-max" type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" data-tooltip="Vida máxima">
+            </span>
+        </div>
+        <div class="gb-vital-bar"><span></span></div>
+    </div>
+    <div class="gb-vital gb-vital--mana" style="--pct: {{manaPct}}%">
+        <div class="gb-vital-row">
+            <span class="gb-vital-label"><i class="fa-solid fa-droplet"></i> Mana</span>
+            <span class="gb-vital-nums">
+                <input class="gb-inline" type="number" name="system.resources.mana.value" value="{{mana.value}}" data-tooltip="Mana atual">
+                <span class="gb-vital-sep">/</span>
+                <input class="gb-inline gb-vital-max" type="number" name="system.resources.mana.max" value="{{mana.max}}" data-tooltip="Mana máxima">
+            </span>
+        </div>
+        <div class="gb-vital-bar"><span></span></div>
+    </div>
+</div>
+
+<div class="gb-defenses">
+    <div class="gb-def gb-def--ca" data-tooltip="Classe de Armadura: 10 + Reação + bônus">
+        <i class="fa-solid fa-shield-halved"></i>
+        <b>{{ca}}</b>
+        <span>CA</span>
+    </div>
+    <div class="gb-def gb-def--rd" data-tooltip="RD física (fixa + bônus + temporária): abatida do dano físico aplicado pelo chat{{#if rd.physical.fromEffects}} — com efeitos ativos{{/if}}">
+        <i class="fa-solid fa-shield"></i>
+        <b>{{rd.physical.total}}</b>
+        <span>RD física</span>
+    </div>
+    <div class="gb-def gb-def--rdm" data-tooltip="RD mágica (fixa + bônus + temporária): abatida do dano mágico aplicado pelo chat{{#if rd.magical.fromEffects}} — com efeitos ativos{{/if}}">
+        <i class="fa-solid fa-hat-wizard"></i>
+        <b>{{rd.magical.total}}</b>
+        <span>RD mágica</span>
+    </div>
+</div>
+
+<div class="gb-side-stats">
+    <div class="gb-side-stat" data-tooltip="Deslocamento (base + bônus) — ajuste nas fórmulas da aba de atributos">
+        <i class="fa-solid fa-person-running"></i>
+        <span>Deslocamento</span>
+        <b>{{movementLabel}}</b>
+    </div>
+    <label class="gb-side-stat" data-tooltip="Visão (alcance ou tipo: 12 m, no escuro…)">
+        <i class="fa-solid fa-eye"></i>
+        <span>Visão</span>
+        <input class="gb-inline" type="text" name="system.vision" value="{{system.vision}}" placeholder="—">
+    </label>
+</div>

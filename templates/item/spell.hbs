@@ -1,79 +1,88 @@
-{{!-- Ficha do item Magia --}}
-<div class="gb-root gb-item">
-<header class="gb-header gb-header--item">
-    <img class="gb-portrait" src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}" title="Trocar imagem">
-    <div class="gb-identity">
-        <input class="gb-name" type="text" name="name" value="{{item.name}}" placeholder="Nome da magia">
-        <p class="gb-item-sub">Arraste para a ficha para criar a ação automaticamente.</p>
+{{!-- Ficha do item Magia: o selo procedural no alto, girando na cor da esfera --}}
+<div class="gb-item-sheet gb-item-sheet--spell" data-sphere="{{sphereKey}}" data-tooltip-class="gb-tooltip">
+    <header class="gb-item-hero">
+        <span class="gb-sigil gb-sigil--lg gb-sigil--live gb-item-sigil">{{{sigil}}}</span>
+        <div class="gb-item-titles">
+            <span class="gb-kicker">Magia{{#if sphereLabel}} · {{sphereLabel}}{{/if}}{{#if system.arcano}} · {{system.arcano}}{{/if}} · Nível {{levelRoman}}</span>
+            <input class="gb-name" type="text" name="name" value="{{item.name}}" placeholder="Nome da magia">
+            <div class="gb-item-meta">
+                <label class="gb-field"><span>Esfera</span>
+                    <select name="system.sphere">
+                        {{#each sphereOptions as |o|}}
+                        <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+                <label class="gb-field"><span>Arcano</span><input type="text" name="system.arcano" value="{{system.arcano}}"></label>
+                <label class="gb-field gb-field--narrow"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="9"></label>
+            </div>
+        </div>
+        <img class="gb-item-img" src="{{item.img}}" data-action="editImage" data-edit="img" alt="" data-tooltip="Imagem do item (lista do compêndio) — clique para trocar">
+    </header>
+
+    <div class="gb-item-body">
+        <p class="gb-hint gb-item-hint"><i class="fa-solid fa-hand-pointer"></i> Arraste para a ficha: a magia entra no Grimório, na esfera dela.</p>
+
+        <div class="gb-form-row">
+            <label class="gb-field gb-field--row"><span>Tipo</span>
+                <select name="system.passive" data-dtype="Boolean">
+                    <option value="false" {{#unless system.passive}}selected{{/unless}}>Ativa</option>
+                    <option value="true" {{#if system.passive}}selected{{/if}}>Passiva</option>
+                </select>
+            </label>
+            {{#unless system.passive}}
+            <label class="gb-switch" data-tooltip="Acrescenta uma passiva à magia (útil para itens mágicos): um texto a mais, com botão de enviar ao chat na ficha">
+                <input type="checkbox" name="system.hasPassive" {{#if system.hasPassive}}checked{{/if}}>
+                <span class="gb-switch-track"></span> Possui passiva
+            </label>
+            {{/unless}}
+        </div>
+
+        {{#if system.passive}}
+        <div class="gb-field gb-field--passive"><span><i class="fa-solid fa-feather"></i> Descrição da passiva <em class="gb-hint">(na ficha vira um texto com botão de enviar ao chat)</em></span>
+            <prose-mirror name="system.description" value="{{system.description}}" toggled>{{{enriched.description}}}</prose-mirror>
+        </div>
+        {{else}}
+        <section class="gb-item-panel">
+            <h4 class="gb-item-panel-title"><i class="fa-solid fa-wand-sparkles"></i> Conjuração</h4>
+            <div class="gb-form-grid gb-form-grid--3">
+                <label class="gb-field"><span>Custo</span><input type="text" name="system.cost" value="{{system.cost}}"></label>
+                <label class="gb-field"><span>Conjuração</span><input type="text" name="system.casting" value="{{system.casting}}"></label>
+                <label class="gb-field"><span>Dificuldade</span><input type="text" name="system.difficulty" value="{{system.difficulty}}"></label>
+            </div>
+            {{> "systems/granblue/templates/actor/parts/range-fields.hbs" prefix="system." row=system spell=true}}
+        </section>
+
+        <section class="gb-item-panel">
+            <h4 class="gb-item-panel-title"><i class="fa-solid fa-dice-d20"></i> Rolagens</h4>
+            <div class="gb-form-grid gb-form-grid--2">
+                <label class="gb-field"><span>Acerto</span><input type="text" name="system.hit" value="{{system.hit}}" placeholder="3d6 + @disciplina"></label>
+                <label class="gb-field"><span>Dano / cura</span><input type="text" name="system.damage" value="{{system.damage}}" placeholder="2d8 + @potencia"></label>
+            </div>
+            <label class="gb-field" data-tooltip="Ganha botão de aplicar na ficha e no chat"><span>Efeito aplicado</span>
+                <select name="system.statusEffect">
+                    <option value="">— nenhum —</option>
+                    {{#each statusEffectOptions as |o|}}
+                    <option value="{{o.value}}" {{#if (eqStr o.value @root.system.statusEffect)}}selected{{/if}}>{{o.label}}</option>
+                    {{/each}}
+                </select>
+            </label>
+        </section>
+
+        <section class="gb-item-panel">
+            <h4 class="gb-item-panel-title"><i class="fa-solid fa-sparkles"></i> Efeito</h4>
+            <prose-mirror name="system.effect" value="{{system.effect}}" toggled>{{{enriched.effect}}}</prose-mirror>
+        </section>
+        <section class="gb-item-panel">
+            <h4 class="gb-item-panel-title"><i class="fa-solid fa-quote-left"></i> Descrição / frase</h4>
+            <prose-mirror name="system.description" value="{{system.description}}" toggled>{{{enriched.description}}}</prose-mirror>
+        </section>
+        {{#if system.hasPassive}}
+        <section class="gb-item-panel gb-item-panel--passive">
+            <h4 class="gb-item-panel-title"><i class="fa-solid fa-feather"></i> Passiva desta magia</h4>
+            <textarea class="gb-passive-text" name="system.passiveText" placeholder="O que a passiva faz…">{{system.passiveText}}</textarea>
+        </section>
+        {{/if}}
+        {{/if}}
     </div>
-</header>
-
-<div class="gb-tab active" data-tab-content="main">
-    <div class="gb-identity-grid gb-spell-grid">
-        <label class="gb-field">
-            <span>Esfera</span>
-            <select name="system.sphere">
-                {{#each sphereOptions as |o|}}
-                <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                {{/each}}
-            </select>
-        </label>
-        <label class="gb-field"><span>Arcano</span><input type="text" name="system.arcano" value="{{system.arcano}}"></label>
-        <label class="gb-field gb-field--sm"><span>Nível</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="9"></label>
-    </div>
-
-    <div class="gb-action-kind">
-        <label class="gb-kind-select">
-            <span>Tipo</span>
-            <select name="system.passive" data-dtype="Boolean">
-                <option value="false" {{#unless system.passive}}selected{{/unless}}>Ativa</option>
-                <option value="true" {{#if system.passive}}selected{{/if}}>Passiva</option>
-            </select>
-        </label>
-        {{#unless system.passive}}
-        <label class="gb-kind-check" title="Acrescenta uma passiva à magia (útil para itens mágicos): um texto a mais, com botão de enviar ao chat na ficha">
-            <input type="checkbox" name="system.hasPassive" {{#if system.hasPassive}}checked{{/if}}>
-            <span>Possui passiva</span>
-        </label>
-        {{/unless}}
-    </div>
-
-    {{#if system.passive}}
-    <label class="gb-bio gb-passive-field">
-        <span><i class="fa-solid fa-feather"></i> Descrição da passiva <span class="gb-hint">(na ficha vira um texto com botão de enviar ao chat)</span></span>
-        <textarea class="gb-passive-text" name="system.description">{{system.description}}</textarea>
-    </label>
-    {{else}}
-    <div class="gb-action-meta gb-action-meta--3">
-        <label><span>Custo</span><input type="text" name="system.cost" value="{{system.cost}}"></label>
-        <label><span>Conjuração</span><input type="text" name="system.casting" value="{{system.casting}}"></label>
-        <label><span>Dificuldade</span><input type="text" name="system.difficulty" value="{{system.difficulty}}"></label>
-    </div>
-    {{> "systems/granblue/templates/actor/parts/range-fields.hbs" prefix="system." row=system spell=true}}
-
-    <div class="gb-action-formulas">
-        <label><span>Acerto</span><input type="text" name="system.hit" value="{{system.hit}}" placeholder="3d6 + @disciplina"></label>
-        <label><span>Dano / Cura</span><input type="text" name="system.damage" value="{{system.damage}}" placeholder="2d8 + @potencia"></label>
-    </div>
-
-    <label class="gb-bio gb-bio--fx">
-        <span>Efeito aplicado <span class="gb-hint">(ganha botão de aplicar na ficha e no chat)</span></span>
-        <select name="system.statusEffect">
-            <option value="">— nenhum —</option>
-            {{#each statusEffectOptions as |o|}}
-            <option value="{{o.value}}" {{#if (eqStr o.value @root.system.statusEffect)}}selected{{/if}}>{{o.label}}</option>
-            {{/each}}
-        </select>
-    </label>
-
-    <label class="gb-bio"><span>Efeito</span><textarea name="system.effect">{{system.effect}}</textarea></label>
-    <label class="gb-bio"><span>Descrição / Frase</span><textarea name="system.description">{{system.description}}</textarea></label>
-    {{#if system.hasPassive}}
-    <label class="gb-bio gb-passive-field gb-passive-field--attached">
-        <span><i class="fa-solid fa-feather"></i> Passiva desta magia</span>
-        <textarea class="gb-passive-text" name="system.passiveText" placeholder="O que a passiva faz…">{{system.passiveText}}</textarea>
-    </label>
-    {{/if}}
-    {{/if}}
-</div>
 </div>

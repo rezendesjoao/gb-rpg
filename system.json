@@ -20,7 +20,12 @@
         "module/granblue.mjs"
     ],
     "styles": [
-        "styles/granblue.css"
+        "styles/granblue.css",
+        "styles/sheet.css",
+        "styles/items.css",
+        "styles/chat.css",
+        "styles/hud.css",
+        "styles/dialogs.css"
     ],
     "languages": [
         {

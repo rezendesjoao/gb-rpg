@@ -1,249 +1,114 @@
-{{!-- Ficha de Personagem (Guerreiro Mágico) --}}
-<div class="gb-root">
-<div class="gb-top">
-    <figure class="gb-portrait-panel">
-        <img class="gb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" title="Clique para trocar a imagem">
-        <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
-    </figure>
-    <div class="gb-top-main">
-        {{!-- Cabeçalho encadeado: nome, escolhas (classe, herança, rank, nível) e números --}}
-        <header class="gb-header gb-hd">
-            <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
-            <div class="gb-hd-chain">
-                {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
-                <label class="gb-pick" title="Rank de Guerreiro Mágico">
-                    <span class="gb-pick-label">Rank</span>
-                    <span class="gb-pick-value">{{rankLabel}}</span>
-                    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
-                    <select name="system.rank">
-                        {{#each rankOptions as |o|}}
-                        <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
-                        {{/each}}
-                    </select>
-                </label>
-                <label class="gb-pick gb-pick--input" title="Nível">
-                    <span class="gb-pick-label">Nv</span>
-                    <input type="number" name="system.level" value="{{system.level}}" min="0">
-                </label>
-            </div>
-            {{> "systems/granblue/templates/actor/parts/header-stats.hbs"}}
-        </header>
-
-        {{!-- Barra de vitais sempre visível --}}
-        <div class="gb-vitals">
-            <div class="gb-vital gb-vital--hp">
-                <div class="gb-vital-fill" style="width:{{hpPct}}%"></div>
-                <div class="gb-vital-content">
-                    <span class="gb-vital-name"><i class="fa-solid fa-heart"></i> Energia Vital</span>
-                    <span class="gb-vital-nums">
-                        <input type="number" name="system.resources.hitPoints.value" value="{{hp.value}}" title="Vida atual">
-                        <span class="gb-vital-sep">/</span>
-                        <input type="number" name="system.resources.hitPoints.max" value="{{hp.max}}" title="Vida máxima">
-                    </span>
+{{!-- Ficha de Personagem (Guerreiro Mágico) — Códice Celeste --}}
+<div class="gb-sheet gb-sheet--character" data-tooltip-class="gb-tooltip">
+    {{!-- ============ Coluna do herói: arte, nome, vitais, defesas e rank ============ --}}
+    <aside class="gb-side">
+        <figure class="gb-portrait gb-frame">
+            <img src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" data-tooltip="Clique para trocar a arte">
+            <div class="gb-portrait-shade"></div>
+            <label class="gb-crest" data-rank="{{rank.letter}}" data-tooltip="Rank de Guerreiro Mágico — clique para trocar">
+                <span class="gb-crest-letter">{{rank.letter}}</span>
+                <span class="gb-crest-num">{{rank.number}}</span>
+                <select name="system.rank">
+                    {{#each rankOptions as |o|}}
+                    <option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>
+                    {{/each}}
+                </select>
+            </label>
+            <a class="gb-portrait-zoom" data-action="showArtwork" data-tooltip="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
+            <figcaption class="gb-nameplate">
+                <input class="gb-name" type="text" name="name" value="{{actor.name}}" placeholder="Nome do personagem">
+                <div class="gb-picks">
+                    {{> "systems/granblue/templates/actor/parts/class-heritage-select.hbs"}}
+                    <label class="gb-pick gb-pick--level" data-tooltip="Nível">
+                        <span class="gb-pick-key">Nv</span>
+                        <input class="gb-inline" type="number" name="system.level" value="{{system.level}}" min="0">
+                    </label>
                 </div>
-            </div>
-            <div class="gb-vital gb-vital--mana">
-                <div class="gb-vital-fill" style="width:{{manaPct}}%"></div>
-                <div class="gb-vital-content">
-                    <span class="gb-vital-name"><i class="fa-solid fa-droplet"></i> Mana</span>
-                    <span class="gb-vital-nums">
-                        <input type="number" name="system.resources.mana.value" value="{{mana.value}}" title="Mana atual">
-                        <span class="gb-vital-sep">/</span>
-                        <input type="number" name="system.resources.mana.max" value="{{mana.max}}" title="Mana máxima">
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+            </figcaption>
+        </figure>
 
-<nav class="gb-tabs">
-    <a data-tab-nav="atributos"><i class="fa-solid fa-hand-fist"></i> Atributos</a>
-    <a data-tab-nav="acoes"><i class="fa-solid fa-khanda"></i> Ações</a>
-    <a data-tab-nav="magia"><i class="fa-solid fa-wand-sparkles"></i> Magia</a>
-    <a data-tab-nav="inventario"><i class="fa-solid fa-bag-shopping"></i> Inventário</a>
-    <a data-tab-nav="identidade"><i class="fa-solid fa-id-badge"></i> Classe & Herança</a>
-    <a data-tab-nav="bio"><i class="fa-solid fa-book"></i> Biografia</a>
-</nav>
+        {{> "systems/granblue/templates/actor/parts/vitals.hbs"}}
 
-{{!-- ===================== ATRIBUTOS ===================== --}}
-<section class="gb-tab" data-tab-content="atributos">
-    <div class="gb-attributes">
-        {{#each attributes as |attr|}}
-        <div class="gb-attribute">
-            <a class="gb-attr-roll" data-action="rollAttribute" data-attribute="{{attr.key}}" title="{{attr.func}} — clique para testar">
-                <span class="gb-attr-name">{{attr.label}}</span>
-                <span class="gb-attr-total">{{attr.total}}</span>
-                <span class="gb-attr-dice"><i class="fa-solid fa-dice-d6"></i> 3d6{{#if attr.effect}} <span class="gb-attr-effect" title="Bônus de herança/efeitos">({{granblueSigned attr.effect}})</span>{{/if}}</span>
-            </a>
-            <div class="gb-attr-inputs">
-                <label><span>Valor</span><input type="number" name="system.attributes.{{attr.key}}.value" value="{{attr.value}}"></label>
-                <label><span>Bônus</span><input type="number" name="system.attributes.{{attr.key}}.bonus" value="{{attr.bonus}}"></label>
-            </div>
-        </div>
-        {{/each}}
-    </div>
-    <div class="gb-pointbuy">
-        Pontos de atributo: <strong>{{pointBuy.spent}}</strong> / {{pointBuy.total}}
-        <span class="{{#if pointBuy.remaining}}gb-remaining{{/if}}">(restam {{pointBuy.remaining}})</span>
-    </div>
-
-    <h3 class="gb-section-title">Detalhes de Recursos</h3>
-    <div class="gb-res-details">
-        <div class="gb-res-block gb-res-block--hp">
-            <h4><i class="fa-solid fa-heart"></i> Energia Vital</h4>
-            <div class="gb-res-grid">
-                {{#if hasClass}}
-                <label><span>Base</span><span class="gb-derived" title="Classe: {{classItem.name}}">{{hp.base}}</span></label>
-                {{else}}
-                <label><span>Base</span><input type="number" name="system.resources.hitPoints.base" value="{{hpSource.base}}"></label>
-                {{/if}}
-                <label class="gb-die"><span>Dado</span><input type="number" name="system.resources.hitPoints.die" value="{{hp.die}}"><a data-action="rollHitDie" title="Rolar dado de vida"><i class="fa-solid fa-dice-d6"></i></a></label>
-                <label><span>Res×3</span><span class="gb-derived">{{hp.mod}}</span></label>
-                <label><span>Temp</span><input type="number" name="system.resources.hitPoints.temp" value="{{hp.temp}}"></label>
-            </div>
-            <a class="gb-recalc" data-action="recalcMax" title="base + Res×3 + dado + temp"><i class="fa-solid fa-arrows-rotate"></i> Recalcular máx ({{hp.maxFormula}})</a>
-        </div>
-        <div class="gb-res-block gb-res-block--ca">
-            <h4><i class="fa-solid fa-shield-halved"></i> Classe de Armadura</h4>
-            <div class="gb-res-ca">{{ca}}</div>
-            <label class="gb-cabonus"><span>Bônus</span><input type="number" name="system.defenses.caBonus" value="{{caBonus}}"></label>
-            <div class="gb-hint">10 + Reação + bônus</div>
-        </div>
-        <div class="gb-res-block gb-res-block--mana">
-            <h4><i class="fa-solid fa-droplet"></i> Mana</h4>
-            <div class="gb-hint">Máx sugerido: <strong>{{mana.maxFormula}}</strong> (Sab×2)</div>
-            <a class="gb-recalc" data-action="recalcMax" title="Sabedoria × 2"><i class="fa-solid fa-arrows-rotate"></i> Recalcular</a>
-        </div>
-    </div>
-    {{> "systems/granblue/templates/actor/parts/defense-row.hbs"}}
-</section>
-
-{{!-- ===================== AÇÕES ===================== --}}
-<section class="gb-tab" data-tab-content="acoes">
-    <div class="gb-actions-toolbar">
-        <button type="button" data-action="addAction"><i class="fa-solid fa-plus"></i> Adicionar ação</button>
-        <button type="button" data-action="addAction" data-passive="true"><i class="fa-solid fa-feather"></i> Adicionar passiva</button>
-    </div>
-    <p class="gb-hint">Ataques e manobras não-mágicas. Magias ficam na aba <strong>Magia</strong>, dentro da esfera delas.
-        Atalhos nas fórmulas: <code>@forca @precisao @reacao @resiliencia @percepcao @carisma @sabedoria @potencia @disciplina @nivel @ca</code>.
-        Ao clicar para rolar, abre a janela de bônus situacional. Com um token marcado como alvo (tecla <strong>T</strong>), o cartão confere o acerto contra a CA dele.</p>
-
-    {{#each actions as |action idx|}}
-    {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=action index=idx list="actions"}}
-    {{else}}
-    <p class="gb-empty">Nenhuma ação. Clique em "Adicionar ação".</p>
-    {{/each}}
-</section>
-
-{{!-- ===================== MAGIA ===================== --}}
-<section class="gb-tab" data-tab-content="magia">
-    {{> "systems/granblue/templates/actor/parts/magic-tab.hbs"}}
-
-    <h3 class="gb-section-title">Progressos de Rank</h3>
-    <div class="gb-progress">
-        <label><span>Atual</span><input type="number" name="system.progress.current" value="{{progress.current}}"></label>
-        <span class="gb-sep">/</span>
-        <label><span>Necessário</span><input type="number" name="system.progress.final" value="{{progress.final}}"></label>
-    </div>
-</section>
-
-{{!-- ===================== INVENTÁRIO ===================== --}}
-<section class="gb-tab" data-tab-content="inventario">
-    <div class="gb-inv-summary">
-        <label class="gb-field gb-field--sm gb-inv-currency">
-            <span><i class="fa-solid fa-coins"></i> Moedas</span>
-            <input type="number" name="system.currency" value="{{currency}}" min="0">
-        </label>
-        <span class="gb-hint">
-            {{inventoryCount}} item(ns){{#if inventoryWeight}} · peso total <strong>{{inventoryWeight}}</strong>{{/if}}
-        </span>
-    </div>
-
-    {{#each inventoryGroups as |grp|}}
-    <section class="gb-inv-group" data-category="{{grp.key}}">
-        <header class="gb-sphere-head">
-            <h4 class="gb-sphere-title">{{grp.label}}</h4>
-            <button type="button" class="gb-sphere-add" data-action="addInventory" data-category="{{grp.key}}" title="Adicionar item nesta categoria">
-                <i class="fa-solid fa-plus"></i> Adicionar item
-            </button>
-        </header>
-
-        {{#each grp.items as |it|}}
-        <div class="gb-action gb-action--inv gb-action--collapsed{{#if it.equipped}} gb-action--equipped{{/if}}" data-list="inventory" data-action-index="{{it.index}}">
-            <div class="gb-action-head">
-                <a class="gb-collapse-toggle" data-action="toggleInventory" data-index="{{it.index}}" title="Expandir / recolher"><i class="fa-solid fa-chevron-right"></i></a>
-                <label class="gb-inv-eq" title="Equipado / em uso">
-                    <input type="checkbox" name="system.inventory.{{it.index}}.equipped" {{#if it.equipped}}checked{{/if}}>
-                </label>
-                <input type="text" class="gb-action-name" name="system.inventory.{{it.index}}.name" value="{{it.name}}">
-                <label class="gb-inv-qty" title="Quantidade">
-                    <span>×</span><input type="number" name="system.inventory.{{it.index}}.quantity" value="{{it.quantity}}" min="0">
-                </label>
-                <span class="gb-action-btns">
-                    <a class="gb-icn" data-action="moveInventory" data-index="{{it.index}}" data-dir="up" title="Mover para cima"><i class="fa-solid fa-chevron-up"></i></a>
-                    <a class="gb-icn" data-action="moveInventory" data-index="{{it.index}}" data-dir="down" title="Mover para baixo"><i class="fa-solid fa-chevron-down"></i></a>
-                    <a class="gb-btn gb-btn--del" data-action="deleteInventory" data-index="{{it.index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+        <div class="gb-side-block gb-rankbar" data-rank="{{rank.letter}}">
+            <div class="gb-vital-row">
+                <span class="gb-vital-label"><i class="fa-solid fa-chart-line"></i> Progresso de Rank</span>
+                <span class="gb-vital-nums">
+                    <input class="gb-inline" type="number" name="system.progress.current" value="{{progress.current}}" min="0" data-tooltip="Pontos de progresso atuais">
+                    <span class="gb-vital-sep">/</span>
+                    <input class="gb-inline gb-vital-max" type="number" name="system.progress.final" value="{{progress.final}}" min="0" data-tooltip="Pontos necessários para o próximo rank">
                 </span>
             </div>
-            <div class="gb-action-details">
-                <div class="gb-inv-meta">
-                    <label><span>Categoria</span>
-                        <select name="system.inventory.{{it.index}}.category">
-                            {{#each @root.categoryOptions as |o|}}
-                            <option value="{{o.value}}" {{#if (eqStr o.value it.categoryKey)}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
-                    <label><span>Tier</span>
-                        <select name="system.inventory.{{it.index}}.tier">
-                            <option value="" {{#unless it.tier}}selected{{/unless}}>—</option>
-                            {{#each @root.tierOptions as |o|}}
-                            <option value="{{o.value}}" {{#if (eqStr o.value it.tier)}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
-                    <label><span>Qualidade</span>
-                        <select name="system.inventory.{{it.index}}.quality">
-                            <option value="" {{#unless it.quality}}selected{{/unless}}>—</option>
-                            {{#each @root.qualityOptions as |o|}}
-                            <option value="{{o.value}}" {{#if (eqStr o.value it.quality)}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
-                    <label><span>Peso</span><input type="text" name="system.inventory.{{it.index}}.weight" value="{{it.weight}}" placeholder="0"></label>
-                    <label><span>Valor</span><input type="text" name="system.inventory.{{it.index}}.value" value="{{it.value}}" placeholder="rupias"></label>
-                    <label title="Ação gasta ao usar o item pelo HUD — sem ação, o item não aparece lá"><span>Ação no HUD</span>
-                        <select name="system.inventory.{{it.index}}.actionType">
-                            <option value="" {{#unless it.actionType}}selected{{/unless}}>—</option>
-                            {{#each @root.actionTypeOptions as |o|}}
-                            <option value="{{o.value}}" {{#if (eqStr o.value it.actionType)}}selected{{/if}}>{{o.label}}</option>
-                            {{/each}}
-                        </select>
-                    </label>
-                </div>
-                <label class="gb-action-desc"><span>Descrição</span><input type="text" name="system.inventory.{{it.index}}.description" value="{{it.description}}"></label>
-            </div>
+            <div class="gb-meter"><span style="--pct: {{progressPct}}%"></span></div>
         </div>
-        {{else}}
-        <p class="gb-empty gb-empty--sm">Nada nesta categoria.</p>
-        {{/each}}
-    </section>
-    {{/each}}
-</section>
+    </aside>
 
-{{!-- ===================== CLASSE & HERANÇA ===================== --}}
-<section class="gb-tab" data-tab-content="identidade">
-    {{> "systems/granblue/templates/actor/parts/identity-tab.hbs"}}
-</section>
+    {{!-- ============ Códice: abas ============ --}}
+    <div class="gb-main">
+        <nav class="gb-tabs">
+            <a data-tab-nav="atributos"><i class="fa-solid fa-hand-fist"></i><span>Atributos</span></a>
+            <a data-tab-nav="acoes"><i class="fa-solid fa-swords"></i><span>Ações</span></a>
+            <a data-tab-nav="magia"><i class="fa-solid fa-book-sparkles"></i><span>Grimório</span></a>
+            <a data-tab-nav="inventario"><i class="fa-solid fa-gem"></i><span>Inventário</span></a>
+            <a data-tab-nav="identidade"><i class="fa-solid fa-dna"></i><span>Classe &amp; Herança</span></a>
+            <a data-tab-nav="bio"><i class="fa-solid fa-feather-pointed"></i><span>Biografia</span></a>
+        </nav>
 
-{{!-- ===================== BIOGRAFIA ===================== --}}
-<section class="gb-tab" data-tab-content="bio">
-    <label class="gb-bio"><span>Atribuições Aparentes</span><textarea name="system.biography.appearance">{{biography.appearance}}</textarea></label>
-    <label class="gb-bio"><span>"Inner Demons" e Conflitos</span><textarea name="system.biography.demons">{{biography.demons}}</textarea></label>
-    <label class="gb-bio"><span>Metas e Motivações</span><textarea name="system.biography.motivations">{{biography.motivations}}</textarea></label>
-    <label class="gb-bio"><span>Worldview</span><textarea name="system.biography.worldview">{{biography.worldview}}</textarea></label>
-    <label class="gb-bio"><span>Backstory</span><textarea name="system.biography.backstory">{{biography.backstory}}</textarea></label>
-    <label class="gb-bio"><span>Notas</span><textarea name="system.notes">{{notes}}</textarea></label>
-</section>
+        <div class="gb-body">
+            {{!-- ===================== ATRIBUTOS ===================== --}}
+            <section class="gb-tab" data-tab-content="atributos">
+                {{> "systems/granblue/templates/actor/parts/attributes.hbs"}}
+                {{> "systems/granblue/templates/actor/parts/formulas.hbs"}}
+            </section>
+
+            {{!-- ===================== AÇÕES ===================== --}}
+            <section class="gb-tab" data-tab-content="acoes">
+                <header class="gb-section">
+                    <h3><i class="fa-solid fa-swords"></i> Técnicas &amp; ataques <em>{{actions.length}}</em></h3>
+                    <span class="gb-rule"></span>
+                    <div class="gb-tools">
+                        <button type="button" class="gb-btn gb-btn--sm" data-action="addAction"><i class="fa-solid fa-plus"></i> Ação</button>
+                        <button type="button" class="gb-btn gb-btn--sm" data-action="addAction" data-passive="true"><i class="fa-solid fa-feather"></i> Passiva</button>
+                    </div>
+                </header>
+                <details class="gb-help">
+                    <summary><i class="fa-solid fa-circle-info"></i> Como as ações funcionam</summary>
+                    <div>
+                        Ataques e manobras não-mágicas; as magias ficam no <strong>Grimório</strong>, dentro da esfera delas.
+                        A estrela marca o <strong>ataque básico</strong>, rolado pelo HUD ao custo de uma ação normal.
+                        Com um token marcado como alvo (tecla <strong>T</strong>), o cartão confere o acerto contra a CA dele.
+                        Atalhos nas fórmulas: <code>@forca</code> <code>@precisao</code> <code>@reacao</code> <code>@resiliencia</code>
+                        <code>@percepcao</code> <code>@carisma</code> <code>@sabedoria</code> <code>@potencia</code> <code>@disciplina</code>
+                        <code>@nivel</code> <code>@ca</code>.
+                    </div>
+                </details>
+                <div class="gb-list">
+                    {{#each actions as |action|}}
+                    {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=action index=action.index list="actions"}}
+                    {{else}}
+                    <p class="gb-empty">Nenhuma técnica ainda. Crie uma ação ou uma passiva.</p>
+                    {{/each}}
+                </div>
+            </section>
+
+            {{!-- ===================== GRIMÓRIO ===================== --}}
+            <section class="gb-tab" data-tab-content="magia">
+                {{> "systems/granblue/templates/actor/parts/magic-tab.hbs"}}
+            </section>
+
+            {{!-- ===================== INVENTÁRIO ===================== --}}
+            <section class="gb-tab" data-tab-content="inventario">
+                {{> "systems/granblue/templates/actor/parts/inventory.hbs"}}
+            </section>
+
+            {{!-- ===================== CLASSE & HERANÇA ===================== --}}
+            <section class="gb-tab" data-tab-content="identidade">
+                {{> "systems/granblue/templates/actor/parts/identity-tab.hbs"}}
+            </section>
+
+            {{!-- ===================== BIOGRAFIA ===================== --}}
+            <section class="gb-tab" data-tab-content="bio">
+                {{> "systems/granblue/templates/actor/parts/biography.hbs"}}
+            </section>
+        </div>
+    </div>
 </div>

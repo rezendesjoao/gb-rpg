@@ -102,6 +102,9 @@ export class GranblueActor extends Actor {
             title: action.name,
             subtitle,
             icon: 'fa-solid fa-feather',
+            kind: 'passive',
+            sphere,
+            sigil: sphere ? { name: action.name, arcano: action.arcano ?? '', level: action.level ?? 1 } : null,
             text: part === 'attached' ? action.passiveText : action.description
         });
     }
@@ -118,7 +121,8 @@ export class GranblueActor extends Actor {
         return postDescriptionCard(this, {
             title: ab.name,
             subtitle: `${classItem.name} · ${kind}`,
-            icon: 'fa-solid fa-hand-fist',
+            icon: 'fa-solid fa-swords',
+            kind: 'class',
             text: ab.description
         });
     }
@@ -137,6 +141,7 @@ export class GranblueActor extends Actor {
                 title: p.name,
                 subtitle: [heritage.name, p.requirement].filter(Boolean).join(' · '),
                 icon: 'fa-solid fa-dna',
+                kind: 'heritage',
                 text: p.description
             });
         }
@@ -149,7 +154,8 @@ export class GranblueActor extends Actor {
         return postDescriptionCard(this, {
             title: isTrait ? 'Traço Compartilhado' : 'Debilidade',
             subtitle: heritage.name,
-            icon: 'fa-solid fa-dna',
+            icon: isTrait ? 'fa-solid fa-dna' : 'fa-solid fa-heart-crack',
+            kind: isTrait ? 'heritage' : 'weakness',
             html
         });
     }
@@ -163,7 +169,8 @@ export class GranblueActor extends Actor {
             title: item.name,
             subtitle: [category, item.quality ? game.i18n.localize(GRANBLUE.itemQualities[item.quality] ?? item.quality) : '']
                 .filter(Boolean).join(' · '),
-            icon: 'fa-solid fa-bag-shopping',
+            icon: GRANBLUE.itemCategoryIcons[item.category] ?? 'fa-solid fa-bag-shopping',
+            kind: 'item',
             text: item.description
         });
     }
@@ -183,6 +190,7 @@ export class GranblueActor extends Actor {
             title: game.i18n.localize(isAdvantage ? 'GRANBLUE.Adversary.advantage' : 'GRANBLUE.Adversary.disadvantage'),
             subtitle: this.name,
             icon: isAdvantage ? 'fa-solid fa-circle-plus' : 'fa-solid fa-circle-minus',
+            kind: isAdvantage ? 'advantage' : 'disadvantage',
             text
         });
     }

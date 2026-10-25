@@ -1,33 +1,27 @@
 {{!--
     Ficha vista por um jogador que não é dono do ator (NPCs e inimigos
-    liberados pelo mestre): só o cartão de identificação.
+    liberados pelo mestre): só a carta do personagem — arte, nome, classe,
+    herança, rank e nível.
 --}}
-<div class="gb-root gb-limited-card">
-    <figure class="gb-limited-portrait">
+<div class="gb-limited-card" data-tooltip-class="gb-tooltip">
+    <figure class="gb-portrait gb-portrait--limited gb-frame">
         <img src="{{actor.img}}" alt="{{actor.name}}">
-        <a class="gb-portrait-zoom" data-action="showArtwork" title="Ver a arte em tamanho real">
-            <i class="fa-solid fa-expand"></i>
-        </a>
+        <div class="gb-portrait-shade"></div>
+        {{#if rank.letter}}
+        <span class="gb-crest" data-rank="{{rank.letter}}">
+            <span class="gb-crest-letter">{{rank.letter}}</span>
+            <span class="gb-crest-num">{{rank.number}}</span>
+        </span>
+        {{/if}}
+        <a class="gb-portrait-zoom" data-action="showArtwork" data-tooltip="Ver a arte em tamanho real"><i class="fa-solid fa-expand"></i></a>
+        <figcaption class="gb-nameplate">
+            <h2 class="gb-name">{{actor.name}}</h2>
+            <div class="gb-limited-tags">
+                {{#if classLabel}}<span class="gb-chip gb-chip--gold"><i class="fa-solid fa-swords"></i> {{classLabel}}</span>{{/if}}
+                {{#if heritageLabel}}<span class="gb-chip gb-chip--gold"><i class="fa-solid fa-dna"></i> {{heritageLabel}}</span>{{/if}}
+                {{#if rankLabel}}<span class="gb-chip"><i class="fa-solid fa-medal"></i> Rank <b>{{rankLabel}}</b></span>{{/if}}
+                <span class="gb-chip"><i class="fa-solid fa-signal"></i> Nível <b>{{system.level}}</b></span>
+            </div>
+        </figcaption>
     </figure>
-
-    <h2 class="gb-limited-name">{{actor.name}}</h2>
-
-    <dl class="gb-limited-grid">
-        <div class="gb-limited-field">
-            <dt>Classe</dt>
-            <dd>{{#if classLabel}}{{classLabel}}{{else}}—{{/if}}</dd>
-        </div>
-        <div class="gb-limited-field">
-            <dt>Herança</dt>
-            <dd>{{#if heritageLabel}}{{heritageLabel}}{{else}}—{{/if}}</dd>
-        </div>
-        <div class="gb-limited-field">
-            <dt>Rank</dt>
-            <dd>{{#if rankLabel}}{{rankLabel}}{{else}}—{{/if}}</dd>
-        </div>
-        <div class="gb-limited-field">
-            <dt>Nível</dt>
-            <dd>{{system.level}}</dd>
-        </div>
-    </dl>
 </div>

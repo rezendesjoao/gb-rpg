@@ -1,55 +1,92 @@
 {{!--
-    Esferas de magia com as suas magias (aba Magia do personagem e do
-    adversário). Cada esfera cria e rola as próprias magias.
+    Grimório (aba Magia do personagem e do adversário). No alto, a Roda das
+    Esferas: as sete esferas com o emblema, os pontos investidos e o botão de
+    criar magia. Embaixo, as magias agrupadas pela esfera — só aparecem as
+    esferas desbloqueadas ou que já têm magias.
 --}}
-<h3 class="gb-section-title">Esferas de Magia</h3>
-<p class="gb-hint">Pontos de esfera: <strong>{{spherePoints.spent}}</strong> / {{spherePoints.total}} (restam {{spherePoints.remaining}}).
-    Custo de desbloqueio entre parênteses. Crie a magia dentro da esfera dela — a rolagem fica aqui mesmo.</p>
-
-{{#each spheres as |s|}}
-<section class="gb-sphere-group{{#unless s.unlocked}} gb-sphere-group--locked{{/unless}}" data-sphere="{{s.key}}">
-    <header class="gb-sphere-head">
-        <h4 class="gb-sphere-title">{{s.label}} <em>({{s.custo}})</em></h4>
-        <label class="gb-sphere-pts" title="Pontos investidos nesta esfera">
-            <span>Pontos</span>
-            <input type="number" name="system.spheres.{{s.key}}" value="{{s.value}}" min="0">
-        </label>
-        <button type="button" class="gb-sphere-add" data-action="addSpell" data-sphere="{{s.key}}" title="Criar uma magia nesta esfera">
-            <i class="fa-solid fa-plus"></i> Nova magia
-        </button>
-    </header>
-
-    {{#each s.spells as |sp|}}
-    {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=sp index=sp.index list="spells" spell=true}}
-    {{else}}
-    <p class="gb-empty gb-empty--sm">Nenhuma magia nesta esfera.</p>
-    {{/each}}
+<section class="gb-wheel gb-panel gb-frame">
+    <div class="gb-wheel-row">
+        {{#each spheres as |s|}}
+        <div class="gb-orb{{#if s.unlocked}} is-on{{/if}}" data-sphere="{{s.key}}">
+            <a class="gb-orb-face" data-action="focusSphere" data-sphere="{{s.key}}"
+               data-tooltip="{{s.label}} — custo de desbloqueio {{s.custo}}{{#if s.spells.length}} · {{s.spells.length}} magia(s){{/if}}">
+                <span class="gb-sigil gb-sigil--sm">{{{s.emblem}}}</span>
+                {{#if s.spells.length}}<em class="gb-orb-count">{{s.spells.length}}</em>{{/if}}
+            </a>
+            <span class="gb-orb-name">{{s.label}}</span>
+            <div class="gb-orb-pts" data-tooltip="Pontos investidos nesta esfera">
+                <a data-action="stepSphere" data-sphere="{{s.key}}" data-delta="-1"><i class="fa-solid fa-minus"></i></a>
+                <input type="number" name="system.spheres.{{s.key}}" value="{{s.value}}" min="0">
+                <a data-action="stepSphere" data-sphere="{{s.key}}" data-delta="1"><i class="fa-solid fa-plus"></i></a>
+            </div>
+            <a class="gb-orb-add" data-action="addSpell" data-sphere="{{s.key}}" data-tooltip="Criar uma magia de {{s.label}}"><i class="fa-solid fa-plus"></i></a>
+        </div>
+        {{/each}}
+    </div>
+    <div class="gb-wheel-foot">
+        <span class="gb-kicker">Pontos de esfera</span>
+        <div class="gb-meter{{#if sphereBudget.over}} gb-meter--over{{/if}}"><span style="--pct: {{sphereBudget.pct}}%"></span></div>
+        <span class="gb-wheel-sum"><b>{{spherePoints.spent}}</b> / {{spherePoints.total}}
+            {{#if sphereBudget.over}}<em class="is-over">excedeu {{sphereBudget.overBy}}</em>{{else}}<em>restam {{spherePoints.remaining}}</em>{{/if}}</span>
+    </div>
 </section>
+
+{{#each sphereSections as |s|}}
+<section class="gb-sphere" data-sphere="{{s.key}}">
+    <header class="gb-sphere-head">
+        <span class="gb-sigil gb-sigil--sm">{{{s.emblem}}}</span>
+        <div class="gb-sphere-title">
+            <h3>{{s.label}}</h3>
+            <span>{{s.value}} {{#if (eqStr s.value 1)}}ponto{{else}}pontos{{/if}} · {{s.spells.length}} {{#if (eqStr s.spells.length 1)}}magia{{else}}magias{{/if}}</span>
+        </div>
+        <span class="gb-rule"></span>
+        <button type="button" class="gb-btn gb-btn--sm" data-action="addSpell" data-sphere="{{s.key}}"><i class="fa-solid fa-plus"></i> Nova magia</button>
+    </header>
+    <div class="gb-list">
+        {{#each s.spells as |sp|}}
+        {{> "systems/granblue/templates/actor/parts/action-row.hbs" row=sp index=sp.index list="spells" spell=true}}
+        {{else}}
+        <p class="gb-empty gb-empty--sm">Nenhuma magia nesta esfera — crie uma ou arraste do compêndio <em>Granblue — Magias</em>.</p>
+        {{/each}}
+    </div>
+</section>
+{{else}}
+<p class="gb-empty">Invista pontos numa esfera da roda (ou arraste magias do compêndio <em>Granblue — Magias</em>) para abrir o grimório.</p>
 {{/each}}
 
 {{#if orphanSpells}}
-<section class="gb-sphere-group gb-sphere-group--orphan">
+<section class="gb-sphere gb-sphere--orphan">
     <header class="gb-sphere-head">
-        <h4 class="gb-sphere-title">Sem esfera definida</h4>
-        <span class="gb-hint">Escolha a esfera de cada magia para movê-la para o grupo certo.</span>
-    </header>
-    {{#each orphanSpells as |sp|}}
-    <div class="gb-action gb-action--spell gb-action--orphan" data-list="spells" data-action-index="{{sp.index}}">
-        <div class="gb-action-head">
-            <span class="gb-orphan-warn" title="Esfera não reconhecida"><i class="fa-solid fa-triangle-exclamation"></i></span>
-            <input type="text" class="gb-action-name" name="system.spells.{{sp.index}}.name" value="{{sp.name}}">
-            <select class="gb-orphan-sphere" name="system.spells.{{sp.index}}.sphere">
-                <option value="{{sp.sphere}}" selected>— esfera —</option>
-                {{#each @root.sphereOptions as |o|}}
-                <option value="{{o.value}}">{{o.label}}</option>
-                {{/each}}
-            </select>
-            <span class="gb-action-btns">
-                <a class="gb-btn gb-btn--roll" data-action="rollActionFull" data-list="spells" data-index="{{sp.index}}" title="Conjurar"><i class="fa-solid fa-dice-d20"></i></a>
-                <a class="gb-btn gb-btn--del" data-action="deleteAction" data-list="spells" data-index="{{sp.index}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
-            </span>
+        <span class="gb-orphan-warn"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <div class="gb-sphere-title">
+            <h3>Sem esfera definida</h3>
+            <span>Escolha a esfera de cada magia para movê-la ao grupo certo.</span>
         </div>
+        <span class="gb-rule"></span>
+    </header>
+    <div class="gb-list">
+        {{#each orphanSpells as |sp|}}
+        <article class="gb-action gb-action--orphan" data-list="spells" data-action-index="{{sp.index}}">
+            <div class="gb-action-head">
+                <span class="gb-action-emblem"><i class="fa-solid fa-question"></i></span>
+                <div class="gb-action-title">
+                    <div class="gb-action-name-row">
+                        <input type="text" class="gb-action-name" name="system.spells.{{sp.index}}.name" value="{{sp.name}}">
+                    </div>
+                </div>
+                <select class="gb-orphan-sphere" name="system.spells.{{sp.index}}.sphere">
+                    <option value="{{sp.sphere}}" selected>— esfera —</option>
+                    {{#each @root.sphereOptions as |o|}}
+                    <option value="{{o.value}}">{{o.label}}</option>
+                    {{/each}}
+                </select>
+                <div class="gb-action-btns">
+                    <a class="gb-icon-btn gb-icon-btn--danger" data-action="deleteAction" data-list="spells" data-index="{{sp.index}}" data-tooltip="Remover"><i class="fa-solid fa-trash"></i></a>
+                    <a class="gb-cast" data-action="rollActionFull" data-list="spells" data-index="{{sp.index}}" data-tooltip="Conjurar"><i class="fa-solid fa-wand-sparkles"></i></a>
+                </div>
+            </div>
+        </article>
+        {{/each}}
     </div>
-    {{/each}}
 </section>
 {{/if}}

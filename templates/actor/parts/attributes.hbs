@@ -1,0 +1,47 @@
+{{!--
+    Atributos (personagem e adversário): a constelação dos nove atributos e o
+    orçamento de pontos no alto; depois os seis atributos do Corpo (físicos) e
+    os três da Mente (mágicos) — a mesma divisão das regras de distribuição.
+--}}
+<div class="gb-overview gb-panel">
+    <figure class="gb-constellation" data-tooltip="Constelação de atributos: a forma da sua build">{{{constellation}}}</figure>
+    <div class="gb-budget">
+        <span class="gb-kicker">Pontos de atributo</span>
+        <div class="gb-budget-total">
+            <b>{{pointBuy.spent}}</b><span>/ {{pointBuy.total}}</span>
+            {{#if pointBuy.remaining}}
+            <em class="{{#if budget.over}}is-over{{/if}}">{{#if budget.over}}excedeu {{budget.overBy}}{{else}}restam {{pointBuy.remaining}}{{/if}}</em>
+            {{else}}
+            <em class="is-done"><i class="fa-solid fa-check"></i> distribuídos</em>
+            {{/if}}
+        </div>
+        <div class="gb-meter{{#if budget.over}} gb-meter--over{{/if}}"><span style="--pct: {{budget.pct}}%"></span></div>
+        <div class="gb-budget-split">
+            <span class="gb-chip gb-chip--gold"><i class="fa-solid fa-hand-fist"></i> Corpo <b>{{budget.body}}</b></span>
+            <span class="gb-chip gb-chip--mana"><i class="fa-solid fa-sparkles"></i> Mente <b>{{budget.mind}}</b></span>
+        </div>
+        <p class="gb-hint">No rank D1: 10 pontos físicos, 5 mágicos e 5 livres. Cada nível acima soma 4.</p>
+    </div>
+</div>
+
+<header class="gb-section">
+    <h3><i class="fa-solid fa-hand-fist"></i> Corpo</h3>
+    <span class="gb-rule"></span>
+    <span class="gb-hint">clique no atributo para testar · 3d6 + total</span>
+</header>
+<div class="gb-attr-grid">
+    {{#each attributesBody as |attr|}}
+    {{> "systems/granblue/templates/actor/parts/attribute-card.hbs" attr=attr}}
+    {{/each}}
+</div>
+
+<header class="gb-section">
+    <h3><i class="fa-solid fa-sparkles"></i> Mente</h3>
+    <span class="gb-rule"></span>
+    <span class="gb-hint">os atributos mágicos</span>
+</header>
+<div class="gb-attr-grid gb-attr-grid--mind">
+    {{#each attributesMind as |attr|}}
+    {{> "systems/granblue/templates/actor/parts/attribute-card.hbs" attr=attr}}
+    {{/each}}
+</div>

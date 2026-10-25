@@ -1,0 +1,266 @@
+/* =========================================================
+   Granblue — diálogos (bônus de rolagem, área, envio de loot) e
+   os pop-ups de loot dos jogadores
+   ========================================================= */
+
+.application.granblue:is(.gb-dialog, .gb-loot-app) > .window-content {
+    padding: 14px 16px 14px;
+    color: var(--gb-text);
+    background:
+        radial-gradient(420px 220px at 100% 0%, rgba(91, 177, 255, 0.09), transparent 65%),
+        linear-gradient(180deg, #0f1830, #080e1d);
+}
+.application.granblue.gb-dialog .dialog-form { gap: 14px; }
+.application.granblue.gb-dialog .dialog-content { gap: 10px; }
+
+/* Botões do rodapé: o padrão é dourado */
+.application.granblue.gb-dialog .form-footer { display: flex; gap: 8px; margin: 0; padding: 0; border: 0; }
+.application.granblue.gb-dialog .form-footer button {
+    display: inline-flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 36px;
+    margin: 0;
+    color: var(--gb-text-2);
+    font: 600 13px/1 var(--gb-font);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--gb-hair-2);
+    border-radius: 10px;
+    box-shadow: none;
+    cursor: pointer;
+    transition: color 0.15s, background-color 0.15s, border-color 0.15s, filter 0.15s;
+}
+.application.granblue.gb-dialog .form-footer button:hover { color: var(--gb-gold-2); background: rgba(226, 192, 110, 0.09); border-color: var(--gb-line-strong); }
+.application.granblue.gb-dialog .form-footer button[autofocus] {
+    color: #1c1305;
+    background: linear-gradient(180deg, #f4dc9b, #c99b43);
+    border-color: rgba(255, 238, 196, 0.65);
+    box-shadow: 0 6px 16px rgba(226, 192, 110, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.application.granblue.gb-dialog .form-footer button[autofocus]:hover { filter: brightness(1.07); color: #1c1305; }
+
+/* ---- Diálogo de bônus de rolagem ---- */
+.gb-roll-dialog { display: flex; flex-direction: column; gap: 10px; font-family: var(--gb-font); }
+.gb-rd-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 2px 2px 12px;
+    border-bottom: 1px solid var(--gb-hair);
+}
+.gb-rd-sigil { --size: 52px; }
+.gb-rd-emblem { position: relative; display: grid; flex: 0 0 auto; place-items: center; width: 42px; height: 42px; color: var(--gb-gold); font-size: 15px; }
+.gb-rd-emblem::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    background: rgba(226, 192, 110, 0.12);
+    border: 1px solid rgba(226, 192, 110, 0.5);
+    border-radius: 7px;
+    box-shadow: 0 0 14px rgba(226, 192, 110, 0.25);
+    transform: rotate(45deg);
+}
+.gb-rd-emblem > i { position: relative; }
+.gb-rd-titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.gb-rd-head[data-sphere] .gb-kicker { color: var(--sp); }
+.gb-rd-titles strong { color: #fff; font: 700 21px/1.05 var(--gb-font-display); }
+
+.gb-rd-part {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 11px 12px 12px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--gb-hair);
+    border-radius: 12px;
+}
+.gb-rd-part--damage { border-left: 2px solid rgba(255, 93, 115, 0.6); }
+.gb-rd-part--hit,
+.gb-rd-part--main { border-left: 2px solid rgba(226, 192, 110, 0.6); }
+.gb-rd-part-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gb-rd-name { color: var(--gb-text); font: 700 12px/1 var(--gb-font); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; }
+.gb-rd-name i { margin-right: 4px; color: var(--gb-gold); }
+.gb-rd-part--damage .gb-rd-name i { color: var(--gb-hp); }
+.gb-rd-base { white-space: nowrap; }
+.gb-rd-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gb-rd-stepper { display: flex; align-items: center; gap: 4px; }
+.granblue .gb-rd-stepper button {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    color: var(--gb-muted);
+    font-size: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--gb-hair-2);
+    border-radius: 8px;
+    cursor: pointer;
+}
+.granblue .gb-rd-stepper button:hover { color: var(--gb-gold-2); border-color: var(--gb-line-strong); }
+.granblue .gb-rd-stepper input { font-size: 15px; font-weight: 700; }
+
+.gb-rd-consume {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 12px;
+    background: rgba(255, 93, 115, 0.06);
+    border: 1px solid rgba(255, 93, 115, 0.22);
+    border-radius: 12px;
+}
+.gb-rd-consume .gb-rd-name i { color: var(--gb-hp); }
+.gb-rd-consume-fields { display: flex; align-items: center; gap: 6px; }
+.granblue .gb-rd-consume-fields select { width: auto; min-width: 130px; }
+.granblue .gb-rd-consume-fields input { width: 58px; }
+.gb-rd-mana { padding: 4px 2px; }
+.gb-rd-mana i { color: var(--gb-mana); }
+.gb-rd-mana small { color: var(--gb-muted); }
+.gb-rd-hint { margin: 2px 0 0; color: var(--gb-faint); font-size: 11.5px; text-align: center; }
+.gb-rd-hint strong { color: var(--gb-muted); }
+
+/* Diálogo da área (alcance complexo) */
+.gb-area-prompt { margin: 2px 0 6px; color: var(--gb-gold-2); font: 700 19px/1.2 var(--gb-font-display); text-align: center; }
+.gb-area-prompt i { margin-right: 6px; color: var(--gb-gold); }
+
+/* Envio de loot (mestre) */
+.gb-loot-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 6px 10px;
+    list-style: none;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--gb-hair);
+    border-radius: 10px;
+    font-size: 12.5px;
+}
+.gb-loot-preview li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; padding: 4px 0; }
+.gb-loot-preview li + li { border-top: 1px solid var(--gb-hair); }
+.gb-loot-preview strong { min-width: 40px; color: var(--gb-gold-2); }
+.gb-loot-preview em { margin-left: auto; color: var(--gb-muted); font-size: 11px; font-style: normal; }
+.gb-loot-preview small { flex-basis: 100%; color: var(--gb-bad); }
+.gb-loot-preview--invalid { opacity: 0.6; }
+.gb-loot-users { display: flex; flex-direction: column; gap: 6px; }
+.gb-loot-users .gb-rd-check,
+.gb-loot-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    color: var(--gb-text-2);
+    font-size: 12.5px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--gb-hair);
+    border-radius: 9px;
+    cursor: pointer;
+}
+.gb-loot-user em { color: var(--gb-muted); font-style: normal; }
+.gb-loot-user--self { border-style: dashed; }
+
+/* ---- Pop-ups de loot dos jogadores ---- */
+.gb-loot-pop { display: flex; flex-direction: column; gap: 10px; font-family: var(--gb-font); }
+.gb-loot-pop-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 2px 12px;
+    border-bottom: 1px solid var(--gb-hair);
+}
+.gb-loot-pop-head .gb-hint { color: var(--gb-muted); }
+.gb-loot-pop-img { flex: 0 0 auto; width: 50px; height: 50px; object-fit: cover; border: 1px solid var(--gb-line-strong); border-radius: 12px; }
+.gb-loot-pop-title { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.gb-loot-pop-title > strong { color: #fff; font: 700 19px/1.1 var(--gb-font-display); }
+.gb-loot-pop-gem { color: #9ff2ff; font-size: 26px; text-shadow: 0 0 16px rgba(91, 177, 255, 0.6); }
+
+.gb-loot-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.gb-loot-entry {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--gb-hair);
+    border-left: 2px solid var(--gb-gold);
+    border-radius: 10px;
+}
+.gb-loot-entry--success { background: rgba(70, 211, 154, 0.07); border-left-color: var(--gb-ok); }
+.gb-loot-entry--failure { border-left-color: var(--gb-bad); opacity: 0.75; }
+.gb-loot-entry-n { color: var(--gb-text-2); font-weight: 600; }
+.gb-loot-entry-n i { margin-right: 4px; color: var(--gb-gold); }
+.gb-loot-entry-chance { color: var(--gb-gold-2); font: 700 18px/1 var(--gb-font-display); }
+.gb-loot-entry-res { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; }
+.gb-loot-entry--success .gb-loot-entry-res { color: #c6f5e1; }
+.gb-loot-entry--failure .gb-loot-entry-res { color: #ffd0d5; }
+.gb-loot-entry-total {
+    display: inline-grid;
+    place-items: center;
+    min-width: 32px;
+    height: 28px;
+    color: #fff;
+    background: #070c18;
+    border: 1px solid var(--gb-line-strong);
+    border-radius: 50%;
+}
+.granblue .gb-loot-roll-btn,
+.granblue .gb-loot-store-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    height: 30px;
+    margin: 0;
+    padding: 0 12px;
+    color: #1c1305;
+    font: 600 12px/1 var(--gb-font);
+    white-space: nowrap;
+    background: linear-gradient(180deg, #f4dc9b, #c99b43);
+    border: 1px solid rgba(255, 238, 196, 0.65);
+    border-radius: 9px;
+    cursor: pointer;
+}
+.granblue .gb-loot-roll-btn:hover,
+.granblue .gb-loot-store-btn:hover { filter: brightness(1.07); }
+.granblue .gb-loot-roll-btn:disabled { opacity: 0.5; cursor: wait; }
+.granblue .gb-loot-store-btn { width: 100%; height: 36px; color: #fff; background: linear-gradient(180deg, #33b884, #16704d); border-color: rgba(170, 245, 214, 0.35); }
+
+.gb-claim-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 12px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--gb-hair);
+    border-radius: 10px;
+}
+.gb-claim-label { color: var(--gb-text-2); font-size: 13px; font-weight: 600; }
+.gb-claim-label em { display: block; color: var(--gb-muted); font-size: 11px; font-style: normal; font-weight: 400; }
+.gb-claim-value { color: #fff; font: 700 18px/1.1 var(--gb-font-display); text-align: right; }
+.gb-claim-value small { display: block; color: var(--gb-muted); font: 400 11px/1.3 var(--gb-font); }
+.gb-quality--boa { color: #57dda4; }
+.gb-quality--rara { color: #69b8ff; }
+.gb-quality--primorosa { color: #c39bff; }
+.gb-quality--materiaPrima { color: #ffb547; }
+.gb-claim-note { margin: 0; text-align: center; }
+.gb-claim-summary {
+    padding: 10px 12px;
+    color: #c6f5e1;
+    text-align: center;
+    background: rgba(70, 211, 154, 0.1);
+    border: 1px solid rgba(70, 211, 154, 0.42);
+    border-radius: 10px;
+}
+.gb-claim-summary strong { color: #fff; }
+
+/* Campo simples dos diálogos montados em JS (ex.: bônus de drop do loot) */
+.gb-rd-field { display: flex; flex-direction: column; gap: 5px; margin: 0; }
+.gb-rd-field > span { color: var(--gb-muted); font: 600 9.5px/1.2 var(--gb-font); letter-spacing: 0.16em; text-transform: uppercase; }

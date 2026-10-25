@@ -1,49 +1,70 @@
 {{!-- Ficha do item Herança (Raça) --}}
-<div class="gb-root gb-item">
-<header class="gb-header gb-header--item">
-    <img class="gb-portrait" src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}" title="Trocar imagem">
-    <div class="gb-identity">
-        <input class="gb-name" type="text" name="name" value="{{item.name}}" placeholder="Nome da herança">
-        <p class="gb-item-sub">Os bônus abaixo são aplicados automaticamente no personagem (Active Effect).</p>
-    </div>
-</header>
-
-<div class="gb-tab active" data-tab-content="main">
-    <h3 class="gb-section-title">Bônus de Atributo</h3>
-    <div class="gb-hbonus">
-        {{#each bonuses as |b|}}
-        <label class="gb-hbonus-item">
-            <span>{{b.label}}</span>
-            <input type="number" name="system.bonuses.{{b.key}}" value="{{b.value}}">
-        </label>
-        {{/each}}
-    </div>
-
-    <label class="gb-bio"><span>Traço Compartilhado</span><textarea name="system.sharedTrait">{{system.sharedTrait}}</textarea></label>
-    <label class="gb-bio"><span>Debilidade</span><textarea name="system.weakness">{{system.weakness}}</textarea></label>
-
-    <h3 class="gb-section-title">Progressos
-        <button type="button" class="gb-inline-add" data-action="addRow" data-array="system.progress" data-kind="progress"><i class="fa-solid fa-plus"></i></button>
-    </h3>
-    {{#each progress as |p idx|}}
-    <div class="gb-action">
-        <div class="gb-action-head">
-            <input type="text" class="gb-action-name" name="system.progress.{{idx}}.name" value="{{p.name}}">
-            <input type="text" name="system.progress.{{idx}}.requirement" value="{{p.requirement}}" placeholder="Requisito" class="gb-prog-req">
-            <select name="system.progress.{{idx}}.actionType" class="gb-ability-action" title="Ação gasta ao usar pelo HUD — automática = o tipo citado na descrição">
-                <option value="" {{#unless p.actionType}}selected{{/unless}}>HUD: automático</option>
-                {{#each @root.actionTypeOptions as |o|}}
-                <option value="{{o.value}}" {{#if (eqStr o.value p.actionType)}}selected{{/if}}>HUD: {{o.label}}</option>
-                {{/each}}
-            </select>
-            <a class="gb-btn gb-btn--del" data-action="deleteRow" data-array="system.progress" data-index="{{idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+<div class="gb-item-sheet gb-item-sheet--heritage" data-tooltip-class="gb-tooltip">
+    <header class="gb-item-hero">
+        <span class="gb-item-portrait"><img src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}" data-tooltip="Clique para trocar a imagem"></span>
+        <div class="gb-item-titles">
+            <span class="gb-kicker">Herança</span>
+            <input class="gb-name" type="text" name="name" value="{{item.name}}" placeholder="Nome da herança">
+            <p class="gb-hint">Os bônus abaixo entram sozinhos no personagem (Active Effect).</p>
         </div>
-        <textarea name="system.progress.{{idx}}.description" placeholder="Descrição do progresso">{{p.description}}</textarea>
-    </div>
-    {{else}}
-    <p class="gb-empty">Nenhum progresso. Use o + para adicionar.</p>
-    {{/each}}
+    </header>
 
-    <label class="gb-bio"><span>Descrição / Lore</span><textarea name="system.description">{{system.description}}</textarea></label>
-</div>
+    <div class="gb-item-body">
+        <header class="gb-section">
+            <h3><i class="fa-solid fa-chart-simple"></i> Bônus de atributo</h3>
+            <span class="gb-rule"></span>
+        </header>
+        <div class="gb-hbonus">
+            {{#each bonuses as |b|}}
+            <label class="gb-hbonus-item gb-hbonus-item--{{b.group}}">
+                <i class="{{b.icon}}"></i>
+                <span>{{b.label}}</span>
+                <input type="number" name="system.bonuses.{{b.key}}" value="{{b.value}}">
+            </label>
+            {{/each}}
+        </div>
+
+        <section class="gb-item-panel">
+            <h4 class="gb-item-panel-title"><i class="fa-solid fa-dna"></i> Traço compartilhado</h4>
+            <prose-mirror name="system.sharedTrait" value="{{system.sharedTrait}}" toggled>{{{enriched.sharedTrait}}}</prose-mirror>
+        </section>
+        <section class="gb-item-panel gb-item-panel--weak">
+            <h4 class="gb-item-panel-title"><i class="fa-solid fa-heart-crack"></i> Debilidade</h4>
+            <prose-mirror name="system.weakness" value="{{system.weakness}}" toggled>{{{enriched.weakness}}}</prose-mirror>
+        </section>
+
+        <header class="gb-section">
+            <h3><i class="fa-solid fa-stairs"></i> Progressos <em>{{progress.length}}</em></h3>
+            <span class="gb-rule"></span>
+            <div class="gb-tools">
+                <button type="button" class="gb-btn gb-btn--sm" data-action="addRow" data-array="system.progress" data-kind="progress"><i class="fa-solid fa-plus"></i> Progresso</button>
+            </div>
+        </header>
+        <div class="gb-list">
+            {{#each progress as |p idx|}}
+            <article class="gb-item-row">
+                <div class="gb-item-row-head">
+                    <input type="text" class="gb-action-name" name="system.progress.{{idx}}.name" value="{{p.name}}">
+                    <input type="text" class="gb-item-row-req" name="system.progress.{{idx}}.requirement" value="{{p.requirement}}" placeholder="Requisito">
+                    <select name="system.progress.{{idx}}.actionType" class="gb-item-row-select" data-tooltip="Ação gasta ao usar pelo HUD — automática = o tipo citado na descrição">
+                        <option value="" {{#unless p.actionType}}selected{{/unless}}>HUD: automático</option>
+                        {{#each @root.actionTypeOptions as |o|}}
+                        <option value="{{o.value}}" {{#if (eqStr o.value p.actionType)}}selected{{/if}}>HUD: {{o.label}}</option>
+                        {{/each}}
+                    </select>
+                    <a class="gb-icon-btn gb-icon-btn--danger" data-action="deleteRow" data-array="system.progress" data-index="{{idx}}" data-tooltip="Remover"><i class="fa-solid fa-trash"></i></a>
+                </div>
+                <textarea name="system.progress.{{idx}}.description" placeholder="Descrição do progresso">{{p.description}}</textarea>
+            </article>
+            {{else}}
+            <p class="gb-empty">Nenhum progresso. Use o botão acima para adicionar.</p>
+            {{/each}}
+        </div>
+
+        <header class="gb-section">
+            <h3><i class="fa-solid fa-book-open"></i> Descrição / lore</h3>
+            <span class="gb-rule"></span>
+        </header>
+        <prose-mirror name="system.description" value="{{system.description}}" toggled>{{{enriched.description}}}</prose-mirror>
+    </div>
 </div>

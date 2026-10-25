@@ -1,4 +1,5 @@
 import { applyStatusToTokens } from './effects.mjs';
+import { hydrateCard } from './sigil.mjs';
 
 /**
  * Cartões de chat do Granblue: botões de aplicar dano/cura/efeito (com a
@@ -25,12 +26,14 @@ export function textToHtml(text) {
 /**
  * Publica um cartão de descrição no chat (habilidade passiva, habilidade de
  * classe, traço/progresso de herança). Use `text` para texto puro ou `html`
- * para conteúdo que já é HTML (campos de herança).
+ * para conteúdo que já é HTML (campos de herança). `kind` dá a cor do cartão
+ * (passive, class, heritage, item, advantage, disadvantage); a passiva de uma
+ * magia passa a `sphere` e os dados do `sigil` dela ({ name, arcano, level }).
  */
-export async function postDescriptionCard(actor, { title, subtitle = '', icon = '', text = '', html = '' }) {
+export async function postDescriptionCard(actor, { title, subtitle = '', icon = '', text = '', html = '', kind = '', sphere = '', sigil = null }) {
     const body = html || textToHtml(text);
     const { renderTemplate } = foundry.applications.handlebars;
-    const content = await renderTemplate(DESCRIPTION_TEMPLATE, { title, subtitle, icon, body });
+    const content = await renderTemplate(DESCRIPTION_TEMPLATE, { title, subtitle, icon, body, kind, sphere, sigil });
     return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content });
 }
 
@@ -38,10 +41,14 @@ export async function postDescriptionCard(actor, { title, subtitle = '', icon = 
 /*  Renderização dos cartões                    */
 /* -------------------------------------------- */
 
-/** Hook renderChatMessageHTML: esconde dados restritos e liga os botões. */
+/**
+ * Hook renderChatMessageHTML: desenha os dados e o selo do cartão, esconde
+ * dados restritos e liga os botões.
+ */
 export function onRenderChatMessage(message, html) {
     const root = html instanceof HTMLElement ? html : html?.[0];
     if (!root) return;
+    if (root.querySelector('.gb-card')) hydrateCard(root);
     hideRestrictedInfo(root);
     root.querySelectorAll('[data-gb-apply]').forEach((btn) => {
         btn.addEventListener('click', (ev) => onApplyClick(ev, btn, message));

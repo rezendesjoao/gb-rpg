@@ -1,0 +1,364 @@
+/* =========================================================
+   Granblue — cartões de chat
+   O cartão é escuro e completo em si; a mensagem do Foundry que o
+   contém perde o pergaminho e vira a moldura dele.
+   ========================================================= */
+
+/* A mensagem que leva um cartão do sistema vira a moldura dele */
+.chat-message:has(> .message-content > .gb-card) {
+    color: #e9edf7;
+    background: linear-gradient(180deg, #131d38 0%, #0a1121 100%);
+    border: 1px solid rgba(226, 192, 110, 0.26);
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+.chat-message:has(> .message-content > .gb-card) .message-header { color: #8390ac; }
+.chat-message:has(> .message-content > .gb-card) .message-sender {
+    color: #f7e4ac;
+    font-family: 'Amiri', serif;
+    font-size: 15px;
+    font-weight: 700;
+}
+.chat-message:has(> .message-content > .gb-card) :is(.message-timestamp, .message-metadata, .whisper-to, .message-delete) { color: #8390ac; }
+.chat-message:has(> .message-content > .gb-card) .message-content { color: inherit; }
+.chat-message:has(> .message-content > .gb-card--spell) { border-color: rgba(255, 255, 255, 0.12); }
+
+.gb-card {
+    --c: var(--gb-gold);
+    --c-2: var(--gb-gold-2);
+    position: relative;
+    margin: 4px 0 2px;
+    overflow: hidden;
+    color: var(--gb-text);
+    font: 400 13px/1.45 var(--gb-font);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01));
+    border: 1px solid var(--gb-hair-2);
+    border-radius: 11px;
+}
+.gb-card--spell { --c: var(--sp); --c-2: var(--sp-2); }
+.gb-card--attribute { --c: #8fc8ff; --c-2: #d6ebff; }
+.gb-card--die { --c: var(--gb-hp); --c-2: #ffd3d9; }
+.gb-card--class { --c: #ffb37a; --c-2: #ffe1c9; }
+.gb-card--heritage { --c: #ff9a8a; --c-2: #ffd8d0; }
+.gb-card--weakness,
+.gb-card--disadvantage { --c: var(--gb-bad); --c-2: #ffd0d5; }
+.gb-card--advantage { --c: var(--gb-ok); --c-2: #c6f5e1; }
+.gb-card--item { --c: #9ff2ff; --c-2: #dcfbff; }
+.gb-card--loot { --c: var(--gb-gold); --c-2: var(--gb-gold-2); }
+/* A passiva de uma magia leva a cor da esfera, como a magia */
+.gb-card--passive[data-sphere] { --c: var(--sp); --c-2: var(--sp-2); }
+
+/* ---- Cabeçalho ---- */
+.gb-card-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 12px 10px;
+    background:
+        radial-gradient(240px 90px at 0% 50%, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--c) 28%, transparent);
+}
+.gb-card-sigil { --size: 54px; --w1: 1.3px; --w2: 0.9px; --w3: 0.65px; margin: -4px 0; }
+.gb-card-emblem {
+    position: relative;
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: var(--c);
+    font-size: 15px;
+}
+.gb-card-emblem::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    background: color-mix(in srgb, var(--c) 14%, rgba(4, 8, 18, 0.7));
+    border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+    border-radius: 7px;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--c) 28%, transparent);
+    transform: rotate(45deg);
+}
+.gb-card-emblem > i { position: relative; }
+.gb-card-titles { display: flex; flex: 1 1 auto; flex-direction: column; gap: 3px; min-width: 0; }
+.gb-card-kicker {
+    overflow: hidden;
+    color: var(--c);
+    font: 600 9.5px/1.2 var(--gb-font);
+    letter-spacing: 0.17em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.granblue .gb-card-title {
+    margin: 0;
+    padding: 0;
+    color: var(--gb-text);
+    font: 700 19px/1.1 var(--gb-font-display);
+    text-shadow: 0 0 16px color-mix(in srgb, var(--c) 35%, transparent);
+    border: 0;
+}
+
+/* ---- Fichas, citação ---- */
+.gb-card-chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 9px 12px 0; }
+.gb-card-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 21px;
+    padding: 0 8px;
+    color: var(--gb-text-2);
+    font-size: 11.5px;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--gb-hair-2);
+    border-radius: 99px;
+}
+.gb-card-chip i { color: var(--c); font-size: 9.5px; }
+.gb-card-quote {
+    position: relative;
+    margin: 10px 12px 0;
+    padding: 2px 0 2px 12px;
+    color: var(--gb-text-2);
+    font: italic 400 14px/1.45 var(--gb-font-display);
+    white-space: pre-line;
+    border: 0;
+    border-left: 2px solid color-mix(in srgb, var(--c) 55%, transparent);
+}
+
+/* ---- Rolagens ---- */
+.gb-card-rolls { display: flex; flex-direction: column; gap: 6px; padding: 10px 10px 2px; }
+.gb-roll {
+    --t: var(--c);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px 8px 11px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--gb-hair);
+    border-radius: 10px;
+}
+.gb-roll--damage { --t: var(--gb-hp); }
+.gb-roll-main { display: flex; flex: 1 1 auto; flex-direction: column; gap: 6px; min-width: 0; }
+.gb-roll-label { color: var(--gb-muted); font: 600 9px/1 var(--gb-font); letter-spacing: 0.18em; text-transform: uppercase; }
+.gb-roll-dice { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.gb-roll-mod {
+    margin-left: 3px;
+    color: var(--gb-text-2);
+    font: 700 14px/1 var(--gb-font);
+    font-variant-numeric: tabular-nums;
+}
+.gb-roll-total {
+    position: relative;
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+}
+.gb-roll-total::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--t) 30%, #0d1630), #070c18 75%);
+    border: 1.5px solid color-mix(in srgb, var(--t) 75%, transparent);
+    border-radius: 50%;
+    box-shadow: 0 0 16px color-mix(in srgb, var(--t) 40%, transparent), inset 0 0 10px rgba(0, 0, 0, 0.6);
+}
+.gb-roll-total > span {
+    position: relative;
+    color: #fff;
+    font: 700 24px/1 var(--gb-font-display);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--t) 80%, transparent);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Conjuração (CD) ---- */
+.gb-card-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 10px 0;
+    padding: 7px 11px;
+    font-size: 12px;
+    border-radius: 9px;
+}
+.gb-card-check > span { flex: 1 1 auto; color: var(--gb-text-2); }
+.gb-card-check strong { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+.gb-card-check--success { color: #c6f5e1; background: rgba(70, 211, 154, 0.1); border: 1px solid rgba(70, 211, 154, 0.38); }
+.gb-card-check--failure { color: #ffd0d5; background: rgba(255, 100, 112, 0.1); border: 1px solid rgba(255, 100, 112, 0.38); }
+
+/* ---- Alvos ---- */
+.gb-card-targets {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 10px 0;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid var(--gb-hair);
+    border-radius: 10px;
+}
+.gb-target { display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 2px; font-size: 12.5px; }
+.gb-target + .gb-target { padding-top: 4px; border-top: 1px solid var(--gb-hair); }
+.gb-target-img { flex: 0 0 auto; width: 26px; height: 26px; object-fit: cover; border: 1px solid var(--gb-hair-2); border-radius: 50%; }
+.gb-target-name { flex: 1 1 auto; min-width: 0; overflow: hidden; color: var(--gb-text); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.gb-target-ca { color: var(--gb-muted); font-size: 11px; white-space: nowrap; }
+.gb-target-res {
+    padding: 2px 8px;
+    font: 700 9.5px/1.4 var(--gb-font);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-radius: 99px;
+}
+.gb-target.is-hit .gb-target-res { color: #c6f5e1; background: rgba(70, 211, 154, 0.14); border: 1px solid rgba(70, 211, 154, 0.45); }
+.gb-target.is-miss .gb-target-res { color: #ffd0d5; background: rgba(255, 100, 112, 0.12); border: 1px solid rgba(255, 100, 112, 0.42); }
+.gb-target.is-miss .gb-target-name { color: var(--gb-muted); }
+.gb-target-btns { display: inline-flex; gap: 3px; }
+.granblue .gb-target-btn {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    font-size: 11px;
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+}
+.granblue .gb-target-btn--dmg { background: linear-gradient(180deg, #ff6b80, #b8233f); border-color: rgba(255, 180, 190, 0.4); }
+.granblue .gb-target-btn--fx { background: linear-gradient(180deg, #c3a6ff, #6f4cc7); border-color: rgba(220, 205, 255, 0.4); }
+.granblue .gb-target-btn img { width: 14px; height: 14px; border: 0; filter: brightness(0) invert(1); }
+.granblue .gb-target-btn:hover { filter: brightness(1.15); }
+
+/* ---- Efeito e status ---- */
+.gb-card-effect { margin: 9px 12px 0; }
+.gb-card-label { color: var(--c); font: 600 9px/1 var(--gb-font); letter-spacing: 0.18em; text-transform: uppercase; }
+.gb-card-label i { margin-right: 3px; }
+.gb-card-effect p { margin: 4px 0 0; color: var(--gb-text); font-size: 12.5px; line-height: 1.5; white-space: pre-line; }
+.gb-card-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 9px 10px 0;
+    padding: 8px 10px;
+    background: rgba(181, 146, 255, 0.08);
+    border: 1px solid rgba(181, 146, 255, 0.3);
+    border-radius: 9px;
+}
+.gb-card-status > img {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    padding: 4px;
+    background: rgba(181, 146, 255, 0.25);
+    border: 1px solid rgba(181, 146, 255, 0.5);
+    border-radius: 7px;
+    filter: none;
+}
+.gb-card-status strong { color: #e4dbff; font-size: 12.5px; }
+.gb-card-status p { margin: 2px 0 0; color: var(--gb-text-2); font-size: 11.5px; line-height: 1.45; }
+
+/* ---- Rodapé: aplicar ---- */
+.gb-card-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; }
+.granblue .gb-apply {
+    display: inline-flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    height: 32px;
+    margin: 0;
+    padding: 0 10px;
+    overflow: hidden;
+    color: #fff;
+    font: 600 12px/1 var(--gb-font);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.15s;
+}
+.granblue .gb-apply b { font-size: 14px; }
+.granblue .gb-apply small { font-size: 10.5px; font-weight: 400; opacity: 0.85; }
+.granblue .gb-apply:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.granblue .gb-apply--dmg { background: linear-gradient(180deg, #e8475f, #9c1d35); border-color: rgba(255, 170, 182, 0.35); }
+.granblue .gb-apply--heal { background: linear-gradient(180deg, #33b884, #16704d); border-color: rgba(170, 245, 214, 0.35); }
+.granblue .gb-apply--fx { flex-basis: 100%; background: linear-gradient(180deg, #8f6ce6, #553799); border-color: rgba(220, 205, 255, 0.35); }
+.granblue .gb-apply img { width: 15px; height: 15px; border: 0; filter: brightness(0) invert(1); }
+
+/* ---- Cartões de texto e de loot ---- */
+.gb-card-text { padding: 11px 13px 12px; color: var(--gb-text); font-size: 13px; line-height: 1.55; }
+.gb-card-text p { margin: 0 0 7px; }
+.gb-card-text p:last-child { margin-bottom: 0; }
+.gb-card-text strong { color: var(--c-2); }
+.gb-card-muted { color: var(--gb-muted); font-style: italic; }
+.gb-card--text .gb-card-head { border-bottom-style: dashed; }
+.gb-card-verdict {
+    margin: 8px 10px 10px;
+    padding: 8px 10px;
+    font: 700 12.5px/1.3 var(--gb-font);
+    text-align: center;
+    border-radius: 9px;
+}
+.gb-card-verdict--success { color: #c6f5e1; background: rgba(70, 211, 154, 0.12); border: 1px solid rgba(70, 211, 154, 0.42); }
+.gb-card-verdict--failure { color: #ffd0d5; background: rgba(255, 100, 112, 0.1); border: 1px solid rgba(255, 100, 112, 0.38); }
+.gb-card-verdict--info { color: #cfe6ff; background: rgba(91, 177, 255, 0.1); border: 1px solid rgba(91, 177, 255, 0.38); }
+.gb-card-verdict--quality { color: var(--gb-gold-2); background: rgba(226, 192, 110, 0.12); border: 1px solid rgba(226, 192, 110, 0.45); }
+.gb-card--attribute .gb-card-rolls,
+.gb-card--die .gb-card-rolls,
+.gb-card--loot .gb-card-rolls { padding-bottom: 10px; }
+
+/* =========================================================
+   Cartões antigos (de antes do Códice Celeste) continuam legíveis
+   ========================================================= */
+.chat-message:has(> .message-content > .gb-chat-card) {
+    color: #e9edf7;
+    background: linear-gradient(180deg, #131d38 0%, #0a1121 100%);
+    border: 1px solid rgba(226, 192, 110, 0.26);
+    border-radius: 12px;
+}
+.chat-message:has(> .message-content > .gb-chat-card) .message-sender { color: #f7e4ac; }
+.chat-message:has(> .message-content > .gb-chat-card) :is(.message-header, .message-timestamp, .message-delete) { color: #8390ac; }
+.gb-chat-card { overflow: hidden; color: var(--gb-text); background: rgba(255, 255, 255, 0.03); border: 1px solid var(--gb-hair-2); border-radius: 10px; }
+.gb-chat-header { padding: 8px 10px; background: rgba(226, 192, 110, 0.08); border-bottom: 1px solid var(--gb-line); }
+.granblue .gb-chat-header h3 { margin: 0; color: var(--gb-text); font: 700 17px/1.15 var(--gb-font-display); border: 0; }
+.gb-chat-header-sub { color: var(--gb-gold); font-size: 11px; }
+.gb-chat-subtitle { padding: 6px 10px 0; color: var(--gb-muted); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+.gb-chat-card .gb-roll { margin: 6px 8px; }
+.gb-chat-card .gb-roll-total { width: auto; height: auto; padding: 0 6px; color: #fff; font: 700 22px/1 var(--gb-font-display); }
+.gb-chat-card .gb-roll-total::before { display: none; }
+.gb-die-face { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 4px; font-weight: 700; border: 1px solid var(--gb-hair-2); border-radius: 6px; }
+.gb-chat-meta { margin: 0; padding: 6px 10px; list-style: none; color: var(--gb-text-2); font-size: 12px; }
+:is(.gb-chat-desc, .gb-chat-effect, .gb-chat-text, .gb-chat-status, .gb-chat-check, .gb-chat-targets) { padding: 5px 10px; font-size: 12px; }
+.gb-chat-apply { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
+.gb-loot-verdict { margin: 6px 8px 8px; padding: 6px; text-align: center; border: 1px solid var(--gb-line); border-radius: 8px; }
+.gb-chat-status { display: flex; align-items: flex-start; gap: 8px; }
+.gb-chat-status-icn { flex: 0 0 auto; width: 22px; height: 22px; padding: 3px; background: rgba(181, 146, 255, 0.25); border: 1px solid rgba(181, 146, 255, 0.5); border-radius: 6px; }
+.gb-apply-icn { width: 14px; height: 14px; border: 0; filter: brightness(0) invert(1); }
+.gb-chat-check--success { color: #c6f5e1; }
+.gb-chat-check--failure { color: #ffd0d5; }
+.gb-target-res--hit { color: #c6f5e1; }
+.gb-target-res--miss { color: #ffd0d5; }
+
+/* Entrada do cartão: o selo da magia se acende girando e o total "pulsa" */
+@keyframes gb-cast-in {
+    from { opacity: 0; transform: scale(0.35) rotate(-120deg); filter: brightness(3) drop-shadow(0 0 12px var(--sp)); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes gb-total-in {
+    0% { opacity: 0; transform: scale(0.6); }
+    70% { transform: scale(1.12); }
+    100% { opacity: 1; transform: none; }
+}
+.gb-card-sigil > svg { animation: gb-cast-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.gb-roll-total { animation: gb-total-in 0.5s 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) both; }

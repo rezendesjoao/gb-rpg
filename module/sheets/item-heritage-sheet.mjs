@@ -3,13 +3,15 @@ import { GRANBLUE } from '../config.mjs';
 
 /** Ficha do item Herança. */
 export class GranblueHeritageSheet extends GranblueItemSheetBase {
+    static HTML_FIELDS = ['sharedTrait', 'weakness', 'description'];
+
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'item', 'heritage'],
-        position: { width: 580, height: 700 }
+        position: { width: 600, height: 740 }
     };
 
     static PARTS = {
-        main: { template: 'systems/granblue/templates/item/heritage.hbs', scrollable: [''] }
+        main: { template: 'systems/granblue/templates/item/heritage.hbs', scrollable: ['.gb-item-body'] }
     };
 
     async _prepareContext(options) {
@@ -18,6 +20,8 @@ export class GranblueHeritageSheet extends GranblueItemSheetBase {
         context.bonuses = Object.entries(GRANBLUE.attributes).map(([key, cfg]) => ({
             key,
             label: game.i18n.localize(cfg.label),
+            icon: cfg.icon,
+            group: GRANBLUE.magicalAttributes.includes(key) ? 'mente' : 'corpo',
             value: sys.bonuses?.[key] ?? 0
         }));
         context.progress = sys.progress ?? [];

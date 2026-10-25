@@ -1,11 +1,10 @@
 {{!--
-    Classe e Herança no cabeçalho (personagem e antagonista). Mostra só o nome
-    escolhido; o seletor fica invisível por cima e abre ao clicar.
+    Classe e Herança na placa do nome (personagem e antagonista). Mostra só o
+    nome escolhido; o seletor fica invisível por cima e abre ao clicar.
 --}}
-<label class="gb-pick" title="Classe">
-    <i class="gb-pick-icon fa-solid fa-hand-fist"></i>
-    <span class="gb-pick-value{{#unless classLabel}} gb-pick-value--empty{{/unless}}">{{#if classLabel}}{{classLabel}}{{else}}Classe{{/if}}</span>
-    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
+<label class="gb-pick" data-tooltip="Classe (Estilo de Guerreiro) — clique para trocar">
+    <i class="fa-solid fa-swords"></i>
+    <span class="gb-pick-value{{#unless classLabel}} is-empty{{/unless}}">{{#if classLabel}}{{classLabel}}{{else}}Classe{{/if}}</span>
     <select data-gb-chooser="class">
         <option value="" {{#if classBlankSelected}}selected{{/if}}>—</option>
         {{#each classGroups as |grp|}}
@@ -17,10 +16,9 @@
         {{/each}}
     </select>
 </label>
-<label class="gb-pick" title="Herança">
-    <i class="gb-pick-icon fa-solid fa-dna"></i>
-    <span class="gb-pick-value{{#unless heritageLabel}} gb-pick-value--empty{{/unless}}">{{#if heritageLabel}}{{heritageLabel}}{{else}}Herança{{/if}}</span>
-    <i class="gb-pick-caret fa-solid fa-caret-down"></i>
+<label class="gb-pick" data-tooltip="Herança — clique para trocar">
+    <i class="fa-solid fa-dna"></i>
+    <span class="gb-pick-value{{#unless heritageLabel}} is-empty{{/unless}}">{{#if heritageLabel}}{{heritageLabel}}{{else}}Herança{{/if}}</span>
     <select data-gb-chooser="heritage">
         <option value="" {{#if heritageBlankSelected}}selected{{/if}}>—</option>
         {{#each heritageOptions as |o|}}

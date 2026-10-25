@@ -4,12 +4,12 @@ import { GRANBLUE } from '../config.mjs';
 /**
  * Ficha do Personagem (Guerreiro Mágico).
  * Classe/herança, esferas e RD vêm da ficha base (compartilhados com o
- * adversário antagonista); aqui ficam rank e inventário.
+ * adversário antagonista); aqui ficam rank, progresso e inventário.
  */
 export class GranblueCharacterSheet extends GranblueActorSheetBase {
     static DEFAULT_OPTIONS = {
         classes: ['granblue', 'sheet', 'actor', 'character'],
-        position: { width: 840, height: 840 }
+        position: { width: 920, height: 860 }
     };
 
     static DEFAULT_TAB = 'atributos';
@@ -18,7 +18,7 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         main: {
             template: 'systems/granblue/templates/actor/character.hbs',
             templates: SHEET_PARTIALS,
-            scrollable: ['']
+            scrollable: ['.gb-body', '.gb-side']
         }
     };
 
@@ -33,17 +33,15 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
 
         // Inventário agrupado por categoria (categoria desconhecida cai em "outros")
         const categories = Object.keys(GRANBLUE.itemCategories);
-        const items = (sys.inventory ?? []).map((item, index) => ({
-            ...item,
-            index,
-            categoryKey: categories.includes(item.category) ? item.category : 'outros'
-        }));
+        const items = (sys.inventory ?? []).map((item, index) => GranblueCharacterSheet.#decorateItem(item, index, categories));
         context.inventoryGroups = categories.map((key) => ({
             key,
             label: game.i18n.localize(GRANBLUE.itemCategories[key]),
+            icon: GRANBLUE.itemCategoryIcons[key],
             items: items.filter((i) => i.categoryKey === key)
         }));
         context.inventoryCount = items.length;
+        context.equippedCount = items.filter((i) => i.equipped).length;
         context.inventoryWeight = GranblueCharacterSheet.#totalWeight(items);
         context.currency = sys.currency;
         context.categoryOptions = categories.map((key) => ({
@@ -59,8 +57,36 @@ export class GranblueCharacterSheet extends GranblueActorSheetBase {
         context.biography = sys.biography;
         context.notes = sys.notes;
         context.progress = sys.progress;
+        context.progressPct = sys.progress.final > 0
+            ? Math.max(0, Math.min(100, Math.round((sys.progress.current / sys.progress.final) * 100)))
+            : 0;
 
         return context;
+    }
+
+    /**
+     * Item do inventário pronto para a ficha: a categoria reconhecida, a
+     * qualidade (que dá a cor do nome) e o resumo em fichas — qualidade,
+     * tier, peso, valor e a ação gasta pelo HUD.
+     */
+    static #decorateItem(item, index, categories) {
+        const qualityKey = item.quality in GRANBLUE.itemQualities ? item.quality : '';
+        const chips = [];
+        if (qualityKey && qualityKey !== 'normal') {
+            chips.push({ icon: 'fa-solid fa-star', label: 'Qualidade', value: game.i18n.localize(GRANBLUE.itemQualities[qualityKey]), cls: 'is-quality' });
+        }
+        if (item.tier) chips.push({ icon: 'fa-solid fa-layer-group', label: 'Tier', value: `T${item.tier}` });
+        if (String(item.weight ?? '').trim()) chips.push({ icon: 'fa-solid fa-weight-hanging', label: 'Peso', value: String(item.weight).trim() });
+        if (String(item.value ?? '').trim()) chips.push({ icon: 'fa-solid fa-gem', label: 'Valor', value: String(item.value).trim() });
+        const type = GRANBLUE.actionTypes[item.actionType];
+        if (type) chips.push({ icon: type.icon, label: 'Ação gasta no HUD', value: game.i18n.localize(type.label) });
+        return {
+            ...item,
+            index,
+            categoryKey: categories.includes(item.category) ? item.category : 'outros',
+            qualityKey: qualityKey || 'normal',
+            chips
+        };
     }
 
     /**

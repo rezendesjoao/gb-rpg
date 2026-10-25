@@ -1,6 +1,8 @@
 import { GRANBLUE } from '../config.mjs';
 import { describeStatusEffect } from '../effects.mjs';
 import { rangeLabel } from '../area.mjs';
+import { rowActionType } from '../use-action.mjs';
+import { roman } from '../sigil.mjs';
 
 const CARD_TEMPLATE = 'systems/granblue/templates/chat/roll-card.hbs';
 
@@ -43,15 +45,13 @@ export async function rollAttributeTest(actor, attrKey, options = {}) {
     const roll = new Roll(applyMods('3d6 + @mod', options), { mod });
     await roll.evaluate();
 
+    const testLabel = game.i18n.localize(options.mana ? 'GRANBLUE.Chat.manaTest' : 'GRANBLUE.Chat.attributeTest');
     await postRollCard(actor, {
+        kind: 'attribute',
+        icon: GRANBLUE.attributes[attrKey]?.icon ?? 'fa-solid fa-dice-d6',
+        kicker: testLabel,
         title: game.i18n.localize(GRANBLUE.attributes[attrKey]?.label ?? attrKey),
-        sections: [makeSection(
-            options.mana
-                ? game.i18n.localize('GRANBLUE.Chat.manaTest')
-                : game.i18n.localize('GRANBLUE.Chat.attributeTest'),
-            roll,
-            'attribute'
-        )],
+        sections: [makeSection(roll.formula, roll, 'attribute')],
         rolls: [roll]
     });
     return roll;
@@ -83,11 +83,7 @@ export async function rollActionPart(actor, action, part, mods = {}) {
     }
     const isHit = part === 'hit';
     await postActionCard(actor, action, {
-        sections: [makeSection(
-            game.i18n.localize(isHit ? 'GRANBLUE.Chat.hitRoll' : 'GRANBLUE.Chat.damageRoll'),
-            roll,
-            part
-        )],
+        sections: [makeSection(isHit ? hitLabel() : damageLabel(action), roll, part)],
         hitTotal: isHit ? roll.total : null,
         rolls: [roll]
     });
@@ -102,13 +98,13 @@ export async function rollActionFull(actor, action, mods = {}) {
     const hitRoll = await evalActionRoll(actor, action, 'hit', mods.hit);
     if (hitRoll) {
         rolls.push(hitRoll);
-        sections.push(makeSection(game.i18n.localize('GRANBLUE.Chat.hitRoll'), hitRoll, 'hit'));
+        sections.push(makeSection(hitLabel(), hitRoll, 'hit'));
     }
 
     const dmgRoll = await evalActionRoll(actor, action, 'damage', mods.damage);
     if (dmgRoll) {
         rolls.push(dmgRoll);
-        sections.push(makeSection(game.i18n.localize('GRANBLUE.Chat.damageRoll'), dmgRoll, 'damage'));
+        sections.push(makeSection(damageLabel(action), dmgRoll, 'damage'));
     }
 
     // Sem fórmula nenhuma: uma magia de efeito (buff, Charged…) ainda publica o
@@ -127,12 +123,26 @@ export async function rollActionFull(actor, action, mods = {}) {
 export async function rollHitDie(actor, dieFormula) {
     const roll = new Roll(dieFormula || '2d6');
     await roll.evaluate();
+    const classItem = actor.items?.find((i) => i.type === 'class');
     await postRollCard(actor, {
+        kind: 'die',
+        icon: 'fa-solid fa-heart-pulse',
+        kicker: classItem?.name ?? '',
         title: game.i18n.localize('GRANBLUE.HitDie'),
-        sections: [makeSection(dieFormula, roll, 'die')],
+        sections: [makeSection(dieFormula || '2d6', roll, 'die')],
         rolls: [roll]
     });
     return roll.total;
+}
+
+/** Rótulo da rolagem de acerto no cartão. */
+function hitLabel() {
+    return game.i18n.localize('GRANBLUE.Chat.hitRoll');
+}
+
+/** Rótulo da rolagem de dano no cartão (nas magias, dano ou cura). */
+function damageLabel(action) {
+    return game.i18n.localize(GRANBLUE.normalizeSphere(action?.sphere) ? 'GRANBLUE.Chat.damageRollSpell' : 'GRANBLUE.Chat.damageRoll');
 }
 
 /* -------------------------------------------- */
@@ -199,7 +209,18 @@ async function postActionCard(actor, action, { sections, hitTotal, rolls }) {
         };
     }
 
+    const sphere = GRANBLUE.normalizeSphere(action.sphere);
+    const typeCfg = GRANBLUE.actionTypes[rowActionType(action)];
+    const kicker = sphere
+        ? [game.i18n.localize(GRANBLUE.spheres[sphere].label), action.arcano, `${game.i18n.localize('GRANBLUE.Spell.level')} ${roman(action.level)}`]
+        : [typeCfg ? game.i18n.localize(typeCfg.label) : ''];
     await postRollCard(actor, {
+        kind: sphere ? 'spell' : 'action',
+        sphere,
+        sigil: sphere ? { name: action.name, arcano: action.arcano ?? '', level: action.level ?? 1 } : null,
+        icon: typeCfg?.icon ?? 'fa-solid fa-hand-fist',
+        kicker: kicker.filter(Boolean).join(' · '),
+        chips: buildActionChips(action, { spell: !!sphere, typeCfg }),
         title: action.name,
         description: String(action.description ?? '').trim(),
         effectText: String(action.effect ?? '').trim(),
@@ -207,7 +228,6 @@ async function postActionCard(actor, action, { sections, hitTotal, rolls }) {
         check,
         targets,
         hitTotal,
-        meta: buildActionMeta(action),
         statusEffect: describeStatusEffect(action.statusEffect),
         damageType: damageTypeOf(action),
         rolls
@@ -219,24 +239,26 @@ export function damageTypeOf(action) {
     return GRANBLUE.damageNature(action, { spell: !!GRANBLUE.normalizeSphere(action?.sphere) });
 }
 
-/** Linhas de metadados (custo/alcance/etc.) exibidas no cartão de uma ação. */
-function buildActionMeta(action) {
-    const meta = [];
-    const sphere = GRANBLUE.normalizeSphere(action.sphere);
-    if (sphere) {
-        meta.push({
-            label: game.i18n.localize('GRANBLUE.Spell.sphere'),
-            value: game.i18n.localize(GRANBLUE.spheres[sphere].label)
-        });
+/**
+ * Fichas de informação do cartão de uma ação/magia: custo, alcance, a
+ * conjuração e a dificuldade. Esfera, arcano e nível da magia já vão no
+ * sobretítulo do cartão; o tipo de ação da técnica, também.
+ */
+function buildActionChips(action, { spell, typeCfg }) {
+    const chips = [];
+    const add = (icon, label, value) => {
+        const text = String(value ?? '').trim();
+        if (text) chips.push({ icon, label, value: text });
+    };
+    add(spell ? 'fa-solid fa-droplet' : 'fa-solid fa-flask', game.i18n.localize('GRANBLUE.Action.cost'), action.cost);
+    add('fa-solid fa-ruler', game.i18n.localize('GRANBLUE.Action.range'), rangeLabel(action));
+    if (spell) {
+        add(typeCfg?.icon ?? 'fa-solid fa-hourglass-half', game.i18n.localize('GRANBLUE.Action.casting'),
+            action.casting || (typeCfg ? game.i18n.localize(typeCfg.label) : ''));
     }
-    if (action.arcano) meta.push({ label: game.i18n.localize('GRANBLUE.Spell.arcano'), value: action.arcano });
-    if (sphere && action.level) meta.push({ label: game.i18n.localize('GRANBLUE.Spell.level'), value: action.level });
-    if (action.cost) meta.push({ label: game.i18n.localize('GRANBLUE.Action.cost'), value: action.cost });
-    const range = rangeLabel(action);
-    if (range) meta.push({ label: game.i18n.localize('GRANBLUE.Action.range'), value: range });
-    if (action.casting) meta.push({ label: game.i18n.localize('GRANBLUE.Action.casting'), value: action.casting });
-    if (action.difficulty) meta.push({ label: game.i18n.localize('GRANBLUE.Action.difficulty'), value: action.difficulty });
-    return meta;
+    const diff = String(action.difficulty ?? '').trim();
+    add('fa-solid fa-bullseye', game.i18n.localize('GRANBLUE.Action.difficulty'), /^\d+$/.test(diff) ? `CD ${diff}` : diff);
+    return chips;
 }
 
 /** Resultado de cada alvo pronto para o template (rótulos de acerto/erro e CA). */
@@ -252,17 +274,31 @@ function describeTargets(targets) {
     }));
 }
 
-/** Renderiza e publica o cartão de rolagem no chat. */
+/**
+ * Renderiza e publica o cartão de rolagem no chat. `kind` (attribute, die,
+ * action, spell) escolhe o visual; a magia leva `sphere` e os dados do
+ * `sigil` (desenhado ao exibir a mensagem), as demais um ícone (`icon`).
+ * `kicker` é o sobretítulo e `chips` as fichas de informação abaixo do título.
+ */
 async function postRollCard(actor, {
-    title, sections, meta = null, statusEffect = null, rolls = [],
+    kind = 'action', icon = '', sigil = null, sphere = '', kicker = '', chips = [],
+    title, sections, statusEffect = null, rolls = [],
     description = '', effectText = '', check = null, targets = [], hitTotal = null, damageType = 'fisico'
 }) {
     // Valor sugerido para aplicar dano/cura: o total do dano, senão o da última seção.
     const damageSection = sections.find((s) => s.kind === 'damage');
     const applyAmount = (damageSection ?? sections[sections.length - 1])?.total ?? 0;
+    // Testes de atributo e o dado de vida não aplicam nada: o cartão fica sem rodapé.
+    const appliable = kind === 'action' || kind === 'spell';
 
     const { renderTemplate } = foundry.applications.handlebars;
     const content = await renderTemplate(CARD_TEMPLATE, {
+        kind,
+        icon,
+        sigil,
+        sphere,
+        kicker,
+        chips,
         title,
         description,
         effectText,
@@ -270,10 +306,10 @@ async function postRollCard(actor, {
         check,
         targets: describeTargets(targets),
         hasDamage: !!damageSection,
-        hasRolls: sections.length > 0,
+        hasRolls: appliable && sections.length > 0,
+        hasButtons: appliable && (sections.length > 0 || !!statusEffect),
         damageType,
         damageTypeLabel: game.i18n.localize(GRANBLUE.damageTypes[damageType] ?? GRANBLUE.damageTypes.fisico),
-        meta: meta?.length ? meta : null,
         applyAmount,
         statusEffect
     });

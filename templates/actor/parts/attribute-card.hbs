@@ -1,0 +1,24 @@
+{{!--
+    Cartão de atributo. A parte de cima rola o teste (3d6 + total); embaixo,
+    os campos de base e bônus. `attr.derived` mostra o que o atributo
+    alimenta (CA, vida, mana) e `attr.effect` o bônus vindo de efeitos.
+--}}
+<div class="gb-attr gb-attr--{{attr.group}}">
+    <a class="gb-attr-roll" data-action="rollAttribute" data-attribute="{{attr.key}}"
+       data-tooltip="{{attr.func}} — clique para testar (3d6 + {{attr.total}})">
+        <span class="gb-attr-head">
+            <span class="gb-attr-name"><i class="{{attr.icon}}"></i> {{attr.label}}</span>
+            {{#if attr.effect}}<span class="gb-attr-fx" data-tooltip="Bônus de herança e efeitos ativos">{{granblueSigned attr.effect}}</span>{{/if}}
+            {{#if attr.derived}}<span class="gb-attr-derived" data-tooltip="{{attr.derivedHint}}">{{attr.derived}}</span>{{/if}}
+        </span>
+        <span class="gb-attr-body">
+            <span class="gb-attr-total">{{attr.total}}</span>
+            <span class="gb-attr-func">{{attr.func}}</span>
+        </span>
+    </a>
+    <div class="gb-attr-edit">
+        <label><span>Base</span><input type="number" name="system.attributes.{{attr.key}}.value" value="{{attr.value}}"></label>
+        <label><span>Bônus</span><input type="number" name="system.attributes.{{attr.key}}.bonus" value="{{attr.bonus}}"></label>
+        <a class="gb-attr-dice" data-action="rollAttribute" data-attribute="{{attr.key}}" data-tooltip="Testar {{attr.label}}"><i class="fa-solid fa-dice-d6"></i> 3d6{{granblueSigned attr.total}}</a>
+    </div>
+</div>

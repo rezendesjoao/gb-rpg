@@ -17,19 +17,20 @@ GRANBLUE.id = 'granblue';
 /* -------------------------------------------- */
 
 /**
- * Os 9 atributos. `func` descreve a função principal (usada em tooltips).
+ * Os 9 atributos. `func` descreve a função principal (usada em tooltips) e
+ * `icon` é o ícone do cartão na ficha e do teste no chat.
  * A ordem aqui é a ordem de exibição na ficha.
  */
 GRANBLUE.attributes = {
-    forca: { label: 'GRANBLUE.Attributes.forca.label', abbr: 'GRANBLUE.Attributes.forca.abbr', func: 'GRANBLUE.Attributes.forca.func' },
-    precisao: { label: 'GRANBLUE.Attributes.precisao.label', abbr: 'GRANBLUE.Attributes.precisao.abbr', func: 'GRANBLUE.Attributes.precisao.func' },
-    reacao: { label: 'GRANBLUE.Attributes.reacao.label', abbr: 'GRANBLUE.Attributes.reacao.abbr', func: 'GRANBLUE.Attributes.reacao.func' },
-    resiliencia: { label: 'GRANBLUE.Attributes.resiliencia.label', abbr: 'GRANBLUE.Attributes.resiliencia.abbr', func: 'GRANBLUE.Attributes.resiliencia.func' },
-    percepcao: { label: 'GRANBLUE.Attributes.percepcao.label', abbr: 'GRANBLUE.Attributes.percepcao.abbr', func: 'GRANBLUE.Attributes.percepcao.func' },
-    carisma: { label: 'GRANBLUE.Attributes.carisma.label', abbr: 'GRANBLUE.Attributes.carisma.abbr', func: 'GRANBLUE.Attributes.carisma.func' },
-    sabedoria: { label: 'GRANBLUE.Attributes.sabedoria.label', abbr: 'GRANBLUE.Attributes.sabedoria.abbr', func: 'GRANBLUE.Attributes.sabedoria.func' },
-    potencia: { label: 'GRANBLUE.Attributes.potencia.label', abbr: 'GRANBLUE.Attributes.potencia.abbr', func: 'GRANBLUE.Attributes.potencia.func' },
-    disciplina: { label: 'GRANBLUE.Attributes.disciplina.label', abbr: 'GRANBLUE.Attributes.disciplina.abbr', func: 'GRANBLUE.Attributes.disciplina.func' }
+    forca: { label: 'GRANBLUE.Attributes.forca.label', abbr: 'GRANBLUE.Attributes.forca.abbr', func: 'GRANBLUE.Attributes.forca.func', icon: 'fa-solid fa-hand-fist' },
+    precisao: { label: 'GRANBLUE.Attributes.precisao.label', abbr: 'GRANBLUE.Attributes.precisao.abbr', func: 'GRANBLUE.Attributes.precisao.func', icon: 'fa-solid fa-crosshairs' },
+    reacao: { label: 'GRANBLUE.Attributes.reacao.label', abbr: 'GRANBLUE.Attributes.reacao.abbr', func: 'GRANBLUE.Attributes.reacao.func', icon: 'fa-solid fa-bolt' },
+    resiliencia: { label: 'GRANBLUE.Attributes.resiliencia.label', abbr: 'GRANBLUE.Attributes.resiliencia.abbr', func: 'GRANBLUE.Attributes.resiliencia.func', icon: 'fa-solid fa-heart-pulse' },
+    percepcao: { label: 'GRANBLUE.Attributes.percepcao.label', abbr: 'GRANBLUE.Attributes.percepcao.abbr', func: 'GRANBLUE.Attributes.percepcao.func', icon: 'fa-solid fa-eye' },
+    carisma: { label: 'GRANBLUE.Attributes.carisma.label', abbr: 'GRANBLUE.Attributes.carisma.abbr', func: 'GRANBLUE.Attributes.carisma.func', icon: 'fa-solid fa-masks-theater' },
+    sabedoria: { label: 'GRANBLUE.Attributes.sabedoria.label', abbr: 'GRANBLUE.Attributes.sabedoria.abbr', func: 'GRANBLUE.Attributes.sabedoria.func', icon: 'fa-solid fa-book-open' },
+    potencia: { label: 'GRANBLUE.Attributes.potencia.label', abbr: 'GRANBLUE.Attributes.potencia.abbr', func: 'GRANBLUE.Attributes.potencia.func', icon: 'fa-solid fa-meteor' },
+    disciplina: { label: 'GRANBLUE.Attributes.disciplina.label', abbr: 'GRANBLUE.Attributes.disciplina.abbr', func: 'GRANBLUE.Attributes.disciplina.func', icon: 'fa-solid fa-yin-yang' }
 };
 
 /** Atributos que contam como "físicos" e "mágicos" para o point-buy inicial. */
@@ -114,6 +115,16 @@ GRANBLUE.itemCategories = {
     material: 'GRANBLUE.Inventory.category.material',
     tesouro: 'GRANBLUE.Inventory.category.tesouro',
     outros: 'GRANBLUE.Inventory.category.outros'
+};
+
+/** Ícone de cada categoria no cabeçalho do grupo do inventário. */
+GRANBLUE.itemCategoryIcons = {
+    arma: 'fa-solid fa-sword',
+    defesa: 'fa-solid fa-shield-halved',
+    consumivel: 'fa-solid fa-flask',
+    material: 'fa-solid fa-cubes',
+    tesouro: 'fa-solid fa-gem',
+    outros: 'fa-solid fa-box-open'
 };
 
 /** Qualidade dos materiais/itens forjados (ver journal "Itens"). */
@@ -205,6 +216,14 @@ GRANBLUE.adversaryTypes = {
     eliteBoss: 'GRANBLUE.Adversary.type.eliteBoss'
 };
 
+/** Ícone de cada tipagem no brasão da ficha do adversário. */
+GRANBLUE.adversaryTypeIcons = {
+    comum: 'fa-skull',
+    tank: 'fa-shield-halved',
+    boss: 'fa-crown',
+    eliteBoss: 'fa-chess-king'
+};
+
 /** Bônus (%) na chance de drop pela dificuldade do encontro (journal "Encontros"). */
 GRANBLUE.dropBonus = {
     normal: 0,
@@ -243,17 +262,24 @@ GRANBLUE.adversaryKindIcons = {
  *
  * `includes`: tipos menores que também podem ser feitos com este. A ação
  * rápida é hierarquicamente menor que a normal: tudo o que se faz numa ação
- * rápida se faz numa normal (mas não o contrário).
+ * rápida se faz numa normal (mas não o contrário). `short` é o rótulo curto
+ * da linha do tempo do HUD.
  */
 GRANBLUE.actionTypes = {
-    movimento: { label: 'GRANBLUE.ActionType.movimento', icon: 'fa-solid fa-person-running' },
-    rapida: { label: 'GRANBLUE.ActionType.rapida', icon: 'fa-solid fa-bolt' },
-    normal: { label: 'GRANBLUE.ActionType.normal', icon: 'fa-solid fa-hand-fist', includes: ['rapida'] },
-    bonus: { label: 'GRANBLUE.ActionType.bonus', icon: 'fa-solid fa-star-half-stroke' },
-    reacao: { label: 'GRANBLUE.ActionType.reacao', icon: 'fa-solid fa-shield-halved' },
-    conjunta: { label: 'GRANBLUE.ActionType.conjunta', icon: 'fa-solid fa-link', consumes: ['rapida', 'normal'] },
+    movimento: { label: 'GRANBLUE.ActionType.movimento', short: 'GRANBLUE.ActionTypeShort.movimento', icon: 'fa-solid fa-person-running' },
+    rapida: { label: 'GRANBLUE.ActionType.rapida', short: 'GRANBLUE.ActionTypeShort.rapida', icon: 'fa-solid fa-bolt' },
+    normal: { label: 'GRANBLUE.ActionType.normal', short: 'GRANBLUE.ActionTypeShort.normal', icon: 'fa-solid fa-hand-fist', includes: ['rapida'] },
+    bonus: { label: 'GRANBLUE.ActionType.bonus', short: 'GRANBLUE.ActionTypeShort.bonus', icon: 'fa-solid fa-star-half-stroke' },
+    reacao: { label: 'GRANBLUE.ActionType.reacao', short: 'GRANBLUE.ActionTypeShort.reacao', icon: 'fa-solid fa-shield-halved' },
+    conjunta: {
+        label: 'GRANBLUE.ActionType.conjunta',
+        short: 'GRANBLUE.ActionTypeShort.conjunta',
+        icon: 'fa-solid fa-link',
+        consumes: ['rapida', 'normal']
+    },
     total: {
         label: 'GRANBLUE.ActionType.total',
+        short: 'GRANBLUE.ActionTypeShort.total',
         icon: 'fa-solid fa-hourglass-half',
         consumes: ['movimento', 'rapida', 'normal', 'bonus', 'reacao']
     }
@@ -346,6 +372,20 @@ GRANBLUE.rowSelectOptions = function rowSelectOptions() {
         areaShapeOptions: options(Object.entries(GRANBLUE.areaShapes)),
         damageTypeOptions: options(Object.entries(GRANBLUE.damageTypes)).map((o) => ({ ...o, label: o.label.capitalize() }))
     };
+};
+
+/**
+ * Fórmula de rolagem legível para os resumos da ficha, do HUD e do chat: os
+ * atalhos viram as abreviações dos atributos ("3d6 + @disciplina" → "3d6 + DIS").
+ */
+GRANBLUE.prettyFormula = function prettyFormula(formula) {
+    return String(formula ?? '').trim().replace(/@([a-zA-Z]+)/g, (match, key) => {
+        const attr = GRANBLUE.attributes[key];
+        if (attr) return game.i18n.localize(attr.abbr);
+        if (key === 'nivel') return 'Nv';
+        if (key === 'ca') return 'CA';
+        return match;
+    });
 };
 
 /**

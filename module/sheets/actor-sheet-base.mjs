@@ -1,11 +1,13 @@
 import { GRANBLUE } from '../config.mjs';
 import { rollDialog } from '../dice/roll-dialog.mjs';
-import { applyStatusToSelectedTokens } from '../effects.mjs';
+import { applyStatusToSelectedTokens, describeStatusEffect } from '../effects.mjs';
 import { sendLootDialog } from '../loot.mjs';
-import { useAction, useActionPart } from '../use-action.mjs';
-import { placeArea } from '../area.mjs';
+import { useAction, useActionPart, rowActionType } from '../use-action.mjs';
+import { placeArea, rangeLabel } from '../area.mjs';
 import { GranblueItem } from '../documents/item.mjs';
 import { movementLabel } from '../data/base-actor.mjs';
+import { sigilSVG, sphereEmblemSVG, roman } from '../sigil.mjs';
+import { constellationSVG } from './constellation.mjs';
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -20,12 +22,28 @@ export const ACTION_ROW_PARTIAL = 'systems/granblue/templates/actor/parts/action
 export const SHEET_PARTIALS = [
     ACTION_ROW_PARTIAL,
     'systems/granblue/templates/actor/parts/range-fields.hbs',
-    'systems/granblue/templates/actor/parts/defense-row.hbs',
+    'systems/granblue/templates/actor/parts/vitals.hbs',
+    'systems/granblue/templates/actor/parts/attributes.hbs',
+    'systems/granblue/templates/actor/parts/attribute-card.hbs',
+    'systems/granblue/templates/actor/parts/formulas.hbs',
     'systems/granblue/templates/actor/parts/magic-tab.hbs',
+    'systems/granblue/templates/actor/parts/inventory.hbs',
     'systems/granblue/templates/actor/parts/identity-tab.hbs',
-    'systems/granblue/templates/actor/parts/class-heritage-select.hbs',
-    'systems/granblue/templates/actor/parts/header-stats.hbs'
+    'systems/granblue/templates/actor/parts/biography.hbs',
+    'systems/granblue/templates/actor/parts/class-heritage-select.hbs'
 ];
+
+/** Percentual inteiro de 0 a 100 (barras e medidores). */
+function percent(value, max) {
+    if (!(max > 0)) return 0;
+    return Math.max(0, Math.min(100, Math.round((value / max) * 100)));
+}
+
+/** Lê "D1", "c4", "S10"… no rank livre do adversário: { letter, number }. */
+function parseRank(value) {
+    const match = String(value ?? '').trim().match(/^([DCBAS])\s*(\d{1,2})?$/i);
+    return match ? { letter: match[1].toUpperCase(), number: match[2] ?? '' } : { letter: '', number: '' };
+}
 
 /** Monta os grupos de classe (optgroups) marcando a classe atual. */
 function buildClassGroups(current) {
@@ -80,7 +98,9 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             sendLoot: GranblueActorSheetBase.#onSendLoot,
             openEmbedded: GranblueActorSheetBase.#onOpenEmbedded,
             removeEmbedded: GranblueActorSheetBase.#onRemoveEmbedded,
-            postFeature: GranblueActorSheetBase.#onPostFeature
+            postFeature: GranblueActorSheetBase.#onPostFeature,
+            stepSphere: GranblueActorSheetBase.#onStepSphere,
+            focusSphere: GranblueActorSheetBase.#onFocusSphere
         }
     };
 
@@ -147,29 +167,42 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
 
         const classItem = actor.items?.find((i) => i.type === 'class') ?? null;
         const heritageItem = actor.items?.find((i) => i.type === 'heritage') ?? null;
+        const hp = sys.resources.hitPoints;
+        const mana = sys.resources.mana;
 
+        // O personagem guarda a chave do rank ("d1"); o adversário, texto livre ("B5").
+        const rankCfg = GRANBLUE.ranks[sys.rank];
+        const rank = rankCfg
+            ? { letter: rankCfg.letra, number: rankCfg.label.slice(1), label: rankCfg.label }
+            : { ...parseRank(sys.rank), label: String(sys.rank ?? '') };
+
+        const attributes = this.#attributesContext(sys, src);
         Object.assign(context, {
             actor,
             system: sys,
             config: GRANBLUE,
             editable: this.isEditable,
             tab: this._tab,
-            attributes: Object.entries(GRANBLUE.attributes).map(([key, cfg]) => ({
-                key,
-                label: game.i18n.localize(cfg.label),
-                abbr: game.i18n.localize(cfg.abbr),
-                func: game.i18n.localize(cfg.func),
-                value: src.attributes[key].value,
-                bonus: src.attributes[key].bonus,
-                total: sys.attributes[key].total,
-                effect: (sys.attributes[key].bonus ?? 0) - (src.attributes[key].bonus ?? 0)
-            })),
-            actions: sys.actions ?? [],
+            isCharacter: actor.type === 'character',
+            isAdversary: actor.type === 'adversary',
+            attributes,
+            attributesBody: attributes.filter((a) => a.group === 'corpo'),
+            attributesMind: attributes.filter((a) => a.group === 'mente'),
+            constellation: constellationSVG(attributes),
+            budget: GranblueActorSheetBase.#budgetContext(sys),
+            sabedoriaTotal: sys.attributes.sabedoria.total,
+            reacaoTotal: sys.attributes.reacao.total,
+            actions: (sys.actions ?? []).map((row, index) => this.#decorateRow(row, 'actions', index)),
             // Lista de status effects para o seletor "Efeito aplicado" das ações/magias
             statusEffectOptions: GRANBLUE.statusEffectOptions(),
-            hp: sys.resources.hitPoints,
+            hp,
             hpSource: src.resources.hitPoints,
-            mana: sys.resources.mana,
+            mana,
+            hpPct: percent(hp.value, hp.max),
+            manaPct: percent(mana.value, mana.max),
+            hpLow: hp.max > 0 && hp.value <= hp.max * 0.25,
+            hpMaxDiffers: hp.max !== hp.maxFormula,
+            manaMaxDiffers: mana.max !== mana.maxFormula,
             ca: sys.defenses.ca,
             caBonus: src.defenses.caBonus,
             // RD física e mágica: os campos editam o valor guardado; o total já
@@ -185,8 +218,8 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
             restricted: this.isRestricted,
             classLabel: classItem?.name ?? '',
             heritageLabel: heritageItem?.name ?? '',
-            // O personagem guarda a chave do rank ("d1"); o adversário, texto livre
-            rankLabel: GRANBLUE.ranks[sys.rank]?.label ?? (sys.rank ?? ''),
+            rank,
+            rankLabel: rank.label,
             pointBuy: sys.pointBuy,
             // Seletores das linhas de ação/magia (ação no HUD, área, tipo de dano)
             ...GRANBLUE.rowSelectOptions()
@@ -198,45 +231,143 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         Object.assign(context, {
             classBlankSelected: !classOrigin,
             classGroups: buildClassGroups(classOrigin),
+            classGroupLabel: classItem ? game.i18n.localize(GRANBLUE.classGroups[classItem.system.grupo] ?? '') : '',
             heritageBlankSelected: !heritageOrigin,
             heritageOptions: Object.entries(GRANBLUE.heritages).map(([key, cfg]) => ({
                 value: key, label: cfg.label, selected: key === heritageOrigin
             })),
             classAbilities: classItem?.system.abilities ?? [],
-            heritageProgress: heritageItem?.system.progress ?? []
+            heritageProgress: heritageItem?.system.progress ?? [],
+            heritageBonuses: Object.entries(heritageItem?.system.bonuses ?? {})
+                .filter(([, value]) => Number(value))
+                .map(([key, value]) => ({ label: game.i18n.localize(GRANBLUE.attributes[key]?.label ?? key), value }))
         });
 
+        // Biografia: o texto formatado que o editor mostra fechado
+        const { TextEditor } = foundry.applications.ux;
+        const enrich = (html) => TextEditor.implementation.enrichHTML(html ?? '', {
+            relativeTo: actor, rollData: actor.getRollData(), secrets: actor.isOwner
+        });
+        context.enriched = {};
+        for (const key of ['appearance', 'demons', 'motivations', 'worldview', 'backstory']) {
+            context.enriched[key] = await enrich(sys.biography?.[key]);
+        }
+        context.enriched.notes = await enrich(sys.notes);
+        if (actor.type === 'adversary') context.enriched.description = await enrich(sys.description);
+
         // Esferas de magia: cada uma leva junto as suas magias (com o índice real
-        // na lista `system.spells`, que é o que os handlers usam).
+        // na lista `system.spells`, que é o que os handlers usam). A seção de
+        // uma esfera só aparece quando ela está desbloqueada ou já tem magias.
         if (Array.isArray(sys.spells)) {
-            const spells = sys.spells.map((spell, index) => ({
-                ...spell,
-                index,
-                sphereKey: GRANBLUE.normalizeSphere(spell.sphere)
-            }));
+            const spells = sys.spells.map((spell, index) => this.#decorateRow(spell, 'spells', index));
             context.spheres = Object.entries(GRANBLUE.spheres).map(([key, cfg]) => ({
                 key,
                 label: game.i18n.localize(cfg.label),
                 custo: cfg.custo,
                 value: sys.spheres?.[key] ?? 0,
                 unlocked: (sys.spheres?.[key] ?? 0) > 0,
-                spells: spells.filter((s) => s.sphereKey === key)
+                emblem: sphereEmblemSVG(key),
+                spells: spells.filter((s) => s.ui.sphereKey === key)
             }));
+            context.sphereSections = context.spheres.filter((s) => s.unlocked || s.spells.length);
             // Magias com esfera irreconhecível não somem da ficha: caem num grupo à parte.
-            context.orphanSpells = spells.filter((s) => !s.sphereKey);
+            context.orphanSpells = spells.filter((s) => !s.ui.sphereKey);
             context.sphereOptions = Object.entries(GRANBLUE.spheres).map(([key, cfg]) => ({
                 value: key,
                 label: game.i18n.localize(cfg.label)
             }));
-            context.spherePoints = sys.spherePoints;
+            const points = sys.spherePoints;
+            context.spherePoints = points;
+            context.sphereBudget = {
+                pct: percent(points.spent, points.total),
+                over: points.remaining < 0,
+                overBy: -points.remaining
+            };
         }
-
-        // Percentuais das barras de vida/mana (para o preenchimento visual)
-        const hpMax = sys.resources.hitPoints.max || 0;
-        const manaMax = sys.resources.mana.max || 0;
-        context.hpPct = hpMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.hitPoints.value / hpMax) * 100))) : 0;
-        context.manaPct = manaMax > 0 ? Math.max(0, Math.min(100, Math.round((sys.resources.mana.value / manaMax) * 100))) : 0;
         return context;
+    }
+
+    /**
+     * Atributos para os cartões e a constelação: valores guardados nos campos,
+     * total preparado, o bônus que vem de efeitos e o que cada um alimenta
+     * (Reação → CA, Resiliência → vida, Sabedoria → mana).
+     */
+    #attributesContext(sys, src) {
+        const derived = {
+            reacao: { text: `CA ${sys.defenses.ca}`, hint: 'Classe de Armadura = 10 + Reação + bônus' },
+            resiliencia: { text: `+${sys.resources.hitPoints.mod} vida`, hint: 'Energia Vital: Resiliência × 3' },
+            sabedoria: { text: `${sys.resources.mana.maxFormula} mana`, hint: 'Mana máxima: Sabedoria × 2' }
+        };
+        return Object.entries(GRANBLUE.attributes).map(([key, cfg]) => ({
+            key,
+            label: game.i18n.localize(cfg.label),
+            abbr: game.i18n.localize(cfg.abbr),
+            func: game.i18n.localize(cfg.func),
+            icon: cfg.icon,
+            group: GRANBLUE.magicalAttributes.includes(key) ? 'mente' : 'corpo',
+            value: src.attributes[key].value,
+            bonus: src.attributes[key].bonus,
+            total: sys.attributes[key].total,
+            effect: (sys.attributes[key].bonus ?? 0) - (src.attributes[key].bonus ?? 0),
+            derived: derived[key]?.text ?? '',
+            derivedHint: derived[key]?.hint ?? ''
+        }));
+    }
+
+    /** Orçamento de pontos de atributo: gasto no Corpo e na Mente, e o medidor. */
+    static #budgetContext(sys) {
+        const sum = (keys) => keys.reduce((total, key) => total + (sys.attributes[key]?.value ?? 0), 0);
+        const { spent, total, remaining } = sys.pointBuy;
+        return {
+            body: sum(GRANBLUE.physicalAttributes),
+            mind: sum(GRANBLUE.magicalAttributes),
+            pct: percent(spent, total),
+            over: remaining < 0,
+            overBy: -remaining
+        };
+    }
+
+    /**
+     * Linha de ação/magia pronta para a ficha: os dados da linha mais `index`
+     * (a posição real na lista) e `ui` — o emblema do tipo de ação, o resumo
+     * em fichas curtas e, nas magias, o selo procedural e o nível em romanos.
+     */
+    #decorateRow(row, list, index) {
+        const spell = list === 'spells';
+        const type = rowActionType(row);
+        const typeCfg = GRANBLUE.actionTypes[type];
+        const status = describeStatusEffect(row.statusEffect);
+        const chips = [];
+        const add = (icon, label, value, cls = '') => {
+            const text = String(value ?? '').trim();
+            if (text) chips.push({ icon, label, value: text, cls });
+        };
+        if (spell) add('fa-solid fa-feather-pointed', 'Arcano', row.arcano, 'is-arcano');
+        if (row.passive) {
+            const text = String(row.description ?? '').replace(/\s+/g, ' ').trim();
+            add('fa-solid fa-feather', 'Passiva', text.length > 96 ? `${text.slice(0, 95)}…` : text, 'is-text');
+        } else {
+            if (typeCfg) add(typeCfg.icon, 'Ação gasta no HUD', game.i18n.localize(typeCfg.label));
+            if (!spell) add('fa-solid fa-crosshairs', 'Acerto', GRANBLUE.prettyFormula(row.hit));
+            add('fa-solid fa-burst', spell ? 'Dano / cura' : 'Dano', GRANBLUE.prettyFormula(row.damage), 'is-dmg');
+            add(spell ? 'fa-solid fa-droplet' : 'fa-solid fa-flask', 'Custo', row.cost, spell ? 'is-mana' : '');
+            add('fa-solid fa-ruler', 'Alcance', rangeLabel(row));
+            const diff = String(row.difficulty ?? '').trim();
+            add('fa-solid fa-bullseye', 'Dificuldade', /^\d+$/.test(diff) ? `CD ${diff}` : diff);
+            if (status) chips.push({ icon: 'fa-solid fa-wand-sparkles', label: 'Efeito aplicado', value: status.label, cls: 'is-fx' });
+        }
+        const ui = {
+            typeIcon: row.passive ? 'fa-solid fa-feather' : typeCfg?.icon ?? 'fa-solid fa-hand-fist',
+            typeLabel: row.passive ? 'Passiva' : typeCfg ? game.i18n.localize(typeCfg.label) : '',
+            chips,
+            status
+        };
+        if (spell) {
+            ui.sphereKey = GRANBLUE.normalizeSphere(row.sphere);
+            ui.sigil = sigilSVG({ name: row.name, sphere: ui.sphereKey, arcano: row.arcano, level: row.level, detail: 1 });
+            ui.roman = roman(row.level);
+        }
+        return { ...row, index, ui };
     }
 
     /**
@@ -310,23 +441,16 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const root = this.element;
         if (!root) return;
 
-        const applyTab = (tab) => {
-            // Uma aba que sumiu (ex.: antagonista virou monstro) volta à padrão.
-            if (!root.querySelector(`[data-tab-content="${tab}"]`)) tab = this.constructor.DEFAULT_TAB;
-            this._tab = tab;
-            root.querySelectorAll('[data-tab-nav]').forEach((a) =>
-                a.classList.toggle('active', a.dataset.tabNav === tab));
-            root.querySelectorAll('[data-tab-content]').forEach((s) =>
-                s.classList.toggle('active', s.dataset.tabContent === tab));
-        };
-
         root.querySelectorAll('[data-tab-nav]').forEach((a) => {
             a.addEventListener('click', (ev) => {
                 ev.preventDefault();
-                applyTab(a.dataset.tabNav);
+                if (a.dataset.tabNav === this._tab) return;
+                this.#showTab(root, a.dataset.tabNav, { animate: true });
+                root.querySelector('.gb-body')?.scrollTo({ top: 0 });
             });
         });
-        applyTab(this._tab);
+        this.#showTab(root, this._tab);
+        this.#showExpanded(root);
 
         // Seletores de classe / herança (criam o item a partir do preset)
         root.querySelectorAll('[data-gb-chooser]').forEach((sel) => {
@@ -354,8 +478,35 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
                 ev.dataTransfer.effectAllowed = 'copy';
             });
         });
+    }
 
-        // Reaplica o estado de colapso das linhas (fechadas por padrão)
+    /**
+     * A aba ativa e as linhas abertas voltam antes de o Foundry restaurar a
+     * rolagem: com todas as abas escondidas e as linhas fechadas, o conteúdo
+     * novo não teria altura e cada edição jogaria a ficha de volta ao topo.
+     */
+    _syncPartState(partId, newElement, priorElement, state) {
+        this.#showTab(newElement, this._tab);
+        this.#showExpanded(newElement);
+        super._syncPartState(partId, newElement, priorElement, state);
+    }
+
+    /** Mostra uma aba (uma que sumiu — antagonista virou monstro — volta à padrão). */
+    #showTab(root, tab, { animate = false } = {}) {
+        if (!root.querySelector(`[data-tab-content="${tab}"]`)) tab = this.constructor.DEFAULT_TAB;
+        this._tab = tab;
+        root.querySelectorAll('[data-tab-nav]').forEach((a) =>
+            a.classList.toggle('active', a.dataset.tabNav === tab));
+        root.querySelectorAll('[data-tab-content]').forEach((s) => {
+            const active = s.dataset.tabContent === tab;
+            s.classList.toggle('active', active);
+            // A entrada animada só acontece ao trocar de aba, não a cada edição.
+            s.classList.toggle('is-entering', active && animate);
+        });
+    }
+
+    /** Reaplica o estado de colapso das linhas (fechadas por padrão). */
+    #showExpanded(root) {
         root.querySelectorAll('.gb-action').forEach((el) => {
             const key = `${el.dataset.list ?? 'actions'}:${Number(el.dataset.actionIndex)}`;
             const open = this._expanded.has(key);
@@ -547,9 +698,10 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
         const attr = this.document.system.attributes[key];
         const label = game.i18n.localize(GRANBLUE.attributes[key]?.label ?? key);
         const mods = await rollDialog({
-            title: `Teste — ${label}`,
+            title: label,
             parts: [{ key: 'main', label: 'Teste', base: `3d6 + ${attr.total}` }],
-            mana: true
+            mana: true,
+            header: { icon: GRANBLUE.attributes[key]?.icon, kicker: game.i18n.localize('GRANBLUE.Chat.attributeTest') }
         });
         if (!mods) return;
         await this.document.rollAttribute(key, { mana: mods.mana, bonus: mods.main.bonus, dice: mods.main.dice });
@@ -719,6 +871,25 @@ export class GranblueActorSheetBase extends HandlebarsApplicationMixin(ActorShee
     static async #onRemoveEmbedded(event, target) {
         const id = target.dataset.itemId;
         if (id) await this.document.deleteEmbeddedDocuments('Item', [id]);
+    }
+
+    /** Botões −/+ dos pontos de uma esfera na Roda das Esferas (nunca abaixo de 0). */
+    static async #onStepSphere(event, target) {
+        const key = target.dataset.sphere;
+        if (!(key in GRANBLUE.spheres)) return;
+        const current = Number(this.document.system._source.spheres?.[key]) || 0;
+        const next = Math.max(0, current + (Number(target.dataset.delta) || 0));
+        if (next !== current) await this.document.update({ [`system.spheres.${key}`]: next });
+    }
+
+    /** Clique no emblema de uma esfera: rola o grimório até a seção dela. */
+    static #onFocusSphere(event, target) {
+        const section = this.element.querySelector(`.gb-sphere[data-sphere="${target.dataset.sphere}"]`);
+        if (!section) return;
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        section.classList.remove('is-pulse');
+        void section.offsetWidth;
+        section.classList.add('is-pulse');
     }
 
     /**
