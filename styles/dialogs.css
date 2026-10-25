@@ -7,8 +7,8 @@
     padding: 14px 16px 14px;
     color: var(--gb-text);
     background:
-        radial-gradient(420px 220px at 100% 0%, rgba(255, 233, 160, 0.35), transparent 65%),
-        linear-gradient(180deg, #d4ecff 0%, #eef7ff 45%, #ffffff 100%);
+        radial-gradient(420px 220px at 100% 0%, rgba(255, 226, 150, 0.26), transparent 65%),
+        linear-gradient(180deg, #c1dbf3 0%, #d4e3f2 45%, #dde7f2 100%);
 }
 .application.granblue.gb-dialog .dialog-form { gap: 14px; }
 .application.granblue.gb-dialog .dialog-content { gap: 10px; }
@@ -25,7 +25,7 @@
     margin: 0;
     color: var(--gb-blue-2);
     font: 600 13px/1 var(--gb-font);
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1px solid var(--gb-line);
     border-radius: 99px;
     box-shadow: var(--gb-shadow-sm);
@@ -57,7 +57,7 @@
 }
 .gb-rd-sigil {
     --size: 52px;
-    background: radial-gradient(circle, #ffffff 0 44%, transparent 72%);
+    background: radial-gradient(circle, var(--gb-paper) 0 44%, transparent 72%);
     border-radius: 50%;
 }
 .gb-rd-emblem { position: relative; display: grid; flex: 0 0 auto; place-items: center; width: 42px; height: 42px; color: var(--gb-gold-2); font-size: 15px; }
@@ -65,7 +65,7 @@
     content: '';
     position: absolute;
     inset: 6px;
-    background: linear-gradient(135deg, #ffffff, #fff1c9);
+    background: linear-gradient(135deg, var(--gb-paper), #f6e9c4);
     border: 1.5px solid rgba(242, 181, 44, 0.6);
     border-radius: 7px;
     box-shadow: 0 2px 6px rgba(242, 181, 44, 0.3);
@@ -82,7 +82,7 @@
     gap: 10px;
     padding: 11px 12px 12px;
     background: var(--gb-card);
-    border: 1px solid #ffffff;
+    border: 1px solid var(--gb-rim);
     border-radius: 14px;
     box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
@@ -106,7 +106,7 @@
     padding: 0;
     color: var(--gb-muted);
     font-size: 10px;
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1px solid var(--gb-hair-2);
     border-radius: 99px;
     box-shadow: var(--gb-shadow-sm);
@@ -121,7 +121,7 @@
     justify-content: space-between;
     gap: 10px;
     padding: 9px 12px;
-    background: #fff8f8;
+    background: #f5e9eb;
     border: 1px solid rgba(229, 72, 77, 0.25);
     border-radius: 14px;
 }
@@ -148,7 +148,7 @@
     padding: 6px 10px;
     list-style: none;
     background: var(--gb-card);
-    border: 1px solid #ffffff;
+    border: 1px solid var(--gb-rim);
     border-radius: 12px;
     box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
     font-size: 12.5px;
@@ -168,7 +168,7 @@
     padding: 7px 10px;
     color: var(--gb-text-2);
     font-size: 12.5px;
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1px solid var(--gb-hair-2);
     border-radius: 12px;
     cursor: pointer;
@@ -198,12 +198,12 @@
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1px solid var(--gb-hair);
     border-left: 3px solid var(--gb-gold);
     border-radius: 12px;
 }
-.gb-loot-entry--success { background: #f3fbf5; border-left-color: var(--gb-ok); }
+.gb-loot-entry--success { background: #e5f1e8; border-left-color: var(--gb-ok); }
 .gb-loot-entry--failure { border-left-color: var(--gb-bad); opacity: 0.75; }
 .gb-loot-entry-n { color: var(--gb-text-2); font-weight: 600; }
 .gb-loot-entry-n i { margin-right: 4px; color: var(--gb-gold); }
@@ -218,7 +218,7 @@
     height: 28px;
     color: var(--gb-text);
     font-weight: 700;
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1.5px solid var(--gb-line);
     border-radius: 50%;
 }
@@ -261,7 +261,7 @@
     gap: 10px;
     padding: 9px 12px;
     background: var(--gb-card);
-    border: 1px solid #ffffff;
+    border: 1px solid var(--gb-rim);
     border-radius: 12px;
     box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }

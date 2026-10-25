@@ -10,6 +10,7 @@
     "GRANBLUE.SheetLabels.class": "Granblue Class Sheet",
     "GRANBLUE.SheetLabels.heritage": "Granblue Heritage Sheet",
     "GRANBLUE.SheetLabels.spell": "Granblue Spell Sheet",
+    "GRANBLUE.SheetLabels.journal": "Granblue Journal",
 
     "GRANBLUE.Heritage.effectName": "Heritage Bonus",
     "GRANBLUE.Class.effectName": "Class Hit Points",

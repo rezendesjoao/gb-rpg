@@ -18,13 +18,20 @@ com a estrutura do sistema Daggerheart usada apenas como referência.
 
 ## Visual — Códice Celeste
 
-Tudo (fichas, chat, HUD, diálogos e pop-ups) segue o mesmo visual, o céu de Granblue Fantasy:
-azul celeste clareando até o branco das nuvens, cartões brancos, vida em verde e o dourado do
-sol nos botões principais; títulos em Amiri e textos em Signika (fontes que o Foundry já traz) e
+Tudo (fichas, chat, HUD, diálogos, pop-ups e journals) segue o mesmo visual, o céu de Granblue
+Fantasy: azul celeste descendo até um branco-gelo, cartões num tom logo abaixo do branco (para não
+ofuscar), vida em verde e o dourado do sol nos botões principais; títulos em Amiri e textos em
+Signika (fontes que o Foundry já traz) e
 **uma cor por esfera** — Energia azul, Destruição brasa, Criação jade, Matéria âmbar, Persona
 rosa, Cosmo violeta e Proibida grafite com carmim. Na ficha do adversário o azul vira brasa. As
 janelas do sistema usam o tema claro do Foundry, então o editor de texto e os menus nativos
 acompanham mesmo com a interface do Foundry no tema escuro.
+
+- **Journals e handouts** (`module/journal.mjs`, `styles/journal.css`): os journals do mundo abrem
+  numa sheet do Granblue (padrão; dá para voltar à do Foundry em *Configurar sheet*), com o índice
+  numa coluna de nuvem, cada página num cartão, títulos em Amiri, citações em caixas de céu,
+  tabelas com a primeira linha de cabeçalho e divisórias suaves. A janela de edição de página e o
+  visualizador de imagem (os handouts mostrados aos jogadores) usam a mesma moldura.
 
 - **Selos de magia procedurais** (`module/sigil.mjs`): cada magia ganha um círculo mágico
   desenhado a partir do nome, da esfera, do arcano e do nível — o mesmo feitiço gera sempre o

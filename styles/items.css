@@ -8,8 +8,8 @@
     overflow: hidden;
     color: var(--gb-text);
     background:
-        radial-gradient(420px 220px at 100% 0%, rgba(255, 233, 160, 0.42), transparent 70%),
-        linear-gradient(180deg, #c6e5ff 0%, #e2f1ff 38%, #f6fbff 72%, #ffffff 100%);
+        radial-gradient(420px 220px at 100% 0%, rgba(255, 226, 150, 0.3), transparent 70%),
+        linear-gradient(180deg, #afd2f1 0%, #c8ddf2 38%, #d6e3f1 72%, #dce6f2 100%);
 }
 
 .gb-item-sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; font-family: var(--gb-font); }
@@ -24,15 +24,15 @@
     padding: 18px 22px 16px;
     background:
         radial-gradient(360px 160px at 12% 50%, color-mix(in srgb, var(--sp) 16%, transparent), transparent 70%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2));
-    border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    border-bottom: 1px solid var(--gb-rim);
     box-shadow: 0 1px 0 var(--gb-hair);
 }
 /* O selo grande pousa num halo branco, como um círculo mágico nas nuvens */
 .gb-item-sigil {
     --size: 118px;
     margin: -6px 0;
-    background: radial-gradient(circle, #ffffff 0 42%, color-mix(in srgb, var(--sp) 10%, #ffffff) 58%, transparent 71%);
+    background: radial-gradient(circle, var(--gb-paper) 0 42%, color-mix(in srgb, var(--sp) 10%, var(--gb-paper)) 58%, transparent 71%);
     border-radius: 50%;
 }
 .gb-item-titles { display: flex; flex: 1 1 auto; flex-direction: column; gap: 6px; min-width: 0; }
@@ -70,7 +70,7 @@
     height: 88px;
     overflow: hidden;
     background: radial-gradient(circle at 50% 30%, #ffd36b, #eaa21c 60%, #b97d06);
-    border: 3px solid #ffffff;
+    border: 3px solid var(--gb-paper);
     border-radius: 18px;
     box-shadow: 0 0 0 1px rgba(31, 104, 186, 0.22), 0 10px 22px rgba(20, 70, 140, 0.22);
 }
@@ -88,12 +88,12 @@
     gap: 10px;
     padding: 12px 14px 14px;
     background: var(--gb-card);
-    border: 1px solid #ffffff;
+    border: 1px solid var(--gb-rim);
     border-radius: 14px;
     box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
 .gb-item-panel--passive { border-left: 3px solid var(--gb-gold); }
-.gb-item-panel--weak { background: #fffafa; box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px rgba(223, 63, 77, 0.22); }
+.gb-item-panel--weak { background: #f5e9eb; box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px rgba(223, 63, 77, 0.22); }
 .granblue .gb-item-panel-title {
     margin: 0;
     padding: 0;
@@ -118,7 +118,7 @@
     margin: 0;
     padding: 12px 8px 10px;
     background: var(--gb-card);
-    border: 1px solid #ffffff;
+    border: 1px solid var(--gb-rim);
     border-radius: 14px;
     box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
@@ -142,7 +142,7 @@
     gap: 8px;
     padding: 10px 12px 12px;
     background: var(--gb-card);
-    border: 1px solid #ffffff;
+    border: 1px solid var(--gb-rim);
     border-radius: 14px;
     box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
@@ -163,7 +163,7 @@
     color: var(--gb-text-2);
     font-size: 12.5px;
     background: var(--gb-card);
-    border: 1px solid #ffffff;
+    border: 1px solid var(--gb-rim);
     border-radius: 12px;
     box-shadow: var(--gb-shadow-sm), inset 0 0 0 1px var(--gb-hair);
 }
@@ -178,9 +178,9 @@
 
 .granblue prose-mirror {
     --menu-background: rgba(47, 142, 230, 0.06);
-    --dropdown-background: #ffffff;
+    --dropdown-background: var(--gb-paper);
     --dropdown-border: var(--gb-hair-2);
-    --dialog-background: #ffffff;
+    --dialog-background: var(--gb-paper);
     --dialog-border: var(--gb-hair-2);
     --color-control-hover: rgba(47, 142, 230, 0.12);
     --color-form-label-hover: var(--gb-blue-2);
@@ -191,7 +191,7 @@
     color: var(--gb-text);
     font-size: 13px;
     line-height: 1.6;
-    background: #ffffff;
+    background: var(--gb-well);
     border: 1px solid var(--gb-hair-2);
     border-radius: 10px;
     box-shadow: inset 0 1px 2px rgba(28, 90, 170, 0.06);
@@ -219,7 +219,7 @@
     color: var(--gb-muted);
     font-size: 11px;
     line-height: 26px;
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1px solid var(--gb-hair-2);
     border-radius: 8px;
     box-shadow: var(--gb-shadow-sm);

@@ -8,8 +8,8 @@
 /* A mensagem que leva um cartão do sistema vira a moldura dele */
 .chat-message:has(> .message-content > .gb-card) {
     color: #1d2f4f;
-    background: linear-gradient(180deg, #e2f1ff 0%, #f5faff 50%, #ffffff 100%);
-    border: 1px solid #ffffff;
+    background: linear-gradient(180deg, #d2e4f5 0%, #e1ebf6 50%, #e8eff7 100%);
+    border: 1px solid var(--gb-rim);
     border-radius: 14px;
     box-shadow: 0 0 0 1px rgba(31, 104, 186, 0.22), 0 6px 18px rgba(20, 70, 140, 0.18);
 }
@@ -31,7 +31,7 @@
     overflow: hidden;
     color: var(--gb-text);
     font: 400 13px/1.45 var(--gb-font);
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1px solid var(--gb-hair-2);
     border-radius: 12px;
     box-shadow: var(--gb-shadow-sm);
@@ -58,7 +58,7 @@
     padding: 11px 12px 10px;
     background:
         radial-gradient(240px 90px at 0% 50%, color-mix(in srgb, var(--c) 20%, transparent), transparent 70%),
-        linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, #ffffff), #ffffff);
+        linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, var(--gb-paper)), var(--gb-paper));
     border-bottom: 1px solid color-mix(in srgb, var(--c) 26%, transparent);
 }
 .gb-card-sigil {
@@ -67,7 +67,7 @@
     --w2: 0.9px;
     --w3: 0.65px;
     margin: -4px 0;
-    background: radial-gradient(circle, #ffffff 0 44%, transparent 72%);
+    background: radial-gradient(circle, var(--gb-paper) 0 44%, transparent 72%);
     border-radius: 50%;
 }
 .gb-card-emblem {
@@ -84,7 +84,7 @@
     content: '';
     position: absolute;
     inset: 5px;
-    background: linear-gradient(135deg, #ffffff, color-mix(in srgb, var(--c) 18%, #ffffff));
+    background: linear-gradient(135deg, var(--gb-paper), color-mix(in srgb, var(--c) 18%, var(--gb-paper)));
     border: 1.5px solid color-mix(in srgb, var(--c) 55%, transparent);
     border-radius: 7px;
     box-shadow: 0 2px 6px color-mix(in srgb, var(--c) 25%, transparent);
@@ -120,7 +120,7 @@
     color: var(--gb-text-2);
     font-size: 11.5px;
     white-space: nowrap;
-    background: #ffffff;
+    background: var(--gb-paper);
     border: 1px solid var(--gb-hair-2);
     border-radius: 99px;
 }
@@ -336,14 +336,14 @@
    ========================================================= */
 .chat-message:has(> .message-content > .gb-chat-card) {
     color: #1d2f4f;
-    background: linear-gradient(180deg, #e2f1ff 0%, #f5faff 50%, #ffffff 100%);
-    border: 1px solid #ffffff;
+    background: linear-gradient(180deg, #d2e4f5 0%, #e1ebf6 50%, #e8eff7 100%);
+    border: 1px solid var(--gb-rim);
     border-radius: 14px;
     box-shadow: 0 0 0 1px rgba(31, 104, 186, 0.22), 0 6px 18px rgba(20, 70, 140, 0.18);
 }
 .chat-message:has(> .message-content > .gb-chat-card) .message-sender { color: #1d5fa8; }
 .chat-message:has(> .message-content > .gb-chat-card) :is(.message-header, .message-timestamp, .message-delete) { color: #7a8cab; }
-.gb-chat-card { overflow: hidden; color: var(--gb-text); background: #ffffff; border: 1px solid var(--gb-hair-2); border-radius: 12px; }
+.gb-chat-card { overflow: hidden; color: var(--gb-text); background: var(--gb-paper); border: 1px solid var(--gb-hair-2); border-radius: 12px; }
 .gb-chat-header { padding: 8px 10px; background: var(--gb-gold-soft); border-bottom: 1px solid rgba(242, 181, 44, 0.45); }
 .granblue .gb-chat-header h3 { margin: 0; color: var(--gb-text); font: 700 17px/1.15 var(--gb-font-display); border: 0; }
 .gb-chat-header-sub { color: var(--gb-gold-2); font-size: 11px; }
@@ -351,7 +351,7 @@
 .gb-chat-card .gb-roll { margin: 6px 8px; }
 .gb-chat-card .gb-roll-total { width: auto; height: auto; padding: 0 6px; color: var(--gb-text); font: 700 22px/1 var(--gb-font-display); }
 .gb-chat-card .gb-roll-total::before { display: none; }
-.gb-die-face { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 4px; font-weight: 700; background: #ffffff; border: 1px solid var(--gb-hair-2); border-radius: 6px; }
+.gb-die-face { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 4px; font-weight: 700; background: var(--gb-paper); border: 1px solid var(--gb-hair-2); border-radius: 6px; }
 .gb-chat-meta { margin: 0; padding: 6px 10px; list-style: none; color: var(--gb-text-2); font-size: 12px; }
 :is(.gb-chat-desc, .gb-chat-effect, .gb-chat-text, .gb-chat-status, .gb-chat-check, .gb-chat-targets) { padding: 5px 10px; font-size: 12px; }
 .gb-chat-apply { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }

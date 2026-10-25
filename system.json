@@ -25,7 +25,8 @@
         "styles/items.css",
         "styles/chat.css",
         "styles/hud.css",
-        "styles/dialogs.css"
+        "styles/dialogs.css",
+        "styles/journal.css"
     ],
     "languages": [
         {

@@ -23,6 +23,7 @@ import { GranblueHUD, registerHudSettings, initHud } from './hud.mjs';
 import { onUpdateCombat, resetCombatants } from './economy.mjs';
 import { registerMigrationSettings, migrateIfNeeded, migrateWorld } from './migration.mjs';
 import { sigilSVG, sphereEmblemSVG, dieFaceHTML } from './sigil.mjs';
+import { GranblueJournalSheet, dressJournalWindow } from './journal.mjs';
 
 /* -------------------------------------------- */
 /*  Init                                        */
@@ -86,6 +87,13 @@ Hooks.once('init', () => {
         types: ['spell'],
         makeDefault: true,
         label: 'GRANBLUE.SheetLabels.spell'
+    });
+
+    // Journals e handouts com o visual do sistema (ver journal.mjs)
+    const { Journal } = foundry.documents.collections;
+    Journal.registerSheet('granblue', GranblueJournalSheet, {
+        makeDefault: true,
+        label: 'GRANBLUE.SheetLabels.journal'
     });
 
     // Pré-carrega os templates de chat (o de rolagem usa o partial parts/roll)
@@ -183,6 +191,13 @@ async function createActionMacro(data, slot) {
 /* -------------------------------------------- */
 
 Hooks.on('renderChatMessageHTML', onRenderChatMessage);
+
+/* -------------------------------------------- */
+/*  Journals: páginas e imagens em janela própria */
+/* -------------------------------------------- */
+
+Hooks.on('preRenderJournalEntryPageSheet', dressJournalWindow);
+Hooks.on('preRenderImagePopout', dressJournalWindow);
 
 /* -------------------------------------------- */
 /*  Combate: libera as ações a cada turno        */
